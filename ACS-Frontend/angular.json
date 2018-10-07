@@ -107,6 +107,14 @@
             "main": "src/main.server.ts",
             "tsConfig": "src/tsconfig.server.json"
           }
+        },
+        "app-shell": {
+          "builder": "@angular-devkit/build-angular:app-shell",
+          "options": {
+            "browserTarget": "ACS-Frontend:build",
+            "serverTarget": "ACS-Frontend:server",
+            "route": "shell"
+          }
         }
       }
     },
