@@ -114,6 +114,11 @@
             "browserTarget": "ACS-Frontend:build",
             "serverTarget": "ACS-Frontend:server",
             "route": "shell"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "ACS-Frontend:build:production"
+            }
           }
         }
       }
