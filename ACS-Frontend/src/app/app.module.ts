@@ -9,12 +9,20 @@ import { RouterModule } from '@angular/router';
 import { MainComponent } from './main/main.component';
 import { NotFoundComponent } from './error/not-found/not-found.component';
 import { SaveDataService } from './service/save-data.service';
+import { EnemyDataComponent } from './form/enemy-data/enemy-data.component';
+import { LBASDataComponent } from './form/lbasdata/lbasdata.component';
+import { OwnDataComponent } from './form/own-data/own-data.component';
+import { SimulationResultComponent } from './form/simulation-result/simulation-result.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     MainComponent,
-    NotFoundComponent
+    NotFoundComponent,
+    EnemyDataComponent,
+    LBASDataComponent,
+    OwnDataComponent,
+    SimulationResultComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),

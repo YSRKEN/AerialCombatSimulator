@@ -21,3 +21,7 @@
     </ul>
   </div>
 </nav>
+<app-lbasdata [ngClass]="{'d-none': Mode !== 0}"></app-lbasdata>
+<app-enemy-data [ngClass]="{'d-none': Mode !== 1}"></app-enemy-data>
+<app-own-data [ngClass]="{'d-none': Mode !== 2}"></app-own-data>
+<app-simulation-result [ngClass]="{'d-none': Mode !== 3}"></app-simulation-result>
