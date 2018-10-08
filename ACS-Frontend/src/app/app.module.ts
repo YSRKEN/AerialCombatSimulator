@@ -8,6 +8,7 @@ import { environment } from '../environments/environment';
 import { RouterModule } from '@angular/router';
 import { MainComponent } from './main/main.component';
 import { NotFoundComponent } from './error/not-found/not-found.component';
+import { SaveDataService } from './service/save-data.service';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,7 @@ import { NotFoundComponent } from './error/not-found/not-found.component';
     ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
     RouterModule
   ],
-  providers: [],
+  providers: [SaveDataService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
