@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { SaveDataService } from '../../service/save-data.service';
 
 @Component({
   selector: 'app-enemy-data',
@@ -16,9 +17,9 @@ export class EnemyDataComponent implements OnInit {
   ];
 
   /**
-   * マップの難易度選択
+   * マップの選択
    */
-  SelectedMap: string = "3-5";
+  SelectedMap: string;
 
   /**
    * マップの難易度一覧
@@ -36,20 +37,67 @@ export class EnemyDataComponent implements OnInit {
   SelectedLevel: string = "甲";
 
   /**
+   * マップのマス一覧
+   */
+  PointList: { "value": string, "name": string }[] = [
+    {"value":"B-1", "name":"B-1"},
+    {"value":"D-2", "name":"D-2"},
+    {"value":"H-6 (Last)", "name":"H-6 (Last)"},
+    {"value":"K-3", "name":"K-3"},
+  ];
+
+  /**
+   * マップの難易度選択
+   */
+  SelectedPoint: string = "H-6 (Last)";
+
+  /**
    * マップ画像
    */
   MapUrl: string = "https://vignette.wikia.nocookie.net/kancolle/images/b/b7/3-5_Map.png/revision/latest/scale-to-width-down/700?cb=20180818165502";
 
-  constructor() { }
+  constructor(private saveData: SaveDataService) { }
 
   ngOnInit() {
+    /**
+     * 設定を読み込む
+     */
+    this.SelectedMap = this.saveData.loadString('selected_map', '1-1');
+    this.SelectedLevel = this.saveData.loadString('selected_level', '甲');
+    this.SelectedPoint = this.saveData.loadString('selected_point', 'A-1');
   }
 
+  /**
+   * 難易度選択のセレクトボックスを、イベント海域じゃないと表示させない仕掛け
+   */
   get DisableLevelSelect(){
     return (this.SelectedMap.length > 0 && this.SelectedMap.substr(0, 1) != "E");
   }
 
-  hoge(){
-    console.log("test");
+  /**
+   * マップの選択を切り替えた際の処理
+   * @param event 
+   */
+  changeSelectedMap(event: any){
+    this.SelectedMap = event;
+    this.saveData.saveString('selected_map', this.SelectedMap);
+  }
+
+  /**
+   * 難易度の選択を切り替えた際の処理
+   * @param event 
+   */
+  changeSelectedLevel(event: any){
+    this.SelectedLevel = event;
+    this.saveData.saveString('selected_level', this.SelectedLevel);
+  }
+
+  /**
+   * マスの選択を切り替えた際の処理
+   * @param event 
+   */
+  changeSelectedPoint(event: any){
+    this.SelectedPoint = event;
+    this.saveData.saveString('selected_point', this.SelectedPoint);
   }
 }
