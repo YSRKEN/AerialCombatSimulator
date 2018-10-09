@@ -19,7 +19,7 @@ export class MainComponent implements OnInit {
     /**
      * 設定を読み込む
      */
-    this.Mode = this.saveData.loadInt('page_mode', 0);
+    this.Mode = this.saveData.loadInt('main.mode', 0);
   }
 
   /**
@@ -27,7 +27,7 @@ export class MainComponent implements OnInit {
    */
   selectLBASMode(){
     this.Mode = 0;
-    this.saveData.saveNumber('page_mode', this.Mode);
+    this.saveData.saveNumber('main.mode', this.Mode);
   }
 
   /**
@@ -35,7 +35,7 @@ export class MainComponent implements OnInit {
    */
   selectEnemyMode(){
     this.Mode = 1;
-    this.saveData.saveNumber('page_mode', this.Mode);
+    this.saveData.saveNumber('main.mode', this.Mode);
   }
 
   /**
@@ -43,7 +43,7 @@ export class MainComponent implements OnInit {
    */
   selectOwnMode(){
     this.Mode = 2;
-    this.saveData.saveNumber('page_mode', this.Mode);
+    this.saveData.saveNumber('main.mode', this.Mode);
   }
 
   /**
@@ -51,6 +51,6 @@ export class MainComponent implements OnInit {
    */
   selectSimulationMode(){
     this.Mode = 3;
-    this.saveData.saveNumber('page_mode', this.Mode);
+    this.saveData.saveNumber('main.mode', this.Mode);
   }
 }

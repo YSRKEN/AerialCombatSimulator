@@ -62,9 +62,9 @@ export class EnemyDataComponent implements OnInit {
     /**
      * 設定を読み込む
      */
-    this.SelectedMap = this.saveData.loadString('selected_map', '1-1');
-    this.SelectedLevel = this.saveData.loadString('selected_level', '甲');
-    this.SelectedPoint = this.saveData.loadString('selected_point', 'A-1');
+    this.SelectedMap = this.saveData.loadString('enemy-data.selected_map', '1-1');
+    this.SelectedLevel = this.saveData.loadString('enemy-data.selected_level', '甲');
+    this.SelectedPoint = this.saveData.loadString('enemy-data.selected_point', 'A-1');
   }
 
   /**
@@ -80,7 +80,7 @@ export class EnemyDataComponent implements OnInit {
    */
   changeSelectedMap(event: any){
     this.SelectedMap = event;
-    this.saveData.saveString('selected_map', this.SelectedMap);
+    this.saveData.saveString('enemy-data.selected_map', this.SelectedMap);
   }
 
   /**
@@ -89,7 +89,7 @@ export class EnemyDataComponent implements OnInit {
    */
   changeSelectedLevel(event: any){
     this.SelectedLevel = event;
-    this.saveData.saveString('selected_level', this.SelectedLevel);
+    this.saveData.saveString('enemy-data.selected_level', this.SelectedLevel);
   }
 
   /**
@@ -98,6 +98,6 @@ export class EnemyDataComponent implements OnInit {
    */
   changeSelectedPoint(event: any){
     this.SelectedPoint = event;
-    this.saveData.saveString('selected_point', this.SelectedPoint);
+    this.saveData.saveString('enemy-data.selected_point', this.SelectedPoint);
   }
 }
