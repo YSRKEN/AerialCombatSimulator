@@ -14,6 +14,7 @@ import { LBASDataComponent } from './form/lbasdata/lbasdata.component';
 import { OwnDataComponent } from './form/own-data/own-data.component';
 import { SimulationResultComponent } from './form/simulation-result/simulation-result.component';
 import { FormsModule } from "@angular/forms";
+import { LBASUnitComponent } from './form/lbasunit/lbasunit.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { FormsModule } from "@angular/forms";
     EnemyDataComponent,
     LBASDataComponent,
     OwnDataComponent,
-    SimulationResultComponent
+    SimulationResultComponent,
+    LBASUnitComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
