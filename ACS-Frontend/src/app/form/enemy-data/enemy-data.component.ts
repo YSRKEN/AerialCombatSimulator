@@ -56,9 +56,19 @@ export class EnemyDataComponent implements OnInit {
    */
   MapUrl: string = "https://vignette.wikia.nocookie.net/kancolle/images/b/b7/3-5_Map.png/revision/latest/scale-to-width-down/700?cb=20180818165502";
 
+  FleetInfo: string;
+
   constructor(private saveData: SaveDataService) { }
 
   ngOnInit() {
+    // ダミー値
+    this.FleetInfo =  "(1)北方棲姫 Lv1　[0]5inch単装高射砲,[64]深海猫艦戦,[68]深海地獄艦爆,[40]深海復讐艦攻\n";
+    this.FleetInfo += "(2)護衛要塞 Lv1　[0]8inch三連装砲,[35]深海棲艦戦 Mark.II,[35]深海棲艦爆 Mark.II\n";
+    this.FleetInfo += "(3)護衛要塞 Lv1　[0]8inch三連装砲,[35]深海棲艦戦 Mark.II,[35]深海棲艦攻 Mark.II\n";
+    this.FleetInfo += "(4)護衛要塞 Lv1　[0]8inch三連装砲,[35]深海棲艦戦 Mark.II,[35]深海棲艦攻 Mark.II\n";
+    this.FleetInfo += "(5)護衛要塞 Lv1　[0]8inch三連装砲,[35]深海棲艦戦 Mark.II,[35]深海棲艦攻 Mark.II\n";
+    this.FleetInfo += "(6)護衛要塞 Lv1　[0]8inch三連装砲,[35]深海棲艦戦 Mark.II,[35]深海棲艦攻 Mark.II\n";
+
     /**
      * 設定を読み込む
      */
