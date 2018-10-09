@@ -13,6 +13,7 @@ import { EnemyDataComponent } from './form/enemy-data/enemy-data.component';
 import { LBASDataComponent } from './form/lbasdata/lbasdata.component';
 import { OwnDataComponent } from './form/own-data/own-data.component';
 import { SimulationResultComponent } from './form/simulation-result/simulation-result.component';
+import { FormsModule } from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { SimulationResultComponent } from './form/simulation-result/simulation-r
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
     AppRoutingModule,
     ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
-    RouterModule
+    RouterModule,
+    FormsModule
   ],
   providers: [SaveDataService],
   bootstrap: [AppComponent]

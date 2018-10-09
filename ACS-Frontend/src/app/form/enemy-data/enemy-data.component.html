@@ -1,17 +1,14 @@
 <form class="m-3">
   <div class="form-group">
     <label for="mapSelect">マップ</label>
-    <select class="form-control" id="mapSelect">
-      <option>3-5</option>
+    <select class="form-control" id="mapSelect" name="mapSelect">
+      <option *ngFor="let mapName of MapList" [value]="mapName">{{mapName}}</option>
     </select>
   </div>
-  <div class="form-group">
+  <div class="form-group" [ngClass]="{'d-none': DisableLevelSelect}">
     <label for="levelSelect">難易度</label>
-    <select class="form-control" id="levelSelect">
-      <option>甲</option>
-      <option>乙</option>
-      <option>丙</option>
-      <option>丁</option>
+    <select [(ngModel)]="SelectedMap" class="form-control" id="levelSelect" name="levelSelect">
+      <option *ngFor="let levelName of LevelList" [value]="levelName">{{levelName}}</option>
     </select>
   </div>
   <div class="form-group">
