@@ -6,21 +6,34 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./enemy-data.component.scss']
 })
 export class EnemyDataComponent implements OnInit {
-
-  /**
-   * 現在選択しているマップ
-   */
-  SelectedMap: string = '3-5';
-
   /**
    * マップ一覧
    */
-  MapList: string[] = ["1-1","3-5","E-3"];
+  MapList: { "value": string, "name": string }[] = [
+    {"value":"1-1", "name":"1-1"},
+    {"value":"3-5", "name":"3-5"},
+    {"value":"E-4", "name":"E-4"},
+  ];
+
+  /**
+   * マップの難易度選択
+   */
+  SelectedMap: string = "3-5";
 
   /**
    * マップの難易度一覧
    */
-  LevelList: string[] = ["甲", "乙", "丙", "丁"];
+  LevelList: { "value": string, "name": string }[] = [
+    {"value":"甲", "name":"甲"},
+    {"value":"乙", "name":"乙"},
+    {"value":"丙", "name":"丙"},
+    {"value":"丁", "name":"丁"},
+  ];
+
+  /**
+   * マップの難易度選択
+   */
+  SelectedLevel: string = "甲";
 
   /**
    * マップ画像
@@ -33,7 +46,7 @@ export class EnemyDataComponent implements OnInit {
   }
 
   get DisableLevelSelect(){
-    return (this.SelectedMap.length > 0 && this.SelectedMap.substr(0, 1) == "E");
+    return (this.SelectedMap.length > 0 && this.SelectedMap.substr(0, 1) != "E");
   }
 
   hoge(){
