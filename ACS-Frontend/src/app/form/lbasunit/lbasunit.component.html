@@ -1,3 +1,27 @@
-<p>
-  lbasunit works!
-</p>
+<form class="m-3 border p-3">
+    <label for="mapSelect">{{IndexString}}</label>
+  <div class="form-group">
+    <select class="form-control" id="weaponSelect1" name="weaponSelect1"
+      [ngModel]="SelectedWeapon[0]" (ngModelChange)="changeSelectedWeapon($event, 0)">
+      <option *ngFor="let weapon of WeaponList" [value]="weapon.value">{{weapon.name}}</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <select class="form-control" id="weaponSelect2" name="weaponSelect2"
+      [ngModel]="SelectedWeapon[1]" (ngModelChange)="changeSelectedWeapon($event, 1)">
+      <option *ngFor="let weapon of WeaponList" [value]="weapon.value">{{weapon.name}}</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <select class="form-control" id="weaponSelect3" name="weaponSelect3"
+      [ngModel]="SelectedWeapon[2]" (ngModelChange)="changeSelectedWeapon($event, 2)">
+      <option *ngFor="let weapon of WeaponList" [value]="weapon.value">{{weapon.name}}</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <select class="form-control" id="weaponSelect4" name="weaponSelect4"
+      [ngModel]="SelectedWeapon[3]" (ngModelChange)="changeSelectedWeapon($event, 3)">
+      <option *ngFor="let weapon of WeaponList" [value]="weapon.value">{{weapon.name}}</option>
+    </select>
+  </div>
+</form>
