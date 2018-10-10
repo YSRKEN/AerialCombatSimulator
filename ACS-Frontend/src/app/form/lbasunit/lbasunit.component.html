@@ -17,6 +17,11 @@
       [ngModel]="WeaponMas[0]" (ngModelChange)="changeWeaponMas($event, 0)">
       <option *ngFor="let mas of MasList" [value]="mas.value">{{mas.name}}</option>
     </select>
+    <select class="form-control" name="weaponRf1" style="width: calc(5rem + 2px);"
+      [ngClass]="{'d-none': LBASCount == 'なし'}"
+      [ngModel]="WeaponRf[0]" (ngModelChange)="changeWeaponRf($event, 0)">
+      <option *ngFor="let rf of RfList" [value]="rf.value">{{rf.name}}</option>
+    </select>
   </div>
   <div class="form-group d-flex mb-0">
     <select class="form-control" name="weaponSelect2"
@@ -28,6 +33,11 @@
       [ngClass]="{'d-none': LBASCount == 'なし'}"
       [ngModel]="WeaponMas[1]" (ngModelChange)="changeWeaponMas($event, 1)">
       <option *ngFor="let mas of MasList" [value]="mas.value">{{mas.name}}</option>
+    </select>
+    <select class="form-control" name="weaponRf2" style="width: calc(5rem + 2px);"
+      [ngClass]="{'d-none': LBASCount == 'なし'}"
+      [ngModel]="WeaponRf[1]" (ngModelChange)="changeWeaponRf($event, 1)">
+      <option *ngFor="let rf of RfList" [value]="rf.value">{{rf.name}}</option>
     </select>
   </div>
   <div class="form-group d-flex mb-0">
@@ -41,6 +51,11 @@
       [ngModel]="WeaponMas[2]" (ngModelChange)="changeWeaponMas($event, 2)">
       <option *ngFor="let mas of MasList" [value]="mas.value">{{mas.name}}</option>
     </select>
+    <select class="form-control" name="weaponRf3" style="width: calc(5rem + 2px);"
+      [ngClass]="{'d-none': LBASCount == 'なし'}"
+      [ngModel]="WeaponRf[2]" (ngModelChange)="changeWeaponRf($event, 2)">
+      <option *ngFor="let rf of RfList" [value]="rf.value">{{rf.name}}</option>
+    </select>
   </div>
   <div class="form-group d-flex mb-0">
     <select class="form-control" name="weaponSelect4"
@@ -52,6 +67,11 @@
       [ngClass]="{'d-none': LBASCount == 'なし'}"
       [ngModel]="WeaponMas[3]" (ngModelChange)="changeWeaponMas($event, 3)">
       <option *ngFor="let mas of MasList" [value]="mas.value">{{mas.name}}</option>
+    </select>
+    <select class="form-control" name="weaponRf4" style="width: calc(5rem + 2px);"
+      [ngClass]="{'d-none': LBASCount == 'なし'}"
+      [ngModel]="WeaponRf[3]" (ngModelChange)="changeWeaponRf($event, 3)">
+      <option *ngFor="let rf of RfList" [value]="rf.value">{{rf.name}}</option>
     </select>
   </div>
 </form>

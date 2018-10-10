@@ -58,6 +58,28 @@ export class LBASUnitComponent implements OnInit {
   WeaponMas: string[] = ['','','',''];
 
   /**
+   * 装備改修度一覧
+   */
+  RfList: { "value": string, "name": string }[] = [
+    {"value":"0", "name":""},
+    {"value":"1", "name":"☆1"},
+    {"value":"2", "name":"☆2"},
+    {"value":"3", "name":"☆3"},
+    {"value":"4", "name":"☆4"},
+    {"value":"5", "name":"☆5"},
+    {"value":"6", "name":"☆6"},
+    {"value":"7", "name":"☆7"},
+    {"value":"8", "name":"☆8"},
+    {"value":"9", "name":"☆9"},
+    {"value":"10", "name":"☆max"},
+  ];
+
+  /**
+   * 選択している装備改修度
+   */
+  WeaponRf: string[] = ['','','',''];
+
+  /**
    * 基地航空隊の番号
    */
   @Input() index: string = '1';
@@ -80,6 +102,9 @@ export class LBASUnitComponent implements OnInit {
     }
     for(let i = 0; i < weaponCount; ++i){
       this.WeaponMas[i] = this.saveData.loadString('lbasunit.weapon_mas_' + this.index + '' + (i + 1), '0');
+    }
+    for(let i = 0; i < weaponCount; ++i){
+      this.WeaponRf[i] = this.saveData.loadString('lbasunit.weapon_rf_' + this.index + '' + (i + 1), '0');
     }
   }
 
@@ -108,5 +133,14 @@ export class LBASUnitComponent implements OnInit {
   changeWeaponMas(event: any, index: number){
     this.WeaponMas[index] = event;
     this.saveData.saveString('lbasunit.weapon_mas_' + this.index + '' + (index + 1), this.WeaponMas[index]);
+  }
+
+  /**
+   * 装備改修度の選択を切り替えた際の処理
+   * @param event 
+   */
+  changeWeaponRf(event: any, index: number){
+    this.WeaponRf[index] = event;
+    this.saveData.saveString('lbasunit.weapon_rf_' + this.index + '' + (index + 1), this.WeaponRf[index]);
   }
 }
