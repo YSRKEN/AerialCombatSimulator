@@ -38,6 +38,26 @@ export class LBASUnitComponent implements OnInit {
   SelectedWeapon: string[] = ['','','',''];
 
   /**
+   * 艦載機熟練度一覧
+   */
+  MasList: { "value": string, "name": string }[] = [
+    {"value":"0", "name":""},
+    {"value":"1", "name":"|"},
+    {"value":"2", "name":"||"},
+    {"value":"3", "name":"|||"},
+    {"value":"4", "name":"/"},
+    {"value":"5", "name":"//"},
+    {"value":"6", "name":"///"},
+    {"value":"7", "name":">>"},
+    {"value":"8", "name":">>>"},
+  ];
+
+  /**
+   * 選択している艦載機熟練度
+   */
+  WeaponMas: string[] = ['','','',''];
+
+  /**
    * 基地航空隊の番号
    */
   @Input() index: string = '1';
@@ -58,6 +78,9 @@ export class LBASUnitComponent implements OnInit {
     for(let i = 0; i < weaponCount; ++i){
       this.SelectedWeapon[i] = this.saveData.loadString('lbasunit.selected_weapon_' + this.index + '' + (i + 1), 'なし');
     }
+    for(let i = 0; i < weaponCount; ++i){
+      this.WeaponMas[i] = this.saveData.loadString('lbasunit.weapon_mas_' + this.index + '' + (i + 1), '0');
+    }
   }
 
   /**
@@ -76,5 +99,14 @@ export class LBASUnitComponent implements OnInit {
   changeSelectedWeapon(event: any, index: number){
     this.SelectedWeapon[index] = event;
     this.saveData.saveString('lbasunit.selected_weapon_' + this.index + '' + (index + 1), this.SelectedWeapon[index]);
+  }
+
+  /**
+   * 艦載機熟練度の選択を切り替えた際の処理
+   * @param event 
+   */
+  changeWeaponMas(event: any, index: number){
+    this.WeaponMas[index] = event;
+    this.saveData.saveString('lbasunit.weapon_mas_' + this.index + '' + (index + 1), this.WeaponMas[index]);
   }
 }

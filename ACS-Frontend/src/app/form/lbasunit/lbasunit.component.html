@@ -1,33 +1,57 @@
 <form class="m-3 border p-3">
-  <div class="form-group d-flex">
-    <label for="lbasCount">{{IndexString}}</label>
+  <div class="form-group d-flex" [ngClass]="{'mb-0': LBASCount == 'なし'}">
+    <label class="text-nowrap mr-3 mt-2" for="lbasCount">{{IndexString}}</label>
     <select class="form-control" name="lbasCount"
       [ngModel]="LBASCount" (ngModelChange)="changeLBASCount($event)">
       <option *ngFor="let lbasCount of LBASCountList" [value]="lbasCount.value">{{lbasCount.name}}</option>
     </select>
   </div>
-  <div class="form-group">
+  <div class="form-group d-flex mb-0">
     <select class="form-control" name="weaponSelect1"
+      [ngClass]="{'d-none': LBASCount == 'なし'}"
       [ngModel]="SelectedWeapon[0]" (ngModelChange)="changeSelectedWeapon($event, 0)">
       <option *ngFor="let weapon of WeaponList" [value]="weapon.value">{{weapon.name}}</option>
     </select>
+    <select class="form-control" name="weaponMas1" style="width: calc(5rem + 2px);"
+      [ngClass]="{'d-none': LBASCount == 'なし'}"
+      [ngModel]="WeaponMas[0]" (ngModelChange)="changeWeaponMas($event, 0)">
+      <option *ngFor="let mas of MasList" [value]="mas.value">{{mas.name}}</option>
+    </select>
   </div>
-  <div class="form-group">
+  <div class="form-group d-flex mb-0">
     <select class="form-control" name="weaponSelect2"
+      [ngClass]="{'d-none': LBASCount == 'なし'}"
       [ngModel]="SelectedWeapon[1]" (ngModelChange)="changeSelectedWeapon($event, 1)">
       <option *ngFor="let weapon of WeaponList" [value]="weapon.value">{{weapon.name}}</option>
     </select>
+    <select class="form-control" name="weaponMas2" style="width: calc(5rem + 2px);"
+      [ngClass]="{'d-none': LBASCount == 'なし'}"
+      [ngModel]="WeaponMas[1]" (ngModelChange)="changeWeaponMas($event, 1)">
+      <option *ngFor="let mas of MasList" [value]="mas.value">{{mas.name}}</option>
+    </select>
   </div>
-  <div class="form-group">
+  <div class="form-group d-flex mb-0">
     <select class="form-control" name="weaponSelect3"
+      [ngClass]="{'d-none': LBASCount == 'なし'}"
       [ngModel]="SelectedWeapon[2]" (ngModelChange)="changeSelectedWeapon($event, 2)">
       <option *ngFor="let weapon of WeaponList" [value]="weapon.value">{{weapon.name}}</option>
     </select>
+    <select class="form-control" name="weaponMas3" style="width: calc(5rem + 2px);"
+      [ngClass]="{'d-none': LBASCount == 'なし'}"
+      [ngModel]="WeaponMas[2]" (ngModelChange)="changeWeaponMas($event, 2)">
+      <option *ngFor="let mas of MasList" [value]="mas.value">{{mas.name}}</option>
+    </select>
   </div>
-  <div class="form-group">
+  <div class="form-group d-flex mb-0">
     <select class="form-control" name="weaponSelect4"
+      [ngClass]="{'d-none': LBASCount == 'なし'}"
       [ngModel]="SelectedWeapon[3]" (ngModelChange)="changeSelectedWeapon($event, 3)">
       <option *ngFor="let weapon of WeaponList" [value]="weapon.value">{{weapon.name}}</option>
+    </select>
+    <select class="form-control" name="weaponMas4" style="width: calc(5rem + 2px);"
+      [ngClass]="{'d-none': LBASCount == 'なし'}"
+      [ngModel]="WeaponMas[3]" (ngModelChange)="changeWeaponMas($event, 3)">
+      <option *ngFor="let mas of MasList" [value]="mas.value">{{mas.name}}</option>
     </select>
   </div>
 </form>
