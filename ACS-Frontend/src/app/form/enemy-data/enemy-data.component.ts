@@ -73,9 +73,9 @@ export class EnemyDataComponent implements OnInit {
     /**
      * 設定を読み込む
      */
-    this.SelectedMap = this.saveData.loadString('enemy-data.selected_map', '1-1');
+    this.SelectedMap = this.saveData.loadString('enemy-data.selected_map', '3-5');
     this.SelectedLevel = this.saveData.loadString('enemy-data.selected_level', '甲');
-    this.SelectedPoint = this.saveData.loadString('enemy-data.selected_point', 'A-1');
+    this.SelectedPoint = this.saveData.loadString('enemy-data.selected_point', 'H-6 (Last)');
   }
 
   /**

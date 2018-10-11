@@ -1,3 +1,29 @@
-<p>
-  own-data works!
-</p>
+<div class="container">
+  <div class="row">
+    <form class="mx-auto my-3 col-xs-12 col-sm-10 col-md-8">
+      <div class="form-group">
+        <label for="lbasCount">艦隊形態</label>
+        <select class="form-control" name="fleetType" [ngModel]="FleetType" (ngModelChange)="changeFleetType($event)">
+          <option value="0">通常艦隊</option>
+          <option value="1">遊撃部隊</option>
+          <option value="2">水上打撃部隊</option>
+          <option value="3">空母機動部隊</option>
+          <option value="4">輸送連合部隊</option>
+        </select>
+      </div>
+    </form>
+  </div>
+</div>
+
+<app-own-unit index="1" type={{FleetType}}></app-own-unit>
+<app-own-unit index="2" type={{FleetType}}></app-own-unit>
+<app-own-unit index="3" type={{FleetType}}></app-own-unit>
+<app-own-unit index="4" type={{FleetType}}></app-own-unit>
+<app-own-unit index="5" type={{FleetType}}></app-own-unit>
+<app-own-unit index="6" type={{FleetType}}></app-own-unit>
+<app-own-unit index="7" type={{FleetType}} [ngClass]="{'d-none': fleetTypeString === '通常'}"></app-own-unit>
+<app-own-unit index="8" type={{FleetType}} [ngClass]="{'d-none': fleetTypeString !== '連合'}"></app-own-unit>
+<app-own-unit index="9" type={{FleetType}} [ngClass]="{'d-none': fleetTypeString !== '連合'}"></app-own-unit>
+<app-own-unit index="10" type={{FleetType}} [ngClass]="{'d-none': fleetTypeString !== '連合'}"></app-own-unit>
+<app-own-unit index="11" type={{FleetType}} [ngClass]="{'d-none': fleetTypeString !== '連合'}"></app-own-unit>
+<app-own-unit index="12" type={{FleetType}} [ngClass]="{'d-none': fleetTypeString !== '連合'}"></app-own-unit>
