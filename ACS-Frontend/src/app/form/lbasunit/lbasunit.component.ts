@@ -116,7 +116,7 @@ export class LBASUnitComponent implements OnInit {
       this.SelectedWeapon[i] = this.saveData.loadString('lbasunit.selected_weapon_' + this.index + '' + (i + 1), '22');
     }
     for(let i = 0; i < this.WEAPON_COUNT; ++i){
-      this.WeaponMas[i] = this.saveData.loadString('lbasunit.weapon_mas_' + this.index + '' + (i + 1), '0');
+      this.WeaponMas[i] = this.saveData.loadString('lbasunit.weapon_mas_' + this.index + '' + (i + 1), '7');
     }
     for(let i = 0; i < this.WEAPON_COUNT; ++i){
       this.WeaponRf[i] = this.saveData.loadString('lbasunit.weapon_rf_' + this.index + '' + (i + 1), '0');
@@ -127,7 +127,7 @@ export class LBASUnitComponent implements OnInit {
 
     // 機数を設定
     for(let i = 0; i < this.WEAPON_COUNT; ++i){
-      this.calcSlotCountList(i);
+      this.calcSlotCountList(i, false);
     }
   }
 
@@ -181,7 +181,7 @@ export class LBASUnitComponent implements OnInit {
    * 艦載機の搭載数の上限を動的に決定する
    * @param index 当該スロットのインデックス
    */
-  calcSlotCountList(index: number){
+  calcSlotCountList(index: number, resetSlotCountFlg = true){
     // 最大搭載数を計算
     const MAX_SLOTCOUNT = 18;
     let maxSlotCount = MAX_SLOTCOUNT;
@@ -198,6 +198,8 @@ export class LBASUnitComponent implements OnInit {
     }
 
     // 現在の搭載数を変更
-    this.SlotCount[index] = (this.SlotCountList[index].length - 1).toString();
+    if (resetSlotCountFlg){
+      this.changeSlotCount((this.SlotCountList[index].length - 1).toString(), index);
+    }
   }
 }
