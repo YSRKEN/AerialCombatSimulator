@@ -20,6 +20,10 @@
           [ngModel]="WeaponRf[0]" (ngModelChange)="changeWeaponRf($event, 0)">
           <option *ngFor="let rf of RfList" [value]="rf.value">{{rf.name}}</option>
         </select>
+        <select class="form-control w-square" name="slotCount1" [ngClass]="{'d-none': LBASCount == 'なし'}"
+          [ngModel]="SlotCount[0]" (ngModelChange)="changeSlotCount($event, 0)">
+          <option *ngFor="let slot of SlotCountList[0]" [value]="slot.value">{{slot.name}}</option>
+        </select>
       </div>
       <div class="form-group d-flex mb-0">
         <select class="form-control" name="weaponSelect2" [ngClass]="{'d-none': LBASCount == 'なし'}" [ngModel]="SelectedWeapon[1]"
@@ -33,6 +37,10 @@
         <select class="form-control w-square" name="weaponRf2" [ngClass]="{'d-none': LBASCount == 'なし'}"
           [ngModel]="WeaponRf[1]" (ngModelChange)="changeWeaponRf($event, 1)">
           <option *ngFor="let rf of RfList" [value]="rf.value">{{rf.name}}</option>
+        </select>
+        <select class="form-control w-square" name="slotCount2" [ngClass]="{'d-none': LBASCount == 'なし'}"
+          [ngModel]="SlotCount[1]" (ngModelChange)="changeSlotCount($event, 1)">
+          <option *ngFor="let slot of SlotCountList[1]" [value]="slot.value">{{slot.name}}</option>
         </select>
       </div>
       <div class="form-group d-flex mb-0">
@@ -48,6 +56,10 @@
           [ngModel]="WeaponRf[2]" (ngModelChange)="changeWeaponRf($event, 2)">
           <option *ngFor="let rf of RfList" [value]="rf.value">{{rf.name}}</option>
         </select>
+        <select class="form-control w-square" name="slotCount3" [ngClass]="{'d-none': LBASCount == 'なし'}"
+          [ngModel]="SlotCount[2]" (ngModelChange)="changeSlotCount($event, 2)">
+          <option *ngFor="let slot of SlotCountList[2]" [value]="slot.value">{{slot.name}}</option>
+        </select>
       </div>
       <div class="form-group d-flex mb-0">
         <select class="form-control" name="weaponSelect4" [ngClass]="{'d-none': LBASCount == 'なし'}" [ngModel]="SelectedWeapon[3]"
@@ -61,6 +73,10 @@
         <select class="form-control w-square" name="weaponRf4" [ngClass]="{'d-none': LBASCount == 'なし'}"
           [ngModel]="WeaponRf[3]" (ngModelChange)="changeWeaponRf($event, 3)">
           <option *ngFor="let rf of RfList" [value]="rf.value">{{rf.name}}</option>
+        </select>
+        <select class="form-control w-square" name="slotCount4" [ngClass]="{'d-none': LBASCount == 'なし'}"
+          [ngModel]="SlotCount[3]" (ngModelChange)="changeSlotCount($event, 3)">
+          <option *ngFor="let slot of SlotCountList[3]" [value]="slot.value">{{slot.name}}</option>
         </select>
       </div>
     </form>
