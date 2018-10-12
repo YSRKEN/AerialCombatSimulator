@@ -1,3 +1,22 @@
-<p>
-  weapon-selector works!
-</p>
+<div class="form-group d-flex mb-0">
+  <select class="form-control w-square" name="weaponType" [ngModel]="WeaponType"
+    (ngModelChange)="changeWeaponType($event)">
+    <option *ngFor="let weaponType of WeaponTypeList" [value]="weaponType.value">{{weaponType.name}}</option>
+  </select>
+  <select class="form-control" name="weaponName" [ngModel]="WeaponName"
+    (ngModelChange)="changeWeaponName($event)">
+    <option *ngFor="let weaponName of WeaponNameList" [value]="weaponName.value">{{weaponName.name}}</option>
+  </select>
+  <select class="form-control w-square" name="weaponMas" [ngModel]="WeaponMas"
+    (ngModelChange)="changeWeaponMas($event)">
+    <option *ngFor="let mas of MasList" [value]="mas.value">{{mas.name}}</option>
+  </select>
+  <select class="form-control w-square" name="weaponRf" [ngModel]="WeaponRf"
+    (ngModelChange)="changeWeaponRf($event)">
+    <option *ngFor="let rf of RfList" [value]="rf.value">{{rf.name}}</option>
+  </select>
+  <select class="form-control w-square" name="slotCount" [ngModel]="SlotCount"
+    (ngModelChange)="changeSlotCount($event)">
+    <option *ngFor="let slot of SlotCountList" [value]="slot.value">{{slot.name}}</option>
+  </select>
+</div>

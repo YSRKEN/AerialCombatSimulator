@@ -3,7 +3,6 @@
   <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#Navber" aria-controls="Navber" aria-expanded="false" aria-label="ナビゲーションの切替">
     <span class="navbar-toggler-icon"></span>
   </button>
-
   <div class="collapse navbar-collapse" id="Navber">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item" [ngClass]="{'active bg-primary': Mode === 0}">
@@ -21,6 +20,8 @@
     </ul>
   </div>
 </nav>
+<app-weapon-selector category="LBAS"></app-weapon-selector>
+<app-weapon-selector category="Normal"></app-weapon-selector>
 <app-lbasdata [ngClass]="{'d-none': Mode !== 0}"></app-lbasdata>
 <app-enemy-data [ngClass]="{'d-none': Mode !== 1}"></app-enemy-data>
 <app-own-data [ngClass]="{'d-none': Mode !== 2}"></app-own-data>
