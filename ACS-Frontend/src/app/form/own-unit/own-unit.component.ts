@@ -130,8 +130,25 @@ export class OwnUnitComponent implements OnInit {
      */
     this.KammusuType = this.saveData.loadString('own-unit.kammusu_type' + this.index, '0');
     this.KammusuName = this.saveData.loadString('own-unit.kammusu_name' + this.index, '0');
+    for(let i = 0; i < this.WEAPON_COUNT; ++i){
+      this.SelectedWeapon[i] = this.saveData.loadString('own-unit.selected_weapon_' + this.index + '' + (i + 1), '0');
+    }
+    for(let i = 0; i < this.WEAPON_COUNT; ++i){
+      this.WeaponMas[i] = this.saveData.loadString('own-unit.weapon_mas_' + this.index + '' + (i + 1), '7');
+    }
+    for(let i = 0; i < this.WEAPON_COUNT; ++i){
+      this.WeaponRf[i] = this.saveData.loadString('own-unit.weapon_rf_' + this.index + '' + (i + 1), '0');
+    }
+    for(let i = 0; i < this.WEAPON_COUNT; ++i){
+      this.SlotCount[i] = this.saveData.loadString('own-unit.slot_count_' + this.index + '' + (i + 1), '0');
+    }
     this.changeKammusuType(this.KammusuType);
     this.changeKammusuName(this.KammusuName);
+
+    // 機数を設定
+    for(let i = 0; i < this.WEAPON_COUNT; ++i){
+      this.calcSlotCountList(i, false);
+    }
   }
 
   /**
@@ -207,6 +224,8 @@ export class OwnUnitComponent implements OnInit {
  */
   changeSelectedWeapon(event: any, index: number) {
     this.SelectedWeapon[index] = event;
+    this.saveData.saveString('own-unit.selected_weapon_' + this.index + '' + (index + 1), this.SelectedWeapon[index]);
+    this.calcSlotCountList(index);
   }
 
   /**
@@ -215,6 +234,7 @@ export class OwnUnitComponent implements OnInit {
    */
   changeWeaponMas(event: any, index: number) {
     this.WeaponMas[index] = event;
+    this.saveData.saveString('own-unit.weapon_mas_' + this.index + '' + (index + 1), this.WeaponMas[index]);
   }
 
   /**
@@ -223,6 +243,7 @@ export class OwnUnitComponent implements OnInit {
    */
   changeWeaponRf(event: any, index: number) {
     this.WeaponRf[index] = event;
+    this.saveData.saveString('own-unit.weapon_rf_' + this.index + '' + (index + 1), this.WeaponRf[index]);
   }
 
   /**
@@ -231,5 +252,23 @@ export class OwnUnitComponent implements OnInit {
    */
   changeSlotCount(event: any, index: number) {
     this.SlotCount[index] = event;
+    this.saveData.saveString('own-unit.slot_count_' + this.index + '' + (index + 1), this.SlotCount[index]);
+  }
+
+  /**
+   * 艦載機の搭載数の上限を動的に決定する
+   * @param index 当該スロットのインデックス
+   */
+  calcSlotCountList(index: number, resetSlotCountFlg = true){
+    // 最大搭載数を計算して追加(仮コード)
+    this.SlotCountList[index] = [];
+    for(let i = 0; i <= 3; ++i){
+      this.SlotCountList[index].push({"value":i.toString(), "name":i.toString()});
+    }
+
+    // 現在の搭載数を変更
+    if (resetSlotCountFlg){
+      this.changeSlotCount((this.SlotCountList[index].length - 1).toString(), index);
+    }
   }
 }
