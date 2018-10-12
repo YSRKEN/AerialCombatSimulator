@@ -1,7 +1,105 @@
 <div class="container">
   <div class="row">
-    <form class="mx-auto my-3 col-xs-12 col-sm-10 col-md-8">
-        <label>{{UnitString}}</label>
+    <form class="mx-auto my-3 border p-3 col-xs-12 col-sm-10 col-md-8">
+      <div class="form-group d-flex" [ngClass]="{'mb-0': KammusuName == '0'}">
+        <label class="text-nowrap mr-3 mt-2" for="kammusuType">{{UnitString}}</label>
+        <select class="form-control mr-3 w-double-square" name="kammusuType" [ngModel]="KammusuType" (ngModelChange)="changeKammusuType($event)">
+          <option *ngFor="let kammusuType of KammusuTypeList" [value]="kammusuType.value">{{kammusuType.name}}</option>
+        </select>
+        <select class="form-control" name="kammusuName" [ngModel]="KammusuName" (ngModelChange)="changeKammusuName($event)">
+          <option *ngFor="let kammusuName of KammusuNameList" [value]="kammusuName.value">{{kammusuName.name}}</option>
+        </select>
+      </div>
+      <div class="form-group d-flex mb-0">
+        <select class="form-control" name="weaponSelect1" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="SelectedWeapon[0]"
+          (ngModelChange)="changeSelectedWeapon($event, 0)">
+          <option *ngFor="let weapon of WeaponList" [value]="weapon.value">{{weapon.name}}</option>
+        </select>
+        <select class="form-control w-square" name="weaponMas1" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="WeaponMas[0]"
+          (ngModelChange)="changeWeaponMas($event, 0)">
+          <option *ngFor="let mas of MasList" [value]="mas.value">{{mas.name}}</option>
+        </select>
+        <select class="form-control w-square" name="weaponRf1" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="WeaponRf[0]"
+          (ngModelChange)="changeWeaponRf($event, 0)">
+          <option *ngFor="let rf of RfList" [value]="rf.value">{{rf.name}}</option>
+        </select>
+        <select class="form-control w-square" name="slotCount1" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="SlotCount[0]"
+          (ngModelChange)="changeSlotCount($event, 0)">
+          <option *ngFor="let slot of SlotCountList[0]" [value]="slot.value">{{slot.name}}</option>
+        </select>
+      </div>
+      <div class="form-group d-flex mb-0">
+        <select class="form-control" name="weaponSelect2" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="SelectedWeapon[1]"
+          (ngModelChange)="changeSelectedWeapon($event, 1)">
+          <option *ngFor="let weapon of WeaponList" [value]="weapon.value">{{weapon.name}}</option>
+        </select>
+        <select class="form-control w-square" name="weaponMas2" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="WeaponMas[1]"
+          (ngModelChange)="changeWeaponMas($event, 1)">
+          <option *ngFor="let mas of MasList" [value]="mas.value">{{mas.name}}</option>
+        </select>
+        <select class="form-control w-square" name="weaponRf2" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="WeaponRf[1]"
+          (ngModelChange)="changeWeaponRf($event, 1)">
+          <option *ngFor="let rf of RfList" [value]="rf.value">{{rf.name}}</option>
+        </select>
+        <select class="form-control w-square" name="slotCount2" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="SlotCount[1]"
+          (ngModelChange)="changeSlotCount($event, 1)">
+          <option *ngFor="let slot of SlotCountList[1]" [value]="slot.value">{{slot.name}}</option>
+        </select>
+      </div>
+      <div class="form-group d-flex mb-0">
+        <select class="form-control" name="weaponSelect3" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="SelectedWeapon[2]"
+          (ngModelChange)="changeSelectedWeapon($event, 2)">
+          <option *ngFor="let weapon of WeaponList" [value]="weapon.value">{{weapon.name}}</option>
+        </select>
+        <select class="form-control w-square" name="weaponMas3" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="WeaponMas[2]"
+          (ngModelChange)="changeWeaponMas($event, 2)">
+          <option *ngFor="let mas of MasList" [value]="mas.value">{{mas.name}}</option>
+        </select>
+        <select class="form-control w-square" name="weaponRf3" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="WeaponRf[2]"
+          (ngModelChange)="changeWeaponRf($event, 2)">
+          <option *ngFor="let rf of RfList" [value]="rf.value">{{rf.name}}</option>
+        </select>
+        <select class="form-control w-square" name="slotCount3" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="SlotCount[2]"
+          (ngModelChange)="changeSlotCount($event, 2)">
+          <option *ngFor="let slot of SlotCountList[2]" [value]="slot.value">{{slot.name}}</option>
+        </select>
+      </div>
+      <div class="form-group d-flex mb-0">
+        <select class="form-control" name="weaponSelect4" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="SelectedWeapon[3]"
+          (ngModelChange)="changeSelectedWeapon($event, 3)">
+          <option *ngFor="let weapon of WeaponList" [value]="weapon.value">{{weapon.name}}</option>
+        </select>
+        <select class="form-control w-square" name="weaponMas4" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="WeaponMas[3]"
+          (ngModelChange)="changeWeaponMas($event, 3)">
+          <option *ngFor="let mas of MasList" [value]="mas.value">{{mas.name}}</option>
+        </select>
+        <select class="form-control w-square" name="weaponRf4" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="WeaponRf[3]"
+          (ngModelChange)="changeWeaponRf($event, 3)">
+          <option *ngFor="let rf of RfList" [value]="rf.value">{{rf.name}}</option>
+        </select>
+        <select class="form-control w-square" name="slotCount4" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="SlotCount[3]"
+          (ngModelChange)="changeSlotCount($event, 3)">
+          <option *ngFor="let slot of SlotCountList[3]" [value]="slot.value">{{slot.name}}</option>
+        </select>
+      </div>
+      <div class="form-group d-flex mb-0">
+          <select class="form-control" name="weaponSelect5" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="SelectedWeapon[4]"
+            (ngModelChange)="changeSelectedWeapon($event, 4)">
+            <option *ngFor="let weapon of WeaponList" [value]="weapon.value">{{weapon.name}}</option>
+          </select>
+          <select class="form-control w-square" name="weaponMas5" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="WeaponMas[4]"
+            (ngModelChange)="changeWeaponMas($event, 4)">
+            <option *ngFor="let mas of MasList" [value]="mas.value">{{mas.name}}</option>
+          </select>
+          <select class="form-control w-square" name="weaponRf5" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="WeaponRf[4]"
+            (ngModelChange)="changeWeaponRf($event, 4)">
+            <option *ngFor="let rf of RfList" [value]="rf.value">{{rf.name}}</option>
+          </select>
+          <select class="form-control w-square" name="slotCount5" [ngClass]="{'d-none': KammusuName == '0'}" [ngModel]="SlotCount[4]"
+            (ngModelChange)="changeSlotCount($event, 4)">
+            <option *ngFor="let slot of SlotCountList[4]" [value]="slot.value">{{slot.name}}</option>
+          </select>
+        </div>
     </form>
   </div>
 </div>
