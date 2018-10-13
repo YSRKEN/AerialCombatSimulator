@@ -11,11 +11,16 @@
         </select>
       </div>
       <div class="form-group mb-0" [ngClass]="{'d-none': KammusuNameValue === '0'}">
-        <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[1]'></app-weapon-selector>
-        <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[2]'></app-weapon-selector>
-        <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[3]'></app-weapon-selector>
-        <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[4]'></app-weapon-selector>
-        <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[5]'></app-weapon-selector>
+        <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[1]' slotSize="{{SlotSize[0]}}"
+          [ngClass]="{'d-none': SlotCount < 1}"></app-weapon-selector>
+        <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[2]' slotSize="{{SlotSize[1]}}"
+        [ngClass]="{'d-none': SlotCount < 2}"></app-weapon-selector>
+        <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[3]' slotSize="{{SlotSize[2]}}"
+        [ngClass]="{'d-none': SlotCount < 3}"></app-weapon-selector>
+        <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[4]' slotSize="{{SlotSize[3]}}"
+        [ngClass]="{'d-none': SlotCount < 4}"></app-weapon-selector>
+        <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[5]' slotSize="{{SlotSize[4]}}"
+        [ngClass]="{'d-none': SlotCount < 5}"></app-weapon-selector>
       </div>
     </form>
   </div>
