@@ -3,14 +3,14 @@
     <form class="mx-auto border p-3 col-xs-12 col-sm-10 col-md-8">
       <div class="form-group d-flex" [ngClass]="{'mb-0': KammusuName == '0'}">
         <label class="text-nowrap mr-3 mt-2" for="kammusuType">{{UnitString}}</label>
-        <select class="form-control mr-3 w-double-square" name="kammusuType" [ngModel]="KammusuType" (ngModelChange)="changeKammusuType($event)">
+        <select class="form-control mr-3 w-double-square" name="kammusuType" [(ngModel)]="KammusuTypeValue">
           <option *ngFor="let kammusuType of KammusuTypeList" [value]="kammusuType.value">{{kammusuType.name}}</option>
         </select>
-        <select class="form-control" name="kammusuName" [ngModel]="KammusuName" (ngModelChange)="changeKammusuName($event)">
+        <select class="form-control" name="kammusuName" [(ngModel)]="KammusuNameValue">
           <option *ngFor="let kammusuName of KammusuNameList" [value]="kammusuName.value">{{kammusuName.name}}</option>
         </select>
       </div>
-      <div class="form-group mb-0" [ngClass]="{'d-none': KammusuName === '0'}">
+      <div class="form-group mb-0" [ngClass]="{'d-none': KammusuNameValue === '0'}">
         <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[1]'></app-weapon-selector>
         <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[2]'></app-weapon-selector>
         <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[3]'></app-weapon-selector>
