@@ -26,10 +26,18 @@ export class WeaponSelectorComponent implements OnInit {
   /**
    * 航空機とみなす装備種の辞書
    */
-  private readonly lbasTypeSet: { [key: number]: boolean; } = {
+  private readonly airTypeSet: { [key: number]: boolean; } = {
     5: true,
     6: true,
     7: true,
+    8: true,
+    11: true,
+  };
+
+  /**
+   * 偵察機とみなす装備種の辞書
+   */
+  private readonly searchTypeSet: { [key: number]: boolean; } = {
     8: true,
     11: true,
   };
@@ -43,7 +51,7 @@ export class WeaponSelectorComponent implements OnInit {
     let typeValueList = [];
     switch (category) {
       case 'LBAS':
-        typeValueList = [0, 5, 6, 7, 8];
+        typeValueList = [0, 5, 6, 7, 8, 11];
         break;
       case 'Normal':
         typeValueList = [0, 1, 2, 3, 5, 6, 7, 8, 11];
@@ -208,7 +216,12 @@ export class WeaponSelectorComponent implements OnInit {
     this.WeaponNameList = this.getWeaponNameList(this.WeaponTypeValue);
 
     // 搭載数リストを初期化
-    this.SlotCountList = this.getSlotCountList(this.slotSize);
+    if (this.category === 'LBAS') {
+      var maxSlotSize: string = this.searchTypeSet[parseInt(this.WeaponTypeValue)] ? '4' : '18';
+      this.SlotCountList = this.getSlotCountList(maxSlotSize);
+    } else {
+      this.SlotCountList = this.getSlotCountList(this.slotSize);
+    }
   }
 
   /**
@@ -218,8 +231,21 @@ export class WeaponSelectorComponent implements OnInit {
     return this.saveData.loadString(this.prefix + '.weapon_type', '0');
   }
   set WeaponTypeValue(value: string) {
+    // 保存
     this.saveData.saveString(this.prefix + '.weapon_type', value);
+    
+    // 装備名一覧を更新
     this.WeaponNameList = this.getWeaponNameList(this.WeaponTypeValue);
+    if (this.WeaponNameList.filter(pair => pair.value === this.WeaponNameValue).length === 0){
+      this.WeaponNameValue = '0';
+    }
+
+    // 搭載数を更新
+    if (this.category === 'LBAS') {
+      var maxSlotSize: string = this.searchTypeSet[parseInt(this.WeaponTypeValue)] ? '4' : '18';
+      this.SlotCountList = this.getSlotCountList(maxSlotSize);
+    }
+    this.SlotCountValue = '' + (this.SlotCountList.length - 1);
   }
 
   /**
@@ -262,7 +288,7 @@ export class WeaponSelectorComponent implements OnInit {
     this.saveData.saveString(this.prefix + '.slot_count', value);
   }
 
-  get IsLBASType(): boolean {
-    return this.lbasTypeSet[parseInt(this.WeaponTypeValue)];
+  get IsAirType(): boolean {
+    return this.airTypeSet[parseInt(this.WeaponTypeValue)];
   }
 }
