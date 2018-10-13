@@ -24,4 +24,11 @@ export class SimulationResultComponent implements OnInit {
     this.SimulationType = event;
     this.saveData.saveString('simulation-result.simulation_type', this.SimulationType);
   }
+
+  /**
+   * シミュレーションを開始する
+   */
+  startSimulation(){
+
+  }
 }

@@ -1,0 +1,17 @@
+<div class="form-group d-flex mb-0">
+  <select class="form-control w-square" name="weaponType" [(ngModel)]="WeaponTypeValue">
+    <option *ngFor="let weaponType of WeaponTypeList" [value]="weaponType.value">{{weaponType.name}}</option>
+  </select>
+  <select class="form-control" name="weaponName" [(ngModel)]="WeaponNameValue">
+    <option *ngFor="let weaponName of WeaponNameList" [value]="weaponName.value">{{weaponName.name}}</option>
+  </select>
+  <select class="form-control w-square" name="weaponRf" [(ngModel)]="WeaponRfValue">
+    <option *ngFor="let weaponRf of WeaponRfList" [value]="weaponRf.value">{{weaponRf.name}}</option>
+  </select>
+  <select class="form-control w-square" name="weaponMas" [(ngModel)]="WeaponMasValue" [ngClass]="{'d-none': !IsAirType}">
+    <option *ngFor="let weaponMas of WeaponMasList" [value]="weaponMas.value">{{weaponMas.name}}</option>
+  </select>
+  <select class="form-control w-square" name="slotCount" [(ngModel)]="SlotCountValue" [ngClass]="{'d-none': !IsAirType}">
+    <option *ngFor="let slot of SlotCountList" [value]="slot.value">{{slot.name}}</option>
+  </select>
+</div>

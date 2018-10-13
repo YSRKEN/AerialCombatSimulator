@@ -16,6 +16,7 @@ import { SimulationResultComponent } from './form/simulation-result/simulation-r
 import { FormsModule } from "@angular/forms";
 import { LBASUnitComponent } from './form/lbasunit/lbasunit.component';
 import { OwnUnitComponent } from './form/own-unit/own-unit.component';
+import { WeaponSelectorComponent } from './control/weapon-selector/weapon-selector.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { OwnUnitComponent } from './form/own-unit/own-unit.component';
     OwnDataComponent,
     SimulationResultComponent,
     LBASUnitComponent,
-    OwnUnitComponent
+    OwnUnitComponent,
+    WeaponSelectorComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
