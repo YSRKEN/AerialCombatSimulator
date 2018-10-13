@@ -52,7 +52,7 @@ export class WeaponSelectorComponent implements OnInit {
    * 装備種に対応した装備リストを返す
    * @param weaponTypeValue 装備種
    */
-  private getWeaponNameList(weaponTypeValue: string) {
+  private getWeaponNameList(weaponTypeValue: string): { "value": string, "name": string }[] {
     switch (this.weaponTypeDict[parseInt(weaponTypeValue)]) {
       case "主砲":
         return [
@@ -102,6 +102,19 @@ export class WeaponSelectorComponent implements OnInit {
   }
 
   /**
+   * 指定した搭載数を最大値とする搭載数リストを返す
+   * @param slotSize 最大搭載数
+   */
+  private getSlotCountList(slotSize: string): { "value": string, "name": string }[] {
+    const slotSizeInt = parseInt(slotSize);
+    const result = [];
+    for(let i = 0; i <= slotSizeInt; ++i){
+      result.push({ 'value': '' + i, 'name': '' + i });
+    }
+    return result;
+  }
+
+  /**
    * 装備種カテゴリ
    * 'LBAS' => 基地航空隊の装備だけ表示する
    * 'Normal' => 全ての装備を表示する
@@ -113,6 +126,11 @@ export class WeaponSelectorComponent implements OnInit {
    * 保存時のキーに付ける接頭辞
    */
   @Input() prefix: string;
+
+  /**
+   * そのスロットにおける最大搭載数
+   */
+  @Input() slotSize: string;
 
   /**
    * 装備種リスト
@@ -156,6 +174,11 @@ export class WeaponSelectorComponent implements OnInit {
     {"value":"8", "name":">>>"},
   ];
 
+  /**
+   * 搭載数リスト
+   */
+  SlotCountList: { "value": string, "name": string }[];
+
   constructor(private saveData: SaveDataService) { }
 
   ngOnInit() {
@@ -163,12 +186,19 @@ export class WeaponSelectorComponent implements OnInit {
     if (this.prefix === undefined || undefined === '') {
       throw new Error("<app-weapon-selector>のprefix属性は省略できません。");
     }
+    if (this.slotSize === undefined || undefined === '') {
+      this.slotSize = '0';
+    }
+    this.SlotCountValue = '' + this.slotSize;
 
     // 装備種リストを初期化
     this.WeaponTypeList = this.getWeaponTypeList(this.category);
     
     // 装備リストを初期化
     this.WeaponNameList = this.getWeaponNameList(this.WeaponTypeValue);
+
+    // 搭載数リストを初期化
+    this.SlotCountList = this.getSlotCountList(this.slotSize);
   }
 
   /**
@@ -210,5 +240,15 @@ export class WeaponSelectorComponent implements OnInit {
   }
   set WeaponMasValue(value: string) {
     this.saveData.saveString(this.prefix + '.weapon_mas', value);
+  }
+
+  /**
+   * 搭載数
+   */
+  get SlotCountValue(): string {
+    return this.saveData.loadString(this.prefix + '.slot_count', '0');
+  }
+  set SlotCountValue(value: string) {
+    this.saveData.saveString(this.prefix + '.slot_count', value);
   }
 }
