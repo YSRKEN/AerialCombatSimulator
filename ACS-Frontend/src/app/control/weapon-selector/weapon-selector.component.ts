@@ -108,6 +108,11 @@ export class WeaponSelectorComponent implements OnInit {
           { 'value': '16', 'name': '九七式艦攻' },
           { 'value': '52', 'name': '流星改' },
         ];
+        case "艦偵":
+        return [
+          { 'value': '0', 'name': 'なし' },
+          { 'value': '54', 'name': '彩雲' },
+        ];
         case "水偵":
         return [
           { 'value': '0', 'name': 'なし' },
