@@ -117,6 +117,34 @@ export class OwnUnitComponent implements OnInit {
    */
   SlotCount: number;
 
+  constructor(private saveData: SaveDataService) { }
+
+  ngOnInit() {
+    // 艦種リストを初期化
+    this.KammusuTypeList = this.getKammusuTypeList();
+    
+    // 艦名リストを初期化
+    this.KammusuNameList = this.getKammusuNameList(this.KammusuTypeValue);
+
+    // 搭載数リストを更新
+    this.SlotSize = this.getSlotSize(this.KammusuNameValue);
+
+    // スロット数を更新
+    this.SlotCount = this.getSlotCount(this.KammusuNameValue);
+  }
+
+  /**
+   * 「X番艦」といった指標を表示
+   */
+  get UnitString(): string {
+    if (parseInt(this.type) < 2) {
+      return this.index + '番艦';
+    } else {
+      const indexInt = parseInt(this.index) - 1;
+      return '第' + (Math.floor(indexInt / 6) + 1) + '艦隊 ' + ((indexInt % 6) + 1).toString() + '番艦';
+    }
+  }
+
   /**
    * 艦種
    */
@@ -149,33 +177,5 @@ export class OwnUnitComponent implements OnInit {
 
     // スロット数を更新
     this.SlotCount = this.getSlotCount(this.KammusuNameValue);
-  }
-
-  constructor(private saveData: SaveDataService) { }
-
-  ngOnInit() {
-    // 艦種リストを初期化
-    this.KammusuTypeList = this.getKammusuTypeList();
-    
-    // 艦名リストを初期化
-    this.KammusuNameList = this.getKammusuNameList(this.KammusuTypeValue);
-
-    // 搭載数リストを更新
-    this.SlotSize = this.getSlotSize(this.KammusuNameValue);
-
-    // スロット数を更新
-    this.SlotCount = this.getSlotCount(this.KammusuNameValue);
-  }
-
-  /**
-   * 「X番艦」といった指標を表示
-   */
-  get UnitString(): string {
-    if (parseInt(this.type) < 2) {
-      return this.index + '番艦';
-    } else {
-      const indexInt = parseInt(this.index) - 1;
-      return '第' + (Math.floor(indexInt / 6) + 1) + '艦隊 ' + ((indexInt % 6) + 1).toString() + '番艦';
-    }
   }
 }
