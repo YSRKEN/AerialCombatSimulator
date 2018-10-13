@@ -8,10 +8,10 @@
   <select class="form-control w-square" name="weaponRf" [(ngModel)]="WeaponRfValue">
     <option *ngFor="let weaponRf of WeaponRfList" [value]="weaponRf.value">{{weaponRf.name}}</option>
   </select>
-  <select class="form-control w-square" name="weaponMas" [(ngModel)]="WeaponMasValue">
+  <select class="form-control w-square" name="weaponMas" [(ngModel)]="WeaponMasValue" [ngClass]="{'d-none': !IsLBASType}">
     <option *ngFor="let weaponMas of WeaponMasList" [value]="weaponMas.value">{{weaponMas.name}}</option>
   </select>
-  <select class="form-control w-square" name="slotCount" [(ngModel)]="SlotCountValue">
+  <select class="form-control w-square" name="slotCount" [(ngModel)]="SlotCountValue" [ngClass]="{'d-none': !IsLBASType}">
     <option *ngFor="let slot of SlotCountList" [value]="slot.value">{{slot.name}}</option>
   </select>
 </div>

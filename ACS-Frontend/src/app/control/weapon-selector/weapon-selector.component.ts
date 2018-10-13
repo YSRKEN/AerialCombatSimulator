@@ -11,7 +11,7 @@ export class WeaponSelectorComponent implements OnInit {
   /**
    * 装備種の辞書
    */
-  private readonly weaponTypeDict: { [key: string]: string; } = {
+  private readonly weaponTypeDict: { [key: number]: string; } = {
     0: "なし",
     1: "主砲",
     2: "副砲",
@@ -21,6 +21,17 @@ export class WeaponSelectorComponent implements OnInit {
     7: "艦攻",
     8: "艦偵",
     11: "水偵",
+  };
+
+  /**
+   * 航空機とみなす装備種の辞書
+   */
+  private readonly lbasTypeSet: { [key: number]: boolean; } = {
+    5: true,
+    6: true,
+    7: true,
+    8: true,
+    11: true,
   };
 
   /**
@@ -189,7 +200,6 @@ export class WeaponSelectorComponent implements OnInit {
     if (this.slotSize === undefined || undefined === '') {
       this.slotSize = '0';
     }
-    this.SlotCountValue = '' + this.slotSize;
 
     // 装備種リストを初期化
     this.WeaponTypeList = this.getWeaponTypeList(this.category);
@@ -250,5 +260,9 @@ export class WeaponSelectorComponent implements OnInit {
   }
   set SlotCountValue(value: string) {
     this.saveData.saveString(this.prefix + '.slot_count', value);
+  }
+
+  get IsLBASType(): boolean {
+    return this.lbasTypeSet[parseInt(this.WeaponTypeValue)];
   }
 }
