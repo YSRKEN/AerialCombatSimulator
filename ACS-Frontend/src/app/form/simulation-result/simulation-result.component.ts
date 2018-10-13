@@ -10,6 +10,9 @@ export class SimulationResultComponent implements OnInit {
 
   SimulationType: string = '1';
 
+  // スタブ
+  SlotSize: string = '46';
+
   constructor(private saveData: SaveDataService) { }
 
   ngOnInit() {
@@ -23,5 +26,14 @@ export class SimulationResultComponent implements OnInit {
   changeSimulationType(event: any) {
     this.SimulationType = event;
     this.saveData.saveString('simulation-result.simulation_type', this.SimulationType);
+  }
+
+  /**
+   * シミュレーションを開始する
+   */
+  startSimulation(){
+    //スタブ
+    this.SlotSize = '' + (parseInt(this.SlotSize) - 1);
+    console.log(this.SlotSize);
   }
 }

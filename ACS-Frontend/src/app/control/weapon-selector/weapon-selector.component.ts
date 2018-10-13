@@ -149,7 +149,13 @@ export class WeaponSelectorComponent implements OnInit {
   /**
    * そのスロットにおける最大搭載数
    */
-  @Input() slotSize: string;
+  @Input() set slotSize(value: string) {
+    if (value === undefined || value === '') {
+      value = '0';
+    }
+    this.SlotCountList = this.getSlotCountList(value);
+    this.SlotCountValue = '' + (this.SlotCountList.length - 1);
+  }
 
   /**
    * 装備種リスト
@@ -196,7 +202,9 @@ export class WeaponSelectorComponent implements OnInit {
   /**
    * 搭載数リスト
    */
-  SlotCountList: { "value": string, "name": string }[];
+  SlotCountList: { "value": string, "name": string }[] = [
+    { "value": '0', "name": '0' }
+  ];
 
   constructor(private saveData: SaveDataService) { }
 
@@ -204,9 +212,6 @@ export class WeaponSelectorComponent implements OnInit {
     // @Inputをチェックする
     if (this.prefix === undefined || undefined === '') {
       throw new Error("<app-weapon-selector>のprefix属性は省略できません。");
-    }
-    if (this.slotSize === undefined || undefined === '') {
-      this.slotSize = '0';
     }
 
     // 装備種リストを初期化
@@ -216,11 +221,10 @@ export class WeaponSelectorComponent implements OnInit {
     this.WeaponNameList = this.getWeaponNameList(this.WeaponTypeValue);
 
     // 搭載数リストを初期化
+    // ('LBAS'はここで初期化されるが、そうでない場合は@Input() set slotSizeで初期化される)
     if (this.category === 'LBAS') {
       var maxSlotSize: string = this.searchTypeSet[parseInt(this.WeaponTypeValue)] ? '4' : '18';
       this.SlotCountList = this.getSlotCountList(maxSlotSize);
-    } else {
-      this.SlotCountList = this.getSlotCountList(this.slotSize);
     }
   }
 
@@ -272,7 +276,7 @@ export class WeaponSelectorComponent implements OnInit {
    * 艦載機熟練度
    */
   get WeaponMasValue(): string {
-    return this.saveData.loadString(this.prefix + '.weapon_mas', '0');
+    return this.saveData.loadString(this.prefix + '.weapon_mas', '7');
   }
   set WeaponMasValue(value: string) {
     this.saveData.saveString(this.prefix + '.weapon_mas', value);

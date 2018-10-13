@@ -1,3 +1,6 @@
+<app-weapon-selector category="LBAS" prefix="test1"></app-weapon-selector>
+<app-weapon-selector category="Normal" prefix="test2" slotSize="{{SlotSize}}"></app-weapon-selector>
+
 <div class="container">
   <div class="row">
     <form class="mx-auto my-3 p-3 col-xs-12 col-sm-10 col-md-8">
@@ -9,7 +12,7 @@
               <option value="2">自艦隊 vs 敵艦隊</option>
             </select>
             </div>
-      <button type="submit" class="btn btn-primary">シミュレーション開始</button>
+      <button type="submit" class="btn btn-primary" (click)="startSimulation()">シミュレーション開始</button>
     </form>
   </div>
 </div>
