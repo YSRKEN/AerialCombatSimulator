@@ -5,13 +5,11 @@
   <select class="form-control" name="weaponName" [(ngModel)]="WeaponNameValue">
     <option *ngFor="let weaponName of WeaponNameList" [value]="weaponName.value">{{weaponName.name}}</option>
   </select>
-  <select class="form-control w-square" name="weaponMas" [ngModel]="WeaponMas"
-    (ngModelChange)="changeWeaponMas($event)">
-    <option *ngFor="let mas of MasList" [value]="mas.value">{{mas.name}}</option>
+  <select class="form-control w-square" name="weaponRf" [(ngModel)]="WeaponRfValue">
+    <option *ngFor="let weaponRf of WeaponRfList" [value]="weaponRf.value">{{weaponRf.name}}</option>
   </select>
-  <select class="form-control w-square" name="weaponRf" [ngModel]="WeaponRf"
-    (ngModelChange)="changeWeaponRf($event)">
-    <option *ngFor="let rf of RfList" [value]="rf.value">{{rf.name}}</option>
+  <select class="form-control w-square" name="weaponMas" [(ngModel)]="WeaponMasValue">
+    <option *ngFor="let weaponMas of WeaponMasList" [value]="weaponMas.value">{{weaponMas.name}}</option>
   </select>
   <select class="form-control w-square" name="slotCount" [ngModel]="SlotCount"
     (ngModelChange)="changeSlotCount($event)">

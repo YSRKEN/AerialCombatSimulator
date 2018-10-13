@@ -124,6 +124,38 @@ export class WeaponSelectorComponent implements OnInit {
    */
   WeaponNameList: { "value": string, "name": string }[];
 
+  /**
+   * 装備改修度リスト
+   */
+  WeaponRfList: { "value": string, "name": string }[] = [
+    {"value":"0", "name":""},
+    {"value":"1", "name":"☆1"},
+    {"value":"2", "name":"☆2"},
+    {"value":"3", "name":"☆3"},
+    {"value":"4", "name":"☆4"},
+    {"value":"5", "name":"☆5"},
+    {"value":"6", "name":"☆6"},
+    {"value":"7", "name":"☆7"},
+    {"value":"8", "name":"☆8"},
+    {"value":"9", "name":"☆9"},
+    {"value":"10", "name":"☆max"},
+  ];
+
+  /**
+   * 艦載機熟練度リスト
+   */
+  WeaponMasList: { "value": string, "name": string }[] = [
+    {"value":"0", "name":""},
+    {"value":"1", "name":"|"},
+    {"value":"2", "name":"||"},
+    {"value":"3", "name":"|||"},
+    {"value":"4", "name":"/"},
+    {"value":"5", "name":"//"},
+    {"value":"6", "name":"///"},
+    {"value":"7", "name":">>"},
+    {"value":"8", "name":">>>"},
+  ];
+
   constructor(private saveData: SaveDataService) { }
 
   ngOnInit() {
@@ -158,5 +190,25 @@ export class WeaponSelectorComponent implements OnInit {
   }
   set WeaponNameValue(value: string) {
     this.saveData.saveString(this.prefix + '.weapon_name', value);
+  }
+
+  /**
+   * 装備改修度
+   */
+  get WeaponRfValue(): string {
+    return this.saveData.loadString(this.prefix + '.weapon_rf', '0');
+  }
+  set WeaponRfValue(value: string) {
+    this.saveData.saveString(this.prefix + '.weapon_rf', value);
+  }
+
+  /**
+   * 艦載機熟練度
+   */
+  get WeaponMasValue(): string {
+    return this.saveData.loadString(this.prefix + '.weapon_mas', '0');
+  }
+  set WeaponMasValue(value: string) {
+    this.saveData.saveString(this.prefix + '.weapon_mas', value);
   }
 }
