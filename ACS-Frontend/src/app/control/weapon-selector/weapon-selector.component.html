@@ -1,6 +1,5 @@
 <div class="form-group d-flex mb-0">
-  <select class="form-control w-square" name="weaponType" [ngModel]="WeaponType"
-    (ngModelChange)="changeWeaponType($event)">
+  <select class="form-control w-square" name="weaponType" [(ngModel)]="WeaponType">
     <option *ngFor="let weaponType of WeaponTypeList" [value]="weaponType.value">{{weaponType.name}}</option>
   </select>
   <select class="form-control" name="weaponName" [ngModel]="WeaponName"

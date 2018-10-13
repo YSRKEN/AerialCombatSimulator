@@ -20,8 +20,8 @@
     </ul>
   </div>
 </nav>
-<app-weapon-selector category="LBAS"></app-weapon-selector>
-<app-weapon-selector category="Normal"></app-weapon-selector>
+<app-weapon-selector category="LBAS" prefix="test1"></app-weapon-selector>
+<app-weapon-selector category="Normal" prefix="test2"></app-weapon-selector>
 <app-lbasdata [ngClass]="{'d-none': Mode !== 0}"></app-lbasdata>
 <app-enemy-data [ngClass]="{'d-none': Mode !== 1}"></app-enemy-data>
 <app-own-data [ngClass]="{'d-none': Mode !== 2}"></app-own-data>
