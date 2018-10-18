@@ -7,16 +7,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -52,11 +49,11 @@ public class WeaponTypeList extends HttpServlet {
 
 			// SELECT文を発行する
 			ResultSet rs = statement.executeQuery("SELECT id, name FROM weapon_type ORDER BY id");
-			List<Map<String, Object>> result = new ArrayList<>();
+			List<ValueNamePair> result = new ArrayList<>();
 			while (rs.next()) {
-				Map<String, Object> pair = new HashMap<String, Object>(){{
-					put("value", Integer.toString(rs.getInt("id")));
-					put("name", rs.getString("name"));
+				ValueNamePair pair = new ValueNamePair(){{
+					setValue(Integer.toString(rs.getInt("id")));
+					setName(rs.getString("name"));
 				}};
 				result.add(pair);
 			}
@@ -64,7 +61,8 @@ public class WeaponTypeList extends HttpServlet {
 			// 結果をJSONで返却する
 			response.setContentType("text/json");
 			response.setCharacterEncoding("UTF-8");
-			response.getWriter().println("abc");
+			ObjectMapper mapper = new ObjectMapper();
+			response.getWriter().println(mapper.writeValueAsString(result));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			response.sendError(500);
@@ -73,3 +71,10 @@ public class WeaponTypeList extends HttpServlet {
 	}
 }
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+class ValueNamePair {
+	private String value;
+	private String name;
+}
