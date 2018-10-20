@@ -32,49 +32,22 @@ public class WeaponTypeList extends HttpServlet {
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-		// SQLite用のJDBCドライバを使用する
-		try {
-			Class.forName("org.sqlite.JDBC");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			return;
-		}
-
-		// クエリを実行する
-		String databasePath = getServletContext().getRealPath("WEB-INF/GameData.db");
-		try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + databasePath)) {
-			// クエリを実行するための準備をする
-			Statement statement = connection.createStatement();
-			statement.setQueryTimeout(30);
-
-			// SELECT文を発行する
-			ResultSet rs = statement.executeQuery("SELECT id, name FROM weapon_type ORDER BY id");
-			List<ValueNamePair> result = new ArrayList<>();
-			while (rs.next()) {
-				ValueNamePair pair = new ValueNamePair(){{
-					setValue(Integer.toString(rs.getInt("id")));
-					setName(rs.getString("name"));
-				}};
-				result.add(pair);
-			}
-			
-			// 結果をJSONで返却する
-			response.setContentType("text/json");
-			response.setCharacterEncoding("UTF-8");
-			ObjectMapper mapper = new ObjectMapper();
-			response.getWriter().println(mapper.writeValueAsString(result));
-		} catch (SQLException e) {
-			e.printStackTrace();
+		// データベースを確認する
+		DatabaseService.initialize(getServletContext());
+		DatabaseService database = DatabaseService.getDatabase();
+		if (database == null) {
 			response.sendError(500);
 			return;
 		}
+		
+		// クエリを実行する
+		List<ValueNamePair> result = database.findValueNamePair("SELECT id, name FROM weapon_type ORDER BY id", "id", "name");
+		
+		// 結果をJSONで返却する
+		response.setContentType("text/json");
+		response.setCharacterEncoding("UTF-8");
+		ObjectMapper mapper = new ObjectMapper();
+		response.getWriter().println(mapper.writeValueAsString(result));
 	}
 }
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-class ValueNamePair {
-	private String value;
-	private String name;
-}
