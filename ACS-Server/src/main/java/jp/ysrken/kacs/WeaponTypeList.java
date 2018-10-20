@@ -1,12 +1,6 @@
 package jp.ysrken.kacs;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -14,10 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @WebServlet(name = "WeaponTypeList", urlPatterns = { "/weapon-types" })
 public class WeaponTypeList extends HttpServlet {
@@ -46,6 +36,7 @@ public class WeaponTypeList extends HttpServlet {
 		// 結果をJSONで返却する
 		response.setContentType("text/json");
 		response.setCharacterEncoding("UTF-8");
+		response.setHeader("Access-Control-Allow-Origin", "*");
 		ObjectMapper mapper = new ObjectMapper();
 		response.getWriter().println(mapper.writeValueAsString(result));
 	}

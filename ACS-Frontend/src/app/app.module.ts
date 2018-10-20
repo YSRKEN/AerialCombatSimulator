@@ -18,6 +18,7 @@ import { LBASUnitComponent } from './form/lbasunit/lbasunit.component';
 import { OwnUnitComponent } from './form/own-unit/own-unit.component';
 import { WeaponSelectorComponent } from './control/weapon-selector/weapon-selector.component';
 import { HttpClientModule } from '@angular/common/http';
+import { RestApiService } from './service/rest-api.service';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,7 @@ import { HttpClientModule } from '@angular/common/http';
     FormsModule,
     HttpClientModule
   ],
-  providers: [SaveDataService],
+  providers: [SaveDataService, RestApiService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { SaveDataService } from '../../service/save-data.service';
+import { RestApiService } from 'src/app/service/rest-api.service';
 
 @Component({
   selector: 'app-weapon-selector',
@@ -11,17 +12,7 @@ export class WeaponSelectorComponent implements OnInit {
   /**
    * 装備種の辞書
    */
-  private readonly weaponTypeDict: { [key: number]: string; } = {
-    0: "なし",
-    1: "主砲",
-    2: "副砲",
-    3: "魚雷",
-    5: "艦戦",
-    6: "艦爆",
-    7: "艦攻",
-    8: "艦偵",
-    11: "水偵",
-  };
+  private weaponTypeDict: { [key: number]: string; } = {};
 
   /**
    * 航空機とみなす装備種の辞書
@@ -211,13 +202,19 @@ export class WeaponSelectorComponent implements OnInit {
     { "value": '0', "name": '0' }
   ];
 
-  constructor(private saveData: SaveDataService) { }
+  constructor(private saveData: SaveDataService, private restApi: RestApiService) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     // @Inputをチェックする
     if (this.prefix === undefined || undefined === '') {
       throw new Error("<app-weapon-selector>のprefix属性は省略できません。");
     }
+
+    // 事前にAPIを叩いておく
+    const weaponTypes = await this.restApi.getWeaponTypes();
+    weaponTypes.forEach(pair => {
+      this.weaponTypeDict[parseInt(pair.value)] = pair.name;
+    });
 
     // 装備種リストを初期化
     this.WeaponTypeList = this.getWeaponTypeList(this.category);
