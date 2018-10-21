@@ -12,15 +12,9 @@ def has_table(cursor, table_name: str) -> bool:
     cursor.execute(command)
     return cursor.fetchone()[0] != 0
 
-# 当該Pythonファイルのディレクトリ
-ROOT_DIRECTORY = os.path.dirname(__file__)
-
-# データベースファイルの相対ファイルパス
-DB_PATH = '../ACS-Server/src/main/webapp/WEB-INF/GameData_.db'
-
-with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH))) as connect:
-    cursor = connect.cursor()
-
+def create_weapon_type_table(cursor) -> None:
+    """ 装備種テーブルを作成する
+    """
     # 装備種テーブルを作成する
     if has_table(cursor, 'weapon_type'):
         cursor.execute('DROP TABLE weapon_type')
@@ -37,3 +31,16 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH))) as connect:
     data = list(map(lambda x: (x[0], x[1], x[2]), weapon_type_df.values))
     cursor.executemany(command, data)
     connect.commit()
+
+# 当該Pythonファイルのディレクトリ
+ROOT_DIRECTORY = os.path.dirname(__file__)
+
+# データベースファイルの相対ファイルパス
+DB_PATH = '../ACS-Server/src/main/webapp/WEB-INF/GameData_.db'
+DB_PATH = 'GameData.db'
+
+with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH))) as connect:
+    cursor = connect.cursor()
+
+    # 装備種テーブルを作成する
+    create_weapon_type_table(cursor)

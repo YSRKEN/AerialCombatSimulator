@@ -59,10 +59,8 @@ export class RestApiService {
       // 
       this.semaphore = true;
       const result = await this.http.get<T>(this.serverUrl + '/' + endpoint).toPromise();
+      this.cache[key] = result;  // キャッシュにデータを追加
       this.semaphore = false;
-
-      // キャッシュにデータを追加する
-      this.cache[key] = result;
 
       return result;
     } catch (e) {
