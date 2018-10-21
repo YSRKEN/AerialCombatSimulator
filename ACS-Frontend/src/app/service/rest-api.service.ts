@@ -26,6 +26,10 @@ export class RestApiService {
    */
   private semaphore: boolean = false;
 
+  /**
+   * コンストラクタ
+   * @param http HTTPクライアント
+   */
   constructor(private http: HttpClient) {
     // ローカルサーバーで動いていない際は、本番用serverにアクセスするようにする
     if (window.location.href.indexOf("localhost") < 0){
@@ -34,34 +38,52 @@ export class RestApiService {
   }
 
   /**
-   * weapon-typesエンドポイント
+   * キャッシュ機能を含んだGETクライアント
+   * @param key キャッシュのキー
+   * @param endpoint エンドポイントURL
    */
-  public async getWeaponTypes(): Promise<ValueNamePair[]> {
+  private async getRequest<T>(key: string, endpoint: string): Promise<T | null> {
     try {
       // キャッシュに存在する場合はそちらを返却する
-      if ("getWeaponTypes" in this.cache){
-        return this.cache["getWeaponTypes"];
+      if (key in this.cache){
+        return this.cache[key];
       }
 
       // セマフォが立っている際は、何かしらの通信中なので、読み込みを待機する
       if (this.semaphore) {
         await new Promise(resolve => setTimeout(resolve, 100));
-        return this.getWeaponTypes();
+        return this.getRequest<T>(key, endpoint);
       }
 
       // 寝ているセマフォを立て、通信後にまた寝かせる
       // 
       this.semaphore = true;
-      const result = await this.http.get<ValueNamePair[]>(this.serverUrl + '/weapon-types').toPromise();
+      const result = await this.http.get<T>(this.serverUrl + '/' + endpoint).toPromise();
       this.semaphore = false;
 
       // キャッシュにデータを追加する
-      this.cache["getWeaponTypes"] = result;
+      this.cache[key] = result;
 
       return result;
     } catch (e) {
       console.log(e);
+      return null;
+    }
+  }
+
+  /**
+   * weapon-typesエンドポイント
+   */
+  public async getWeaponTypes(): Promise<ValueNamePair[]> {
+    // 結果を取得する
+    const result = await this.getRequest<ValueNamePair[]>('getWeaponTypes', 'weapon-types');
+
+    // 失敗時の処理
+    if (result === null) {
       return [];
     }
+
+    // 成功時の処理
+    return result;
   }
 }
