@@ -69,7 +69,7 @@ def crawl_friend_weapon_data() -> List[any]:
     weapon_type_dict3[0] = 'なし'
 
     # Webページを取得してパースする
-    weapon_data = [(0,0,'なし',0,0,0)]
+    weapon_data = [(0,0,'なし',0,0,0,0)]
     with urllib.request.urlopen('http://kancolle.wikia.com/wiki/Equipment') as request:
         # 取得、パース
         soup: BeautifulSoup = BeautifulSoup(request.read(), 'html.parser')
@@ -100,6 +100,7 @@ def crawl_friend_weapon_data() -> List[any]:
             aa = int(status['Icon_AA']) if 'Icon_AA' in status else 0
             accuracy = int(status['Icon_Hit']) if 'Icon_Hit' in status else 0
             interception = int(status['Icon_Interception']) if 'Icon_Interception' in status else 0
+            radius = weapon_radius_dict[name] if name in weapon_radius_dict else 0
 
             # 装備種を読み取る
             weapon_type = re.sub("\n", '', td_tag_list[3].text)
@@ -125,7 +126,7 @@ def crawl_friend_weapon_data() -> List[any]:
                 weapon_type = weapon_type_dict2['陸軍戦闘機']
 
             # データを入力する
-            weapon_data.append((id, weapon_type, name, aa, accuracy, interception))
+            weapon_data.append((id, weapon_type, name, aa, accuracy, interception, radius))
     return weapon_data
 
 def crawl_enemy_weapon_data() -> List[any]:
@@ -147,17 +148,6 @@ def crawl_weapon_data() -> List[any]:
     weapon_data.extend(enemy_weapon_data)
     return weapon_data
 
-    """
-    return [
-        (  0,  0, 'なし',         0, 0, 0),
-        (  2,  1, '12.7cm連装砲', 0, 0, 0),
-        ( 22,  7, '烈風',        10, 0, 0),
-        ( 54, 13, '彩雲',         0, 2, 0),
-        (168, 31, '九六式陸攻',    1, 0, 0),
-        (176, 33, '三式戦 飛燕',   9, 0, 3),
-    ]
-    """
-
 def create_weapon_table(cursor) -> None:
     """ 装備テーブルを作成する
     """
@@ -171,11 +161,12 @@ def create_weapon_table(cursor) -> None:
                  [aa] INTEGER NOT NULL,
                  [accuracy] INTEGER NOT NULL,
                  [interception] INTEGER NOT NULL,
+                 [radius] INTEGER NOT NULL,
                  PRIMARY KEY([id]))'''
     cursor.execute(command)
 
     # 装備テーブルにデータを追加する
-    command = 'INSERT INTO weapon (id, type, name, aa, accuracy, interception) VALUES (?,?,?,?,?,?)'
+    command = 'INSERT INTO weapon (id, type, name, aa, accuracy, interception, radius) VALUES (?,?,?,?,?,?,?)'
     data = crawl_weapon_data()
     cursor.executemany(command, data)
     connect.commit()
