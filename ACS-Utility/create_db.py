@@ -73,30 +73,45 @@ def crawl_friend_weapon_data() -> List[any]:
     with urllib.request.urlopen('http://kancolle.wikia.com/wiki/Equipment') as request:
         # 取得、パース
         soup: BeautifulSoup = BeautifulSoup(request.read(), 'html.parser')
-        trTagList = soup.select("table.wikitable tr")
+        tr_tag_list = soup.select("table.wikitable tr")
 
         # 1行づつ読み取っていく
-        for trTag in trTagList:
+        for trTag in tr_tag_list:
             # 関係ない行は無視する
-            tdTagList = trTag.select("td")
-            if len(tdTagList) < 9:
+            td_tag_list = trTag.select("td")
+            if len(td_tag_list) < 9:
                 continue
 
             # 装備IDを読み取る
-            id = int(tdTagList[0].text)
+            id = int(td_tag_list[0].text)
 
             # 装備名を読み取る
-            name = tdTagList[2].text.replace(tdTagList[2].a.text, '', 1)
+            name = td_tag_list[2].text.replace(td_tag_list[2].a.text, '', 1)
             name = re.sub('(^ |\n)', '', name)
 
+            # スペックを読み取る
+            raw_stat_icons = list(map(lambda x: re.sub(r".*/([A-Za-z_]+)\.png.*", r"\1", x['href']), td_tag_list[4].select('a')))
+            raw_stat_values = re.sub("(<a.*?</a>|<span.*?\">|</span>|\n| )", "", td_tag_list[4].decode_contents(formatter="html"))
+            raw_stat_values = re.sub("<br/>", ",", raw_stat_values)
+            raw_stat_values = raw_stat_values.split(',')
+            status = {}
+            for icon, value in zip(raw_stat_icons, raw_stat_values):
+                status[icon] = value
+            aa = int(status['Icon_AA']) if 'Icon_AA' in status else 0
+            accuracy = int(status['Icon_Hit']) if 'Icon_Hit' in status else 0
+            interception = int(status['Icon_Interception']) if 'Icon_Interception' in status else 0
+
             # 装備種を読み取る
-            weapon_type = re.sub("\n", '', tdTagList[3].text)
+            weapon_type = re.sub("\n", '', td_tag_list[3].text)
             #辞書による自動判断
             if weapon_type in weapon_type_dict:
                 weapon_type = weapon_type_dict[weapon_type]
             else:
                 if 'Radar' in weapon_type:
-                    weapon_type = weapon_type_dict2['水上電探']
+                    if 'Icon_AA' in status:
+                        weapon_type = weapon_type_dict2['対空電探']
+                    else:
+                        weapon_type = weapon_type_dict2['水上電探']
                 else:
                     weapon_type = weapon_type_dict2['その他']
             #個別対処
@@ -108,10 +123,10 @@ def crawl_friend_weapon_data() -> List[any]:
                 weapon_type = weapon_type_dict2['爆雷']
             if weapon_type == weapon_type_dict2['局地戦闘機'] and name not in ['雷電', '紫電一一型', '紫電二一型 紫電改', '紫電改(三四三空) 戦闘301']:
                 weapon_type = weapon_type_dict2['陸軍戦闘機']
-            #水上電探・対空電探は個別対処
 
-            print("[" + str(id) + "] " + name + " " + weapon_type_dict3[weapon_type])
-    return []
+            # データを入力する
+            weapon_data.append((id, weapon_type, name, aa, accuracy, interception))
+    return weapon_data
 
 def crawl_enemy_weapon_data() -> List[any]:
     """深海棲艦の装備一覧をクロールして作成する
