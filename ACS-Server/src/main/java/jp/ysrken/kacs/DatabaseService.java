@@ -3,10 +3,13 @@ package jp.ysrken.kacs;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 
@@ -50,18 +53,14 @@ public class DatabaseService {
 	}
 
 	/**
-	 * value・name形式の結果を返す
+	 * SELECTの結果を返す
 	 * 
 	 * @param query
 	 *            SQLクエリ
-	 * @param valueKey
-	 *            valueに入れる値
-	 * @param nameKey
-	 *            nameに入れる値
-	 * @return
+	 * @return SELECTした結果をMapのListで返す
 	 */
-	public List<ValueNamePair> findValueNamePair(String query, String valueKey, String nameKey) {
-		List<ValueNamePair> result = new ArrayList<>();
+	public List<Map<String, Object>> select(String query) {
+		List<Map<String, Object>> result = new ArrayList<>();
 		try {
 			// クエリを実行するための準備をする
 			Statement statement = connection.createStatement();
@@ -69,14 +68,16 @@ public class DatabaseService {
 
 			// SELECT文を発行する
 			ResultSet rs = statement.executeQuery(query);
+			ResultSetMetaData rsmd = rs.getMetaData();
+			int columnCount = rsmd.getColumnCount();
 			while (rs.next()) {
-				ValueNamePair pair = new ValueNamePair() {
-					{
-						setValue(rs.getString(valueKey));
-						setName(rs.getString(nameKey));
-					}
-				};
-				result.add(pair);
+				Map<String, Object> record = new HashMap<>();
+				for (int i = 1; i <= columnCount; ++i) {
+					String key = rsmd.getColumnLabel(i);
+					Object value = rs.getObject(i);
+					record.put(key, value);
+				}
+				result.add(record);
 			}
 			return result;
 		} catch (SQLException e) {

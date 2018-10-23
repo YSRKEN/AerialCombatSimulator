@@ -213,7 +213,7 @@ export class WeaponSelectorComponent implements OnInit {
     // 事前にAPIを叩いておく
     const weaponTypes = await this.restApi.getWeaponTypes();
     weaponTypes.forEach(pair => {
-      this.weaponTypeDict[parseInt(pair.value)] = pair.name;
+      this.weaponTypeDict[parseInt(pair.id)] = pair.name;
     });
 
     // 装備種リストを初期化

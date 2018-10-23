@@ -1,11 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-/**
- * valueとnameのペアを持つインターフェース
- */
-export type ValueNamePair = { "value": string, "name": string };
-
 @Injectable({
   providedIn: 'root'
 })
@@ -72,9 +67,9 @@ export class RestApiService {
   /**
    * weapon-typesエンドポイント
    */
-  public async getWeaponTypes(): Promise<ValueNamePair[]> {
+  public async getWeaponTypes(): Promise<{"id": string, "name": string}[]> {
     // 結果を取得する
-    const result = await this.getRequest<ValueNamePair[]>('getWeaponTypes', 'weapon-types');
+    const result = await this.getRequest<{"id": string, "name": string}[]>('getWeaponTypes', 'weapon-types');
 
     // 失敗時の処理
     if (result === null) {
