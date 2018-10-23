@@ -34,31 +34,6 @@ export class WeaponSelectorComponent implements OnInit {
   };
 
   /**
-   * 装備種カテゴリに対応した装備種リストを返す
-   * @param category 装備種カテゴリ
-   */
-  private getWeaponTypeList(category: string): { "value": string, "name": string }[] {
-    // 装備種のkeyの一覧を取得する
-    let typeValueList = [];
-    switch (category) {
-      case 'LBAS':
-        typeValueList = [0, 5, 6, 7, 8, 11];
-        break;
-      case 'Normal':
-        typeValueList = [0, 1, 2, 3, 5, 6, 7, 8, 11];
-        break;
-      default:
-        typeValueList = [0];
-        break;
-    }
-
-    // 装備種の一覧を作成する
-    return typeValueList.map(v => {
-      return { 'value': '' + v, 'name': this.weaponTypeDict[v] };
-    });
-  }
-
-  /**
    * 装備種に対応した装備リストを返す
    * @param weaponTypeValue 装備種
    */
@@ -210,15 +185,17 @@ export class WeaponSelectorComponent implements OnInit {
       throw new Error("<app-weapon-selector>のprefix属性は省略できません。");
     }
 
+    // 装備種リストを初期化
+    this.WeaponTypeList = (await this.restApi.getWeaponTypes(this.category, true))
+      .map(v => {return {'value': '' + v.id, 'name': v.name}});
+    this.WeaponTypeList.unshift({'value': '0', 'name': 'なし'});
+
     // 事前にAPIを叩いておく
     const weaponTypes = await this.restApi.getWeaponTypes();
     weaponTypes.forEach(pair => {
       this.weaponTypeDict[parseInt(pair.id)] = pair.name;
     });
 
-    // 装備種リストを初期化
-    this.WeaponTypeList = this.getWeaponTypeList(this.category);
-    
     // 装備リストを初期化
     this.WeaponNameList = this.getWeaponNameList(this.WeaponTypeValue);
 

@@ -1,6 +1,7 @@
 package jp.ysrken.kacs;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,8 +33,25 @@ public class WeaponTypeList extends HttpServlet {
 			return;
 		}
 		
+		// パラメーターを確認する
+		String category = request.getParameter("category");
+		String short_name_flg = request.getParameter("short_name_flg");
+		
 		// クエリを実行する
-		List<Map<String, Object>> result = database.select("SELECT id, name FROM weapon_type ORDER BY id");
+		List<Map<String, Object>> result;
+		if (category == null || category.equals("Normal")){
+			if (short_name_flg != null && short_name_flg.equals("1")) {
+				result = database.select("SELECT id, short_name as name FROM weapon_type ORDER BY id");
+			}else {
+				result = database.select("SELECT id, name FROM weapon_type ORDER BY id");
+			}
+		} else {
+			if (short_name_flg != null && short_name_flg.equals("1")) {
+				result = database.select("SELECT id, short_name as name FROM weapon_type WHERE weapon_type.name IN (SELECT type FROM weapon_category WHERE category='" + category + "') ORDER BY id");
+			}else {
+				result = database.select("SELECT id, name FROM weapon_type WHERE name IN (SELECT type FROM weapon_category WHERE category='" + category + "') ORDER BY id");
+			}
+		}
 		
 		// 結果をJSONで返却する
 		response.setContentType("text/json");

@@ -43,6 +43,19 @@ def create_weapon_type_table(cursor) -> None:
     command = 'CREATE INDEX weapon_type_short_name on weapon_type(short_name)'
     cursor.execute(command)
 
+def create_weapon_category_table(cursor) -> None:
+    """ 装備カテゴリテーブルを作成する
+    """
+    # 装備カテゴリテーブルを作成する
+    if has_table(cursor, 'weapon_category'):
+        cursor.execute('DROP TABLE weapon_category')
+    command = '''CREATE TABLE [weapon_category] (
+                 [id] INTEGER NOT NULL UNIQUE,
+                 [name] TEXT NOT NULL UNIQUE,
+                 [short_name] TEXT NOT NULL UNIQUE,
+                 PRIMARY KEY([id]))'''
+    cursor.execute(command)
+
 def get_weapon_type_dict():
     """装備種と装備種IDとの対応表を作成する
     """
@@ -265,6 +278,9 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH))) as connect:
 
     # 装備種テーブルを作成する
     create_weapon_type_table(cursor)
+
+    # 装備カテゴリテーブルを作成する
+    create_weapon_category_table(cursor)
 
     # 装備テーブルを作成する
     create_weapon_table(cursor)

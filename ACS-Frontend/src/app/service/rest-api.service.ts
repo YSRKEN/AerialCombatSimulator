@@ -41,6 +41,7 @@ export class RestApiService {
     try {
       // キャッシュに存在する場合はそちらを返却する
       if (key in this.cache){
+        console.log("[cache] " + key);
         return this.cache[key];
       }
 
@@ -51,7 +52,7 @@ export class RestApiService {
       }
 
       // 寝ているセマフォを立て、通信後にまた寝かせる
-      // 
+      console.log("[non-cache] " + key);
       this.semaphore = true;
       const result = await this.http.get<T>(this.serverUrl + '/' + endpoint).toPromise();
       this.cache[key] = result;  // キャッシュにデータを追加
@@ -66,10 +67,16 @@ export class RestApiService {
 
   /**
    * weapon-typesエンドポイント
+   * @param category カテゴリ。「LBAS」か「Normal」を指定する
+   * @param short_name_flg 装備種の名前を短くするならtrue、しないならfalse
    */
-  public async getWeaponTypes(): Promise<{"id": string, "name": string}[]> {
+  public async getWeaponTypes(category: string = '', short_name_flg: boolean = false): Promise<{"id": string, "name": string}[]> {
+    // 準備をする
+    const key = 'getWeaponTypes#' + category + ',' + (short_name_flg ? 1 : 0);
+    const endpoint = 'weapon-types?category=' + category + '&short_name_flg=' + (short_name_flg ? 1 : 0);
+
     // 結果を取得する
-    const result = await this.getRequest<{"id": string, "name": string}[]>('getWeaponTypes', 'weapon-types');
+    const result = await this.getRequest<{"id": string, "name": string}[]>(key, endpoint);
 
     // 失敗時の処理
     if (result === null) {
