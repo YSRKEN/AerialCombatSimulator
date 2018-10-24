@@ -47,9 +47,11 @@ public class WeaponTypeList extends HttpServlet {
 			}
 		} else {
 			if (short_name_flg != null && short_name_flg.equals("1")) {
-				result = database.select("SELECT id, short_name as name FROM weapon_type WHERE weapon_type.name IN (SELECT type FROM weapon_category WHERE category='" + category + "') ORDER BY id");
+				String query = "SELECT id, short_name as name FROM weapon_type WHERE weapon_type.name IN (SELECT type FROM weapon_category WHERE category=?) ORDER BY id";
+				result = database.select(query, category);
 			}else {
-				result = database.select("SELECT id, name FROM weapon_type WHERE name IN (SELECT type FROM weapon_category WHERE category='" + category + "') ORDER BY id");
+				String query = "SELECT id, name FROM weapon_type WHERE name IN (SELECT type FROM weapon_category WHERE category=?) ORDER BY id";
+				result = database.select(query, category);
 			}
 		}
 		
