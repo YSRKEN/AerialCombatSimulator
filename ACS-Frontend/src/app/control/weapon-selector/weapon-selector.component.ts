@@ -8,12 +8,6 @@ import { RestApiService } from 'src/app/service/rest-api.service';
   styleUrls: ['./weapon-selector.component.scss']
 })
 export class WeaponSelectorComponent implements OnInit {
-
-  /**
-   * 装備種の辞書
-   */
-  private weaponTypeDict: { [key: number]: string; } = {};
-
   /**
    * 航空機とみなす装備種の辞書
    */
@@ -32,64 +26,6 @@ export class WeaponSelectorComponent implements OnInit {
     8: true,
     11: true,
   };
-
-  /**
-   * 装備種に対応した装備リストを返す
-   * @param weaponTypeValue 装備種
-   */
-  private getWeaponNameList(weaponTypeValue: string): { "value": string, "name": string }[] {
-    switch (this.weaponTypeDict[parseInt(weaponTypeValue)]) {
-      case "主砲":
-        return [
-          { 'value': '0', 'name': 'なし' },
-          { 'value': '2', 'name': '12.7cm連装砲' },
-          { 'value': '6', 'name': '20.3cm連装砲' },
-          { 'value': '7', 'name': '35.6cm連装砲' },
-        ];
-      case "副砲":
-        return [
-          { 'value': '0', 'name': 'なし' },
-          { 'value': '11', 'name': '15.2cm単装砲' },
-        ];
-      case "魚雷":
-        return [
-          { 'value': '0', 'name': 'なし' },
-          { 'value': '13', 'name': '61cm三連装魚雷' },
-        ];
-        case "艦戦":
-        return [
-          { 'value': '0', 'name': 'なし' },
-          { 'value': '19', 'name': '九六式艦戦' },
-          { 'value': '22', 'name': '烈風' },
-        ];
-        case "艦爆":
-        return [
-          { 'value': '0', 'name': 'なし' },
-          { 'value': '23', 'name': '九九式艦爆' },
-          { 'value': '57', 'name': '彗星一二型甲' },
-        ];
-        case "艦攻":
-        return [
-          { 'value': '0', 'name': 'なし' },
-          { 'value': '16', 'name': '九七式艦攻' },
-          { 'value': '52', 'name': '流星改' },
-        ];
-        case "艦偵":
-        return [
-          { 'value': '0', 'name': 'なし' },
-          { 'value': '54', 'name': '彩雲' },
-        ];
-        case "水偵":
-        return [
-          { 'value': '0', 'name': 'なし' },
-          { 'value': '25', 'name': '零式水上偵察機' },
-        ];
-      default:
-        return [
-          { 'value': '0', 'name': 'なし' },
-        ];
-    }
-  }
 
   /**
    * 指定した搭載数を最大値とする搭載数リストを返す
@@ -190,14 +126,10 @@ export class WeaponSelectorComponent implements OnInit {
       .map(v => {return {'value': '' + v.id, 'name': v.name}});
     this.WeaponTypeList.unshift({'value': '0', 'name': 'なし'});
 
-    // 事前にAPIを叩いておく
-    const weaponTypes = await this.restApi.getWeaponTypes();
-    weaponTypes.forEach(pair => {
-      this.weaponTypeDict[parseInt(pair.id)] = pair.name;
-    });
-
     // 装備リストを初期化
-    this.WeaponNameList = this.getWeaponNameList(this.WeaponTypeValue);
+    this.WeaponNameList = (await this.restApi.getWeaponNames(parseInt(this.WeaponTypeValue)))
+      .map(v => {return {'value': '' + v.id, 'name': v.name}});
+    this.WeaponNameList.unshift({'value': '0', 'name': 'なし'});
 
     // 搭載数リストを初期化
     // ('LBAS'はここで初期化されるが、そうでない場合は@Input() set slotSizeで初期化される)
@@ -218,17 +150,22 @@ export class WeaponSelectorComponent implements OnInit {
     this.saveData.saveString(this.prefix + '.weapon_type', value);
     
     // 装備名一覧を更新
-    this.WeaponNameList = this.getWeaponNameList(this.WeaponTypeValue);
-    if (this.WeaponNameList.filter(pair => pair.value === this.WeaponNameValue).length === 0){
-      this.WeaponNameValue = '0';
-    }
-
-    // 搭載数を更新
-    if (this.category === 'LBAS') {
-      var maxSlotSize: string = this.searchTypeSet[parseInt(this.WeaponTypeValue)] ? '4' : '18';
-      this.SlotCountList = this.getSlotCountList(maxSlotSize);
-    }
-    this.SlotCountValue = '' + (this.SlotCountList.length - 1);
+    this.restApi.getWeaponNames(parseInt(this.WeaponTypeValue))
+      .then(value => {
+        // 装備名一覧を更新
+        this.WeaponNameList = value.map(v => {return {'value': '' + v.id, 'name': v.name}});
+        this.WeaponNameList.unshift({'value': '0', 'name': 'なし'});
+        if (this.WeaponNameList.filter(pair => pair.value === this.WeaponNameValue).length === 0){
+          this.WeaponNameValue = '0';
+        }
+    
+        // 搭載数を更新
+        if (this.category === 'LBAS') {
+          var maxSlotSize: string = this.searchTypeSet[parseInt(this.WeaponTypeValue)] ? '4' : '18';
+          this.SlotCountList = this.getSlotCountList(maxSlotSize);
+        }
+        this.SlotCountValue = '' + (this.SlotCountList.length - 1);
+      })
   }
 
   /**

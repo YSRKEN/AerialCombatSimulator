@@ -86,4 +86,25 @@ export class RestApiService {
     // 成功時の処理
     return result;
   }
+
+  /**
+   * weapon-namesエンドポイント
+   * @param type 装備種のID。0なら未指定
+   */
+  public async getWeaponNames(type: number = 0): Promise<{"id": string, "name": string}[]> {
+    // 準備をする
+    const key = 'getWeaponNames#' + type;
+    const endpoint = 'weapon-names?type=' + type;
+
+    // 結果を取得する
+    const result = await this.getRequest<{"id": string, "name": string}[]>(key, endpoint);
+
+    // 失敗時の処理
+    if (result === null) {
+      return [];
+    }
+
+    // 成功時の処理
+    return result;
+  }
 }
