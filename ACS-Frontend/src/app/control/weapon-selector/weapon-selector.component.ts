@@ -11,21 +11,12 @@ export class WeaponSelectorComponent implements OnInit {
   /**
    * 航空機とみなす装備種の辞書
    */
-  private readonly airTypeSet: { [key: number]: boolean; } = {
-    5: true,
-    6: true,
-    7: true,
-    8: true,
-    11: true,
-  };
+  private airTypeSet: { [key: number]: boolean; } = {};
 
   /**
    * 偵察機とみなす装備種の辞書
    */
-  private readonly searchTypeSet: { [key: number]: boolean; } = {
-    8: true,
-    11: true,
-  };
+  private searchTypeSet: { [key: number]: boolean; } = {};
 
   /**
    * 指定した搭載数を最大値とする搭載数リストを返す
@@ -137,6 +128,13 @@ export class WeaponSelectorComponent implements OnInit {
       var maxSlotSize: string = this.searchTypeSet[parseInt(this.WeaponTypeValue)] ? '4' : '18';
       this.SlotCountList = this.getSlotCountList(maxSlotSize);
     }
+
+    // その他初期化
+    this.airTypeSet = {};
+    (await this.restApi.getWeaponTypes('Air')).forEach(pair => this.airTypeSet[pair.id] = pair.name);
+    this.searchTypeSet = {};
+    (await this.restApi.getWeaponTypes('Recon')).forEach(pair => this.airTypeSet[pair.id] = pair.name);
+
   }
 
   /**

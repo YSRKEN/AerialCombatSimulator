@@ -50,10 +50,21 @@ def create_weapon_category_table(cursor) -> None:
     if has_table(cursor, 'weapon_category'):
         cursor.execute('DROP TABLE weapon_category')
     command = '''CREATE TABLE [weapon_category] (
-                 [id] INTEGER NOT NULL UNIQUE,
-                 [name] TEXT NOT NULL UNIQUE,
-                 [short_name] TEXT NOT NULL UNIQUE,
-                 PRIMARY KEY([id]))'''
+                [id] INTEGER NOT NULL UNIQUE,
+                [category] TEXT NOT NULL,
+                [type] TEXT NOT NULL,
+                PRIMARY KEY([id]));'''
+    cursor.execute(command)
+
+    # 装備カテゴリテーブルにデータを追加する
+    command = 'INSERT INTO weapon_category (id, category, type) VALUES (?,?,?)'
+    weapon_category_df = pandas.read_csv(os.path.join(ROOT_DIRECTORY, 'weapon_category.csv'))
+    data = list(map(lambda x: (x[0], x[1], x[2]), weapon_category_df.values))
+    cursor.executemany(command, data)
+    connect.commit()
+
+    # 装備カテゴリテーブルにインデックスを設定する
+    command = 'CREATE INDEX weapon_category_category on weapon_category(category)'
     cursor.execute(command)
 
 def get_weapon_type_dict():
