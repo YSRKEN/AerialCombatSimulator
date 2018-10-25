@@ -91,10 +91,10 @@ export class RestApiService {
    * weapon-namesエンドポイント
    * @param type 装備種のID。0なら未指定
    */
-  public async getWeaponNames(type: number = 0): Promise<{"id": string, "name": string}[]> {
+  public async getWeaponNames(type: number = 0, for_kammusu_flg: boolean = true): Promise<{"id": string, "name": string}[]> {
     // 準備をする
-    const key = 'getWeaponNames#' + type;
-    const endpoint = 'weapon-names?type=' + type;
+    const key = 'getWeaponNames#' + type + ',' + (for_kammusu_flg ? 1 : 0);
+    const endpoint = 'weapon-names?type=' + type + '&for_kammusu_flg=' + (for_kammusu_flg ? 1 : 0);
 
     // 結果を取得する
     const result = await this.getRequest<{"id": string, "name": string}[]>(key, endpoint);

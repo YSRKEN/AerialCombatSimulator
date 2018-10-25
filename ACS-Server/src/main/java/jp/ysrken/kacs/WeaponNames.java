@@ -35,13 +35,17 @@ public class WeaponNames extends HttpServlet {
 		
 		// パラメーターを確認する
 		String type = request.getParameter("type");
+		String for_kammusu_flg = request.getParameter("for_kammusu_flg");
 		
 		// クエリを実行する
+		String tempQuery1 = (for_kammusu_flg != null ? "WHERE for_kammusu_flg='" + for_kammusu_flg + "' " : "");
+		String tempQuery2 = (for_kammusu_flg != null ? "AND for_kammusu_flg='" + for_kammusu_flg + "' " : "");
+
 		List<Map<String, Object>> result;
 		if (type == null){
-			result = database.select("SELECT id, name FROM weapon ORDER BY id");
+			result = database.select("SELECT id, name FROM weapon " + tempQuery1 + "ORDER BY id");
 		} else {
-			result = database.select("SELECT id, name FROM weapon WHERE type = '" + type + "' ORDER BY id");
+			result = database.select("SELECT id, name FROM weapon WHERE type = '" + type + "' " + tempQuery2 + "ORDER BY id");
 		}
 		
 		// 結果をJSONで返却する
