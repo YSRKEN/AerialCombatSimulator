@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebServlet(name = "WeaponTypeList", urlPatterns = { "/weapon-types" })
-public class WeaponTypeList extends HttpServlet {
+public class WeaponTypes extends HttpServlet {
 	/**
 	 * 一意なバージョンID
 	 */
