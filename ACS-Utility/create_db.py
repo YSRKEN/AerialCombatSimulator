@@ -277,6 +277,33 @@ def create_weapon_table(cursor) -> None:
     command = 'CREATE INDEX weapon_for_kammusu_flg on weapon(for_kammusu_flg)'
     cursor.execute(command)
 
+def create_kammusu_type_table(cursor) -> None:
+    """ 艦種テーブルを作成する
+    """
+    # 艦種テーブルを作成する
+    if has_table(cursor, 'kammusu_type'):
+        cursor.execute('DROP TABLE kammusu_type')
+    command = '''CREATE TABLE [kammusu_type] (
+                 [id] INTEGER NOT NULL UNIQUE,
+                 [name] TEXT NOT NULL UNIQUE,
+                 [short_name] TEXT NOT NULL UNIQUE,
+                 PRIMARY KEY([id]))'''
+    cursor.execute(command)
+
+    # 艦種テーブルにデータを追加する
+    command = 'INSERT INTO kammusu_type (id, name, short_name) VALUES (?,?,?)'
+    kammusu_type_df = pandas.read_csv(os.path.join(ROOT_DIRECTORY, 'kammusu_type.csv'))
+    data = list(map(lambda x: (x[0], x[1], x[2]), kammusu_type_df.values))
+    cursor.executemany(command, data)
+    connect.commit()
+
+    # 艦種テーブルにインデックスを設定する
+    command = 'CREATE INDEX kammusu_type_name on kammusu_type(name)'
+    cursor.execute(command)
+    command = 'CREATE INDEX kammusu_type_short_name on kammusu_type(short_name)'
+    cursor.execute(command)
+
+
 # 当該Pythonファイルのディレクトリ
 ROOT_DIRECTORY = os.path.dirname(__file__)
 
@@ -295,3 +322,6 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH))) as connect:
 
     # 装備テーブルを作成する
     create_weapon_table(cursor)
+
+    # 艦種テーブルを作成する
+    create_kammusu_type_table(cursor)
