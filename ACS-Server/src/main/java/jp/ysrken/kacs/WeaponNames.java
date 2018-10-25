@@ -36,6 +36,7 @@ public class WeaponNames extends HttpServlet {
 		// パラメーターを確認する
 		String type = request.getParameter("type");
 		String for_kammusu_flg = request.getParameter("for_kammusu_flg");
+		System.out.println("/weapon-names?type=" + type + "&for_kammusu_flg=" + for_kammusu_flg);
 		
 		// クエリを実行する
 		String tempQuery1 = (for_kammusu_flg != null ? "WHERE for_kammusu_flg='" + for_kammusu_flg + "' " : "");
