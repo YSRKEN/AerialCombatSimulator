@@ -303,6 +303,25 @@ def create_kammusu_type_table(cursor) -> None:
     command = 'CREATE INDEX kammusu_type_short_name on kammusu_type(short_name)'
     cursor.execute(command)
 
+def create_kammusu_table(cursor) -> None:
+    """ 艦娘テーブルを作成する
+    """
+    # 艦娘テーブルを作成する
+    if has_table(cursor, 'kammusu'):
+        cursor.execute('DROP TABLE kammusu')
+    """
+    command = '''CREATE TABLE [kammusu] (
+                 [id] INTEGER,
+                 [type] INTEGER NOT NULL REFERENCES [weapon_type]([id]),
+                 [name] TEXT NOT NULL,
+                 [aa] INTEGER NOT NULL,
+                 [accuracy] INTEGER NOT NULL,
+                 [interception] INTEGER NOT NULL,
+                 [radius] INTEGER NOT NULL,
+                 [for_kammusu_flg] INTEGER NOT NULL,
+                 PRIMARY KEY([id]))'''
+    """
+    cursor.execute(command)
 
 # 当該Pythonファイルのディレクトリ
 ROOT_DIRECTORY = os.path.dirname(__file__)
@@ -325,3 +344,6 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH))) as connect:
 
     # 艦種テーブルを作成する
     create_kammusu_type_table(cursor)
+
+    # 艦娘テーブルを作成する
+    create_kammusu_table(cursor)
