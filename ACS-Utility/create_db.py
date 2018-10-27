@@ -295,7 +295,6 @@ def create_kammusu_type_table(cursor) -> None:
     kammusu_type_df = pandas.read_csv(os.path.join(ROOT_DIRECTORY, 'kammusu_type.csv'))
     data = list(map(lambda x: (x[0], x[1], x[2]), kammusu_type_df.values))
     cursor.executemany(command, data)
-    connect.commit()
 
     # 艦種テーブルにインデックスを設定する
     command = 'CREATE INDEX kammusu_type_name on kammusu_type(name)'
@@ -303,24 +302,62 @@ def create_kammusu_type_table(cursor) -> None:
     command = 'CREATE INDEX kammusu_type_short_name on kammusu_type(short_name)'
     cursor.execute(command)
 
+def crawl_friend_kammusu_data() -> List[any]:
+    return []
+
+def crawl_enemy_kammusu_data() -> List[any]:
+    return []
+
+def crawl_kammusu_data() -> List[any]:
+    """艦娘一覧をWebクロールして作成する
+    """
+    # 艦娘一覧を読み取る
+    friend_kammusu_data = crawl_friend_kammusu_data()
+
+    # 深海棲艦一覧を読み取る
+    enemy_kammusu_data = crawl_enemy_kammusu_data()
+
+    # 合体させたものを戻り値とする
+    kammusu_data = friend_kammusu_data
+    kammusu_data.extend(enemy_kammusu_data)
+    return kammusu_data
+
 def create_kammusu_table(cursor) -> None:
     """ 艦娘テーブルを作成する
     """
     # 艦娘テーブルを作成する
     if has_table(cursor, 'kammusu'):
         cursor.execute('DROP TABLE kammusu')
-    """
     command = '''CREATE TABLE [kammusu] (
-                 [id] INTEGER,
-                 [type] INTEGER NOT NULL REFERENCES [weapon_type]([id]),
-                 [name] TEXT NOT NULL,
-                 [aa] INTEGER NOT NULL,
-                 [accuracy] INTEGER NOT NULL,
-                 [interception] INTEGER NOT NULL,
-                 [radius] INTEGER NOT NULL,
-                 [for_kammusu_flg] INTEGER NOT NULL,
-                 PRIMARY KEY([id]))'''
-    """
+                [id] INTEGER NOT NULL UNIQUE,
+                [type] INTEGER NOT NULL REFERENCES [kammusu_type]([id]),
+                [name] TEXT NOT NULL UNIQUE,
+                [aa] INTEGER NOT NULL,
+                [slotsize] INTEGER NOT NULL,
+                [slot1] INTEGER NOT NULL,
+                [slot2] INTEGER NOT NULL,
+                [slot3] INTEGER NOT NULL,
+                [slot4] INTEGER NOT NULL,
+                [slot5] INTEGER NOT NULL,
+                [weapon1] INTEGER NOT NULL REFERENCES [weapon]([id]),
+                [weapon2] INTEGER NOT NULL REFERENCES [weapon]([id]),
+                [weapon3] INTEGER NOT NULL REFERENCES [weapon]([id]),
+                [weapon4] INTEGER NOT NULL REFERENCES [weapon]([id]),
+                [weapon5] INTEGER NOT NULL REFERENCES [weapon]([id]),
+                [kammusu_flg] INTEGER NOT NULL,
+                PRIMARY KEY([id]))'''
+    cursor.execute(command)
+
+    # 艦娘テーブルにデータを追加する
+    command = '''INSERT INTO kammusu (id, type, name, aa, slotsize,
+                    slot1, slot2, slot3, slot4, slot5,
+                    weapon1, weapon2, weapon3, weapon4, weapon5,
+                    kammusu_flg) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+    data = crawl_kammusu_data()
+    cursor.executemany(command, data)
+
+    # 艦娘テーブルにインデックスを設定する
+    command = 'CREATE INDEX kammusu_name on kammusu(name)'
     cursor.execute(command)
 
 # 当該Pythonファイルのディレクトリ
@@ -330,8 +367,10 @@ ROOT_DIRECTORY = os.path.dirname(__file__)
 DB_PATH = '../ACS-Server/src/main/webapp/WEB-INF/GameData_.db'
 DB_PATH = 'GameData.db'
 
-with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH))) as connect:
+with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_level='EXCLUSIVE')) as connect:
     cursor = connect.cursor()
+    cursor.execute('PRAGMA journal_mode=Memory')
+    cursor.execute('PRAGMA synchronous = Off')
 
     # 装備種テーブルを作成する
     create_weapon_type_table(cursor)
@@ -347,3 +386,5 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH))) as connect:
 
     # 艦娘テーブルを作成する
     create_kammusu_table(cursor)
+
+    connect.commit()
