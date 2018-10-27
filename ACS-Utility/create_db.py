@@ -419,7 +419,15 @@ def crawl_enemy_kammusu_data() -> List[any]:
             slot_size, slot = calc_kammusu_slot(td_tag_list[18])
             if slot_size < 0:
                 continue
-            
+
+            # 艦種を補正する
+            if kammusu_type == kammusu_type_wikia_dict['DD'] and 'PT' in name:
+                kammusu_type = kammusu_type_wikia_dict['PT']
+            if kammusu_type == kammusu_type_wikia_dict['BBV']:
+                speed = int(td_tag_list[14].text)
+                if speed == 0:
+                    kammusu_type = kammusu_type_wikia_dict['AF']
+
             # 装備情報を読み取る
             weapon = calc_kammusu_weapon(td_tag_list[19], weapon_url_id_dict)
 
