@@ -181,7 +181,7 @@ def crawl_friend_weapon_data() -> List[any]:
     weapon_type_default_dict, weapon_type_wikia_dict = get_weapon_type_dict()
 
     # Webページを取得してパースする
-    weapon_data = [(0,0,'なし',0,0,0,0,1)]
+    weapon_data = []
     with urllib.request.urlopen('http://kancolle.wikia.com/wiki/Equipment') as request:
         # 取得、パース
         soup: BeautifulSoup = BeautifulSoup(request.read(), 'html.parser')
@@ -260,7 +260,8 @@ def crawl_weapon_data() -> List[any]:
     enemy_weapon_data = crawl_enemy_weapon_data()
 
     # 合体させたものを戻り値とする
-    weapon_data = friend_weapon_data
+    weapon_data = [(0,0,'なし',0,0,0,0,1)]
+    weapon_data.extend(friend_weapon_data)
     weapon_data.extend(enemy_weapon_data)
     return weapon_data
 
@@ -344,6 +345,8 @@ def crawl_friend_kammusu_data_deckbuilder() -> List[any]:
 
             # 艦名
             name = json_data['name']
+            if 'なし' in name:
+                continue
 
             # 対空
             aa = json_data['aac']
@@ -561,7 +564,8 @@ def crawl_kammusu_data() -> List[any]:
     enemy_kammusu_data = crawl_enemy_kammusu_data()
 
     # 合体させたものを戻り値とする
-    kammusu_data = friend_kammusu_data
+    kammusu_data = [(0,0,'なし',0,0,0,0,0,0,0,0,0,0,0,0,1)]
+    kammusu_data.extend(friend_kammusu_data)
     kammusu_data.extend(enemy_kammusu_data)
     return kammusu_data
 

@@ -115,11 +115,14 @@ export class WeaponSelectorComponent implements OnInit {
     // 装備種リストを初期化
     this.WeaponTypeList = (await this.restApi.getWeaponTypes(this.category, true))
       .map(v => {return {'value': '' + v.id, 'name': v.name}});
+    this.WeaponTypeList.unshift({'value': '0', 'name': 'なし'});
 
     // 装備リストを初期化
     this.WeaponNameList = (await this.restApi.getWeaponNames(parseInt(this.WeaponTypeValue)))
       .map(v => {return {'value': '' + v.id, 'name': v.name}});
-    this.WeaponNameList.unshift({'value': '0', 'name': 'なし'});
+    if (this.WeaponTypeValue !== '0'){
+      this.WeaponNameList.unshift({'value': '0', 'name': 'なし'});
+    }
 
     // 搭載数リストを初期化
     // ('LBAS'はここで初期化されるが、そうでない場合は@Input() set slotSizeで初期化される)

@@ -40,11 +40,11 @@ public class WeaponTypes extends HttpServlet {
 		
 		// クエリを実行する
 		String tempQuery1 = (short_name_flg != null && short_name_flg.equals("1") ? "short_name as name" : "name");
-		String tempQuery2 = "WHERE weapon_type.name IN (SELECT type FROM weapon_category WHERE category=?) ";
+		String tempQuery2 = "WHERE weapon_type.name IN (SELECT type FROM weapon_category WHERE category=?)";
 
 		List<Map<String, Object>> result;
 		if (category == null || category.equals("Normal")){
-			result = database.select("SELECT id, " + tempQuery1 + " FROM weapon_type ORDER BY id");
+			result = database.select("SELECT id, " + tempQuery1 + " FROM weapon_type WHERE name <> 'なし' ORDER BY id");
 		} else {
 			String query = "SELECT id, " + tempQuery1 + " FROM weapon_type " + tempQuery2 + "ORDER BY id";
 			result = database.select(query, category);

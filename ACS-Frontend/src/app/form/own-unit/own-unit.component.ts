@@ -65,7 +65,7 @@ export class OwnUnitComponent implements OnInit {
   /**
    * 最大搭載数
    */
-  SlotSize: string[];
+  SlotSize: string[] = ['0', '0', '0', '0', '0'];
 
   /**
    * スロット数
