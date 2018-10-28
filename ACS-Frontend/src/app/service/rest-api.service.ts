@@ -47,7 +47,7 @@ export class RestApiService {
 
       // セマフォが立っている際は、何かしらの通信中なので、読み込みを待機する
       if (this.semaphore) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 1));
         return this.getRequest<T>(key, endpoint);
       }
 

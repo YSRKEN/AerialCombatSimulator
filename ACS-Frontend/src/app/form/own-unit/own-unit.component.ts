@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { SaveDataService } from '../../service/save-data.service';
-import { RestApiService } from 'src/app/service/rest-api.service';
+import { RestApiService } from '../../service/rest-api.service';
 
 @Component({
   selector: 'app-own-unit',
