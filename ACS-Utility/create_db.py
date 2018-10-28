@@ -367,7 +367,7 @@ def crawl_friend_kammusu_data_deckbuilder() -> List[any]:
             data = (id, kammusu_type, name, aa, slot_size,
             slot[0], slot[1], slot[2], slot[3], slot[4],
             weapon[0], weapon[1], weapon[2], weapon[3], weapon[4],
-            0)
+            1)
             kammusu_data.append(data)
     return kammusu_data
 

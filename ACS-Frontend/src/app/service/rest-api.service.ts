@@ -108,7 +108,7 @@ export class RestApiService {
     return result;
   }
 
-    /**
+  /**
    * kammusu-typesエンドポイント
    * @param category カテゴリ。「LBAS」か「Normal」を指定する
    * @param short_name_flg 装備種の名前を短くするならtrue、しないならfalse
@@ -120,6 +120,27 @@ export class RestApiService {
 
     // 結果を取得する
     const result = await this.getRequest<{"id": string, "name": string}[]>(key, endpoint);
+
+    // 失敗時の処理
+    if (result === null) {
+      return [];
+    }
+
+    // 成功時の処理
+    return result;
+  }
+
+  /**
+   * kammusu-namesエンドポイント
+   * @param type 装備種のID。0なら未指定
+   */
+  public async getKammusuNames(type: number = 0, kammusu_flg: boolean = true): Promise<{"id": string, "name": string, 'slot': number[]}[]> {
+    // 準備をする
+    const key = 'getKammusuNames#' + type + ',' + (kammusu_flg ? 1 : 0);
+    const endpoint = 'kammusu-names?type=' + type + '&kammusu_flg=' + (kammusu_flg ? 1 : 0);
+
+    // 結果を取得する
+    const result = await this.getRequest<{"id": string, "name": string, 'slot': number[]}[]>(key, endpoint);
 
     // 失敗時の処理
     if (result === null) {
