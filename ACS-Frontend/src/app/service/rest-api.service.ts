@@ -107,4 +107,26 @@ export class RestApiService {
     // 成功時の処理
     return result;
   }
+
+    /**
+   * kammusu-typesエンドポイント
+   * @param category カテゴリ。「LBAS」か「Normal」を指定する
+   * @param short_name_flg 装備種の名前を短くするならtrue、しないならfalse
+   */
+  public async getKammusuTypes(short_name_flg: boolean = false): Promise<{"id": string, "name": string}[]> {
+    // 準備をする
+    const key = 'getKammusuTypes#' + (short_name_flg ? 1 : 0);
+    const endpoint = 'kammusu-types?short_name_flg=' + (short_name_flg ? 1 : 0);
+
+    // 結果を取得する
+    const result = await this.getRequest<{"id": string, "name": string}[]>(key, endpoint);
+
+    // 失敗時の処理
+    if (result === null) {
+      return [];
+    }
+
+    // 成功時の処理
+    return result;
+  }
 }

@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { SaveDataService } from '../../service/save-data.service';
+import { RestApiService } from 'src/app/service/rest-api.service';
 
 @Component({
   selector: 'app-own-unit',
@@ -7,18 +8,6 @@ import { SaveDataService } from '../../service/save-data.service';
   styleUrls: ['./own-unit.component.scss']
 })
 export class OwnUnitComponent implements OnInit {
-  /**
-   * 艦種リストを返す
-   */
-  private getKammusuTypeList(): { "value": string, "name": string }[] {
-    return [
-      { "value": "0", "name": "なし" },
-      { "value": "2", "name": "駆逐艦" },
-      { "value": "7", "name": "軽空母" },
-      { "value": "11", "name": "正規空母" },
-    ];
-  }
-
   /**
    * 艦名リストを返す
    * @param kammusuTypeValue 艦種
@@ -117,11 +106,12 @@ export class OwnUnitComponent implements OnInit {
    */
   SlotCount: number;
 
-  constructor(private saveData: SaveDataService) { }
+  constructor(private saveData: SaveDataService, private restApi: RestApiService) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     // 艦種リストを初期化
-    this.KammusuTypeList = this.getKammusuTypeList();
+    this.KammusuTypeList = (await this.restApi.getKammusuTypes(true))
+      .map(v => {return {'value': '' + v.id, 'name': v.name}});
     
     // 艦名リストを初期化
     this.KammusuNameList = this.getKammusuNameList(this.KammusuTypeValue);

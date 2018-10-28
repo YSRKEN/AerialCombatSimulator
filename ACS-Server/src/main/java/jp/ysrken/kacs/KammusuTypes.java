@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@WebServlet(name = "WeaponTypes", urlPatterns = { "/weapon-types" })
-public class WeaponTypes extends HttpServlet {
+@WebServlet(name = "KammusuTypes", urlPatterns = { "/kammusu-types" })
+public class KammusuTypes extends HttpServlet {
 	/**
 	 * 一意なバージョンID
 	 */
@@ -34,21 +34,13 @@ public class WeaponTypes extends HttpServlet {
 		}
 		
 		// パラメーターを確認する
-		String category = request.getParameter("category");
 		String short_name_flg = request.getParameter("short_name_flg");
-		System.out.println("/weapon-types?category=" + category + "&short_name_flg=" + short_name_flg);
+		System.out.println("/kammusu-types?short_name_flg=" + short_name_flg);
 		
 		// クエリを実行する
-		String tempQuery1 = (short_name_flg != null && short_name_flg.equals("1") ? "short_name as name" : "name");
-		String tempQuery2 = "WHERE weapon_type.name IN (SELECT type FROM weapon_category WHERE category=?) ";
+		String tempQuery = (short_name_flg != null && short_name_flg.equals("1") ? "short_name as name" : "name");
 
-		List<Map<String, Object>> result;
-		if (category == null || category.equals("Normal")){
-			result = database.select("SELECT id, " + tempQuery1 + " FROM weapon_type ORDER BY id");
-		} else {
-			String query = "SELECT id, " + tempQuery1 + " FROM weapon_type " + tempQuery2 + "ORDER BY id";
-			result = database.select(query, category);
-		}
+		List<Map<String, Object>> result = database.select("SELECT id, " + tempQuery + " FROM kammusu_type ORDER BY id");
 		
 		// 結果をJSONで返却する
 		response.setContentType("text/json");

@@ -115,7 +115,6 @@ export class WeaponSelectorComponent implements OnInit {
     // 装備種リストを初期化
     this.WeaponTypeList = (await this.restApi.getWeaponTypes(this.category, true))
       .map(v => {return {'value': '' + v.id, 'name': v.name}});
-    this.WeaponTypeList.unshift({'value': '0', 'name': 'なし'});
 
     // 装備リストを初期化
     this.WeaponNameList = (await this.restApi.getWeaponNames(parseInt(this.WeaponTypeValue)))
