@@ -3,6 +3,7 @@
 import os
 import re
 import pandas
+import json
 import sqlite3
 import urllib.request
 from contextlib import closing
@@ -156,11 +157,16 @@ def get_kammusu_type_dict():
     """
     # 装備種一覧を読み込んでおく
     kammusu_type_df = pandas.read_csv(os.path.join(ROOT_DIRECTORY, 'kammusu_type.csv'))
+    kammusu_type_dict: Dict[str, int] = {}
     kammusu_type_wikia_dict: Dict[str, int] = {}
     for pair in kammusu_type_df.values:
+        kammusu_type_dict[pair[1]] = pair[0]
         kammusu_type_wikia_dict[pair[3]] = pair[0]
 
-    return kammusu_type_wikia_dict
+    # 微調整
+    kammusu_type_dict['補給艦'] = kammusu_type_dict['給油艦']
+
+    return kammusu_type_dict, kammusu_type_wikia_dict
 
 def crawl_friend_weapon_data() -> List[any]:
     """艦娘の装備一覧をクロールして作成する
@@ -313,7 +319,113 @@ def create_kammusu_type_table(cursor) -> None:
     command = 'CREATE INDEX kammusu_type_short_name on kammusu_type(short_name)'
     cursor.execute(command)
 
-def crawl_friend_kammusu_data() -> List[any]:
+def crawl_friend_kammusu_data_deckbuilder() -> List[any]:
+    """艦娘一覧をクロールして作成する(デッキビルダーから)
+    """
+
+    # 艦種一覧を読み込んでおく
+    kammusu_type_dict, kammusu_type_wikia_dict = get_kammusu_type_dict()
+
+    # JavaScriptを読み込み、そこからデータを取り出す
+    kammusu_data = []
+    with urllib.request.urlopen('http://kancolle-calc.net/data/shipdata.js') as request:
+        # JSONを読み込む
+        json_data_list = json.loads(request.read().decode('utf-8').replace('var gShips = ', ''))
+
+        # 各種データを読み込む
+        for json_data in json_data_list:
+            # 艦船ID
+            id = int(json_data['id'])
+            if id >= 1501:
+                continue
+            
+            # 艦種
+            kammusu_type = kammusu_type_dict[json_data['type']]
+
+            # 艦名
+            name = json_data['name']
+
+            # 対空
+            aa = json_data['aac']
+
+            # スロットサイズ
+            slot_size = json_data['slot']
+
+            # 搭載数
+            slot = json_data['carry']
+            slot_size_2 = len(slot)
+            for _ in range(slot_size_2, 5):
+                slot.append(0)
+            
+            # 初期装備
+            weapon = json_data['equip']
+            slot_size_2 = len(weapon)
+            for _ in range(slot_size_2, 5):
+                weapon.append(0)
+
+            # 配列に追加する
+            data = (id, kammusu_type, name, aa, slot_size,
+            slot[0], slot[1], slot[2], slot[3], slot[4],
+            weapon[0], weapon[1], weapon[2], weapon[3], weapon[4],
+            0)
+            kammusu_data.append(data)
+    return kammusu_data
+
+def crawl_friend_kammusu_data_wikia() -> List[any]:
+    """艦娘一覧をクロールして作成する(英Wikiから、書きかけ)
+    """
+
+    # 艦種一覧を読み込んでおく
+    kammusu_type_dict, kammusu_type_wikia_dict = get_kammusu_type_dict()
+
+    # まず、艦娘装備のURLとIDとの対応表を入手する
+    weapon_url_id_dict = {}
+    with urllib.request.urlopen('http://kancolle.wikia.com/wiki/Equipment') as request:
+        # 取得、パース
+        soup: BeautifulSoup = BeautifulSoup(request.read(), 'html.parser')
+        tr_tag_list = soup.select("div tr")
+
+        # 1行づつ読み取っていく
+        for trTag in tr_tag_list:
+            # 関係ない行は無視する
+            td_tag_list = trTag.select("td")
+            if len(td_tag_list) < 9:
+                continue
+
+            # 装備IDを読み取る
+            id = int(td_tag_list[0].text)
+
+            # URLを読み取る
+            url = td_tag_list[2].select('a')[0]['href']
+
+            weapon_url_id_dict[url] = id
+
+    print(weapon_url_id_dict)
+
+    # 次に、艦名の一覧を読み取っておく
+    kammusu_dict = {}
+    with urllib.request.urlopen('http://kancolle.wikia.com/wiki/Ship') as request:
+        # 取得、パース
+        soup: BeautifulSoup = BeautifulSoup(request.read(), 'html.parser')
+        tr_tag_list = soup.select("div tr")
+
+        # 1行づつ読み取っていく
+        for trTag in tr_tag_list:
+            # 関係ない行は無視する
+            td_tag_list = trTag.select("td")
+            if len(td_tag_list) != 2:
+                continue
+
+            # 2列めにある対象のaタグを取り込む
+            a_tag_list = td_tag_list[1].select('a')
+            for a_tag in a_tag_list:
+                name = a_tag.text
+                href = a_tag['href']
+                kammusu_dict[href] = name
+
+    print(kammusu_dict)
+
+    kammusu_data = []
     return []
 
 def calc_kammusu_aa(td_tag) -> int:
@@ -364,7 +476,7 @@ def crawl_enemy_kammusu_data() -> List[any]:
     """
     
     # 装備種一覧を読み込んでおく
-    kammusu_type_wikia_dict = get_kammusu_type_dict()
+    kammusu_type_dict, kammusu_type_wikia_dict = get_kammusu_type_dict()
 
     # まず、深海装備のURLとIDとの対応表を入手する
     weapon_url_id_dict = {}
@@ -443,7 +555,7 @@ def crawl_kammusu_data() -> List[any]:
     """艦娘一覧をWebクロールして作成する
     """
     # 艦娘一覧を読み取る
-    friend_kammusu_data = crawl_friend_kammusu_data()
+    friend_kammusu_data = crawl_friend_kammusu_data_deckbuilder()
 
     # 深海棲艦一覧を読み取る
     enemy_kammusu_data = crawl_enemy_kammusu_data()
@@ -503,7 +615,6 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
     cursor.execute('PRAGMA journal_mode=Memory')
     cursor.execute('PRAGMA synchronous = Off')
 
-    """
     # 装備種テーブルを作成する
     print('装備種テーブルを作成...')
     create_weapon_type_table(cursor)
@@ -515,7 +626,6 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
     # 装備テーブルを作成する
     print('装備テーブルを作成...')
     create_weapon_table(cursor)
-    """
 
     # 艦種テーブルを作成する
     print('艦種テーブルを作成...')
