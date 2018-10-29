@@ -607,6 +607,38 @@ def create_kammusu_table(cursor) -> None:
     command = 'CREATE INDEX kammusu_name on kammusu(name)'
     cursor.execute(command)
 
+def crawl_map_data() -> List[any]:
+    """マップ一覧をWebクロールして作成する
+    """
+    for i in range(1, 8):
+        with urllib.request.urlopen(f'http://kancolle.wikia.com/wiki/World_{i}') as request:
+            # 取得、パース
+            soup: BeautifulSoup = BeautifulSoup(request.read(), 'html.parser')
+            
+            event_div = soup.select('#EventTemplate')[0]
+            tab_list = event_div.select('ul > li')
+            for tab_element in tab_list:
+                
+
+    return []
+
+def create_map_table(cursor) -> None:
+    """ マップテーブルを作成する
+    """
+    # マップテーブルを作成する
+    if has_table(cursor, 'map'):
+        cursor.execute('DROP TABLE map')
+    command = '''CREATE TABLE [map] (
+                [name] TEXT NOT NULL UNIQUE,
+                [image] BLOB NOT NULL UNIQUE,
+                PRIMARY KEY([name]))'''
+    cursor.execute(command)
+
+    # 艦娘テーブルにデータを追加する
+    command = '''INSERT INTO map (name, image) VALUES (?,?)'''
+    data = crawl_map_data()
+    cursor.executemany(command, data)
+
 # 当該Pythonファイルのディレクトリ
 ROOT_DIRECTORY = os.path.dirname(__file__)
 
@@ -621,22 +653,26 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
 
     # 装備種テーブルを作成する
     print('装備種テーブルを作成...')
-    create_weapon_type_table(cursor)
+    #create_weapon_type_table(cursor)
 
     # 装備カテゴリテーブルを作成する
     print('装備カテゴリテーブルを作成...')
-    create_weapon_category_table(cursor)
+    #create_weapon_category_table(cursor)
 
     # 装備テーブルを作成する
     print('装備テーブルを作成...')
-    create_weapon_table(cursor)
+    #create_weapon_table(cursor)
 
     # 艦種テーブルを作成する
     print('艦種テーブルを作成...')
-    create_kammusu_type_table(cursor)
+    #create_kammusu_type_table(cursor)
 
     # 艦娘テーブルを作成する
     print('艦娘テーブルを作成...')
-    create_kammusu_table(cursor)
+    #create_kammusu_table(cursor)
+
+    # マップテーブルを作成する
+    print('マップテーブルを作成...')
+    create_map_table(cursor)
 
     connect.commit()
