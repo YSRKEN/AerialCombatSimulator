@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
+import json
 import os
 import re
-import pandas
-import json
 import sqlite3
 import urllib.request
 from contextlib import closing
 from typing import List, Dict
-from bs4 import BeautifulSoup
-from pprint import pprint
-import lxml.html
+
 import lxml.cssselect
+import lxml.html
+import pandas
+from bs4 import BeautifulSoup
 
 
 def has_table(cursor, table_name: str) -> bool:
