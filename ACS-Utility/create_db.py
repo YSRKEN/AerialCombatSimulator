@@ -10,6 +10,9 @@ from contextlib import closing
 from typing import List, Dict
 from bs4 import BeautifulSoup
 from pprint import pprint
+import lxml.html
+import lxml.cssselect
+
 
 def has_table(cursor, table_name: str) -> bool:
     """{table_name}テーブルの存在を確認する。あればTrueを返す
@@ -17,6 +20,7 @@ def has_table(cursor, table_name: str) -> bool:
     command = f"SELECT COUNT(*) FROM sqlite_master WHERE TYPE='table' AND name='{table_name}'"
     cursor.execute(command)
     return cursor.fetchone()[0] != 0
+
 
 def create_weapon_type_table(cursor) -> None:
     """ 装備種テーブルを作成する
@@ -44,6 +48,7 @@ def create_weapon_type_table(cursor) -> None:
     command = 'CREATE INDEX weapon_type_short_name on weapon_type(short_name)'
     cursor.execute(command)
 
+
 def create_weapon_category_table(cursor) -> None:
     """ 装備カテゴリテーブルを作成する
     """
@@ -67,6 +72,7 @@ def create_weapon_category_table(cursor) -> None:
     # 装備カテゴリテーブルにインデックスを設定する
     command = 'CREATE INDEX weapon_category_category on weapon_category(category)'
     cursor.execute(command)
+
 
 def get_weapon_type_dict():
     """装備種と装備種IDとの対応表を作成する
@@ -92,11 +98,13 @@ def get_weapon_type_dict():
 
     return weapon_type_default_dict, weapon_type_wikia_dict
 
+
 def calc_weapon_name(td_tag) -> str:
     """装備名を算出する
     """
     name = td_tag.text.replace(td_tag.a.text, '', 1)
     return re.sub('(^ |\n)', '', name)
+
 
 def calc_weapon_status(td_tag):
     """装備ステータスを算出する
@@ -121,13 +129,14 @@ def calc_weapon_status(td_tag):
 
     return aa, accuracy, interception
 
+
 def calc_weapon_type(td_tag, name, aa, weapon_type_default_dict, weapon_type_wikia_dict) -> int:
     """装備種を算出する
     """
     # 当該文字列を取得する
     weapon_type = re.sub("\n", '', td_tag.text)
 
-    #辞書による自動判断
+    # 辞書による自動判断
     if weapon_type in weapon_type_wikia_dict:
         weapon_type = weapon_type_wikia_dict[weapon_type]
     else:
@@ -152,6 +161,7 @@ def calc_weapon_type(td_tag, name, aa, weapon_type_default_dict, weapon_type_wik
 
     return weapon_type
 
+
 def get_kammusu_type_dict():
     """艦種と艦種IDとの対応表を作成する
     """
@@ -167,6 +177,7 @@ def get_kammusu_type_dict():
     kammusu_type_dict['補給艦'] = kammusu_type_dict['給油艦']
 
     return kammusu_type_dict, kammusu_type_wikia_dict
+
 
 def crawl_friend_weapon_data() -> List[any]:
     """艦娘の装備一覧をクロールして作成する
@@ -212,6 +223,7 @@ def crawl_friend_weapon_data() -> List[any]:
             weapon_data.append((id, weapon_type, name, aa, accuracy, interception, radius, 1))
     return weapon_data
 
+
 def crawl_enemy_weapon_data() -> List[any]:
     """深海棲艦の装備一覧をクロールして作成する
     """
@@ -232,7 +244,7 @@ def crawl_enemy_weapon_data() -> List[any]:
             td_tag_list = trTag.select("td")
             if len(td_tag_list) < 6:
                 continue
-            
+
             # 装備IDを読み取る
             id = int(td_tag_list[0].text)
 
@@ -250,6 +262,7 @@ def crawl_enemy_weapon_data() -> List[any]:
             weapon_data.append((id, weapon_type, name, aa, accuracy, 0, 0, 0))
     return weapon_data
 
+
 def crawl_weapon_data() -> List[any]:
     """装備一覧をWebクロールして作成する
     """
@@ -260,10 +273,11 @@ def crawl_weapon_data() -> List[any]:
     enemy_weapon_data = crawl_enemy_weapon_data()
 
     # 合体させたものを戻り値とする
-    weapon_data = [(0,0,'なし',0,0,0,0,1)]
+    weapon_data = [(0, 0, 'なし', 0, 0, 0, 0, 1)]
     weapon_data.extend(friend_weapon_data)
     weapon_data.extend(enemy_weapon_data)
     return weapon_data
+
 
 def create_weapon_table(cursor) -> None:
     """ 装備テーブルを作成する
@@ -295,6 +309,7 @@ def create_weapon_table(cursor) -> None:
     command = 'CREATE INDEX weapon_for_kammusu_flg on weapon(for_kammusu_flg)'
     cursor.execute(command)
 
+
 def create_kammusu_type_table(cursor) -> None:
     """ 艦種テーブルを作成する
     """
@@ -320,6 +335,7 @@ def create_kammusu_type_table(cursor) -> None:
     command = 'CREATE INDEX kammusu_type_short_name on kammusu_type(short_name)'
     cursor.execute(command)
 
+
 def crawl_friend_kammusu_data_deckbuilder() -> List[any]:
     """艦娘一覧をクロールして作成する(デッキビルダーから)
     """
@@ -339,7 +355,7 @@ def crawl_friend_kammusu_data_deckbuilder() -> List[any]:
             id = int(json_data['id'])
             if id >= 1501:
                 continue
-            
+
             # 艦種
             kammusu_type = kammusu_type_dict[json_data['type']]
 
@@ -359,7 +375,7 @@ def crawl_friend_kammusu_data_deckbuilder() -> List[any]:
             slot_size_2 = len(slot)
             for _ in range(slot_size_2, 5):
                 slot.append(0)
-            
+
             # 初期装備
             weapon = json_data['equip']
             slot_size_2 = len(weapon)
@@ -368,11 +384,12 @@ def crawl_friend_kammusu_data_deckbuilder() -> List[any]:
 
             # 配列に追加する
             data = (id, kammusu_type, name, aa, slot_size,
-            slot[0], slot[1], slot[2], slot[3], slot[4],
-            weapon[0], weapon[1], weapon[2], weapon[3], weapon[4],
-            1)
+                    slot[0], slot[1], slot[2], slot[3], slot[4],
+                    weapon[0], weapon[1], weapon[2], weapon[3], weapon[4],
+                    1)
             kammusu_data.append(data)
     return kammusu_data
+
 
 def crawl_friend_kammusu_data_wikia() -> List[any]:
     """艦娘一覧をクロールして作成する(英Wikiから、書きかけ)
@@ -431,6 +448,7 @@ def crawl_friend_kammusu_data_wikia() -> List[any]:
     kammusu_data = []
     return []
 
+
 def calc_kammusu_aa(td_tag) -> int:
     """艦娘の対空値を算出する
     """
@@ -438,6 +456,7 @@ def calc_kammusu_aa(td_tag) -> int:
     if 'nil' in temp:
         return -1
     return int(temp)
+
 
 def calc_kammusu_slot(td_tag):
     """艦娘の搭載数を算出する
@@ -461,8 +480,9 @@ def calc_kammusu_slot(td_tag):
     # 配列slotの要素が5つになるように調整
     for _ in range(0, 5 - slot_size):
         slot.append(0)
-    
+
     return slot_size, slot
+
 
 def calc_kammusu_weapon(td_tag, weapon_url_id_dict) -> int:
     result = [0, 0, 0, 0, 0]
@@ -474,10 +494,11 @@ def calc_kammusu_weapon(td_tag, weapon_url_id_dict) -> int:
         index += 1
     return result
 
+
 def crawl_enemy_kammusu_data() -> List[any]:
     """深海棲艦一覧をクロールして作成する
     """
-    
+
     # 装備種一覧を読み込んでおく
     kammusu_type_dict, kammusu_type_wikia_dict = get_kammusu_type_dict()
 
@@ -494,7 +515,7 @@ def crawl_enemy_kammusu_data() -> List[any]:
             td_tag_list = trTag.select("td")
             if len(td_tag_list) < 6:
                 continue
-            
+
             # 装備IDを読み取る
             id = int(td_tag_list[0].text)
 
@@ -515,7 +536,7 @@ def crawl_enemy_kammusu_data() -> List[any]:
             td_tag_list = trTag.select("td")
             if len(td_tag_list) < 20:
                 continue
-            
+
             # 艦船IDを読み取る
             id = int(td_tag_list[1].text)
 
@@ -529,7 +550,7 @@ def crawl_enemy_kammusu_data() -> List[any]:
             aa = calc_kammusu_aa(td_tag_list[9])
             if aa < 0:
                 continue
-            
+
             # スロットを読み取る
             slot_size, slot = calc_kammusu_slot(td_tag_list[18])
             if slot_size < 0:
@@ -554,6 +575,7 @@ def crawl_enemy_kammusu_data() -> List[any]:
 
     return kammusu_data
 
+
 def crawl_kammusu_data() -> List[any]:
     """艦娘一覧をWebクロールして作成する
     """
@@ -564,10 +586,11 @@ def crawl_kammusu_data() -> List[any]:
     enemy_kammusu_data = crawl_enemy_kammusu_data()
 
     # 合体させたものを戻り値とする
-    kammusu_data = [(0,0,'なし',0,0,0,0,0,0,0,0,0,0,0,0,1)]
+    kammusu_data = [(0, 0, 'なし', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)]
     kammusu_data.extend(friend_kammusu_data)
     kammusu_data.extend(enemy_kammusu_data)
     return kammusu_data
+
 
 def create_kammusu_table(cursor) -> None:
     """ 艦娘テーブルを作成する
@@ -607,20 +630,57 @@ def create_kammusu_table(cursor) -> None:
     command = 'CREATE INDEX kammusu_name on kammusu(name)'
     cursor.execute(command)
 
+
 def crawl_map_data() -> List[any]:
     """マップ一覧をWebクロールして作成する
     """
+
+    map_data: List[any] = []
     for i in range(1, 8):
         with urllib.request.urlopen(f'http://kancolle.wikia.com/wiki/World_{i}') as request:
             # 取得、パース
             soup: BeautifulSoup = BeautifulSoup(request.read(), 'html.parser')
-            
-            event_div = soup.select('#EventTemplate')[0]
-            tab_list = event_div.select('ul > li')
-            for tab_element in tab_list:
-                
 
-    return []
+            # マップ名と対応するURLを取得
+            event_div = soup.select('#EventTemplate')[0]
+            li_list = event_div.select('ul > li')
+            for li_tag in li_list:
+                a_tag = li_tag.select('a')[0]
+                map_link = f'http://kancolle.wikia.com{a_tag["href"]}'
+                map_text = a_tag.text
+                print(f'{map_text} - {map_link}')
+                map_data.append([map_text, map_link])
+
+    map_data2: List[any] = []
+    for pair in map_data:
+        # 各マップ画像のURLを取得
+        image_url = ''
+        root = lxml.html.parse(pair[1]).getroot()
+        img_list = root.cssselect('img')
+        for img_Tag in img_list:
+            attributes = img_Tag.attrib
+            if attributes.get('width') is None:
+                continue
+            if attributes.get('height') is None:
+                continue
+            if attributes.get('alt') is None:
+                continue
+            if int(attributes.get('width')) < 500:
+                continue
+            if not 'Map' in attributes['alt']:
+                continue
+            if attributes.get('data-src') is not None:
+                image_url = attributes['data-src']
+                break
+            if attributes.get('src') is not None:
+                image_url = attributes['src']
+                break
+        if image_url != '':
+            image_url = re.sub('\.png.*', '.png', image_url)
+            map_data2.append((pair[0], pair[1], image_url))
+        print(f'{pair[0]} - {image_url}')
+    return map_data2
+
 
 def create_map_table(cursor) -> None:
     """ マップテーブルを作成する
@@ -630,14 +690,17 @@ def create_map_table(cursor) -> None:
         cursor.execute('DROP TABLE map')
     command = '''CREATE TABLE [map] (
                 [name] TEXT NOT NULL UNIQUE,
-                [image] BLOB NOT NULL UNIQUE,
+                [info_url] TEXT NOT NULL UNIQUE,
+                [image_url] TEXT NOT NULL UNIQUE,
                 PRIMARY KEY([name]))'''
     cursor.execute(command)
 
-    # 艦娘テーブルにデータを追加する
-    command = '''INSERT INTO map (name, image) VALUES (?,?)'''
-    data = crawl_map_data()
-    cursor.executemany(command, data)
+    # マップテーブルにデータを追加する
+    command = '''INSERT INTO map (name, info_url, image_url) VALUES (?,?,?)'''
+    map_data = crawl_map_data()
+    print(map_data)
+    cursor.executemany(command, map_data)
+
 
 # 当該Pythonファイルのディレクトリ
 ROOT_DIRECTORY = os.path.dirname(__file__)
@@ -653,23 +716,23 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
 
     # 装備種テーブルを作成する
     print('装備種テーブルを作成...')
-    #create_weapon_type_table(cursor)
+    # create_weapon_type_table(cursor)
 
     # 装備カテゴリテーブルを作成する
     print('装備カテゴリテーブルを作成...')
-    #create_weapon_category_table(cursor)
+    # create_weapon_category_table(cursor)
 
     # 装備テーブルを作成する
     print('装備テーブルを作成...')
-    #create_weapon_table(cursor)
+    # create_weapon_table(cursor)
 
     # 艦種テーブルを作成する
     print('艦種テーブルを作成...')
-    #create_kammusu_type_table(cursor)
+    # create_kammusu_type_table(cursor)
 
     # 艦娘テーブルを作成する
     print('艦娘テーブルを作成...')
-    #create_kammusu_table(cursor)
+    # create_kammusu_table(cursor)
 
     # マップテーブルを作成する
     print('マップテーブルを作成...')
