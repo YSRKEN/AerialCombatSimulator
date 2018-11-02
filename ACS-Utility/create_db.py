@@ -2,6 +2,7 @@
 
 import json
 import os
+import posixpath
 import re
 import sqlite3
 import urllib.request
@@ -698,7 +699,127 @@ def create_map_table(cursor) -> None:
     # マップテーブルにデータを追加する
     command = '''INSERT INTO map (name, info_url, image_url) VALUES (?,?,?)'''
     map_data = crawl_map_data()
-    print(map_data)
+    cursor.executemany(command, map_data)
+
+
+def crawl_position_data(cursor) -> List[any]:
+    # マップ一覧を取得する
+    map_list = cursor.execute('SELECT name, info_url FROM map')
+
+    # 順番に読み取り、配列に記録する
+    result: List[any] = []
+    for map_data in map_list:
+        map_name, map_url = map_data
+        print(f'{map_name} - {map_url}')
+
+        # パース
+        root = lxml.html.parse(map_url).getroot()
+
+        # 「マップのマスと敵編成一覧」情報を取り出す
+        scrollable_div_list = root.cssselect('div.scrollable')
+        scrollable_div_tag = None
+        if len(scrollable_div_list) == 0:
+            div_list = root.cssselect('div')
+            for div_tag in div_list:
+                attributes = div_tag.attrib
+                style_attr = attributes.get('style')
+                if style_attr is None:
+                    continue
+                if 'max-height:' not in style_attr:
+                    continue
+                if 'overflow-y:auto' not in style_attr:
+                    continue
+                if 'overflow-x:hidden' not in style_attr:
+                    continue
+                scrollable_div_tag = div_tag
+                break
+        else:
+            scrollable_div_tag = scrollable_div_list[0]
+
+        # 「マップのマスと敵編成一覧」をパースして順次代入する
+        point_table_list = scrollable_div_tag.cssselect('table')
+        for point_table_tag in point_table_list:
+            # 戦闘しないテーブルは無視する
+            th_text = ','.join(list(map(lambda x: x.text_content(), point_table_tag.cssselect('th'))))
+            if 'Empty Node' in th_text:
+                continue
+            if 'Resource Node' in th_text:
+                continue
+            if 'Air Raids' in th_text:
+                continue
+
+            # テーブルの中でtdを持つtr一覧を取得し、マス名と敵編成を読み取る
+            tr_list = point_table_tag.cssselect('tr')
+            point_name = ''
+            pattern_index = 1
+            first_flg = True
+            for tr_tag in tr_list:
+                # tdを持たないtrは無視する
+                td_list = tr_tag.cssselect('td')
+                if len(td_list) == 0:
+                    continue
+
+                # 最初のtrは、tdとしてマス名を含むので取得する
+                if first_flg:
+                    point_name = td_list[0].text_content().replace("\n", '')
+
+                # 敵編成が記録されているtdの位置を判断する
+                temp_index = -1
+                for i in range(0, len(td_list)):
+                    if len(td_list[i].cssselect('a.link-internal')) > 0:
+                        temp_index = i
+                        break
+                if temp_index == -1:
+                    continue
+
+                # 余計なタグを削除する
+                span_span_list = td_list[temp_index].cssselect('span > span')
+                for span_tag in span_span_list:
+                    span_tag.drop_tree()
+
+                # 敵編成を読み取る
+                a_list = td_list[temp_index].cssselect('a.link-internal')
+                enemy_list = []
+                for a_tag in a_list:
+                    attributes = a_tag.attrib
+                    enemy_id = int(re.sub(r'.*\((\d+)\):.*', r'\1', attributes.get('title')))
+                    enemy_list.append(enemy_id)
+
+                # ラスダンで編成が変わる場合の対策
+                formation_td = td_list[temp_index - 1]
+                final_flg = '(Final)' in formation_td.text_content()
+
+                # 読み取った敵編成を登録する
+                for i in range(0, len(enemy_list)):
+                    unit_data = (map_name, f'{point_name}-{pattern_index}', i, final_flg, enemy_list[i])
+                    result.append(unit_data)
+
+                # 次のループに向けた処理
+                if first_flg:
+                    first_flg = False
+                pattern_index += 1
+
+    return result
+
+
+def create_position_table(cursor) -> None:
+    """ マステーブルを作成する
+    """
+    # マステーブルを作成する
+    if has_table(cursor, 'position'):
+        cursor.execute('DROP TABLE position')
+    command = '''CREATE TABLE [position] (
+                [map] TEXT REFERENCES [map]([name]),
+                [name] TEXT,
+                [unit_index] INTEGER NOT NULL,
+                [final_flg] INTEGER NOT NULL,
+                [enemy] INTEGER REFERENCES [kammusu]([id]),
+                PRIMARY KEY([map],[name],[unit_index]))'''
+    cursor.execute(command)
+
+    # マステーブルにデータを追加する
+    command = '''INSERT INTO position (map, name, unit_index, final_flg, enemy) VALUES (?,?,?,?,?)'''
+    map_data = crawl_position_data(cursor)
     cursor.executemany(command, map_data)
 
 
@@ -716,26 +837,30 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
 
     # 装備種テーブルを作成する
     print('装備種テーブルを作成...')
-    # create_weapon_type_table(cursor)
+    create_weapon_type_table(cursor)
 
     # 装備カテゴリテーブルを作成する
     print('装備カテゴリテーブルを作成...')
-    # create_weapon_category_table(cursor)
+    create_weapon_category_table(cursor)
 
     # 装備テーブルを作成する
     print('装備テーブルを作成...')
-    # create_weapon_table(cursor)
+    create_weapon_table(cursor)
 
     # 艦種テーブルを作成する
     print('艦種テーブルを作成...')
-    # create_kammusu_type_table(cursor)
+    create_kammusu_type_table(cursor)
 
     # 艦娘テーブルを作成する
     print('艦娘テーブルを作成...')
-    # create_kammusu_table(cursor)
+    create_kammusu_table(cursor)
 
     # マップテーブルを作成する
     print('マップテーブルを作成...')
     create_map_table(cursor)
+
+    # マステーブルを作成する
+    print('マステーブルを作成...')
+    create_position_table(cursor)
 
     connect.commit()
