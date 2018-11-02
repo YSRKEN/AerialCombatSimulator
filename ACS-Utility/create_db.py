@@ -2,7 +2,6 @@
 
 import json
 import os
-import posixpath
 import re
 import sqlite3
 import urllib.request
@@ -786,8 +785,8 @@ def crawl_position_data(cursor) -> List[any]:
                     enemy_list.append(enemy_id)
 
                 # ラスダンで編成が変わる場合の対策
-                formation_td = td_list[temp_index - 1]
-                final_flg = '(Final)' in formation_td.text_content()
+                td_text = ','.join(list(map(lambda x: x.text_content(), td_list)))
+                final_flg = '(Final)' in td_text
 
                 # 読み取った敵編成を登録する
                 for i in range(0, len(enemy_list)):
@@ -837,27 +836,27 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
 
     # 装備種テーブルを作成する
     print('装備種テーブルを作成...')
-    create_weapon_type_table(cursor)
+    #create_weapon_type_table(cursor)
 
     # 装備カテゴリテーブルを作成する
     print('装備カテゴリテーブルを作成...')
-    create_weapon_category_table(cursor)
+    #create_weapon_category_table(cursor)
 
     # 装備テーブルを作成する
     print('装備テーブルを作成...')
-    create_weapon_table(cursor)
+    #create_weapon_table(cursor)
 
     # 艦種テーブルを作成する
     print('艦種テーブルを作成...')
-    create_kammusu_type_table(cursor)
+    #create_kammusu_type_table(cursor)
 
     # 艦娘テーブルを作成する
     print('艦娘テーブルを作成...')
-    create_kammusu_table(cursor)
+    #create_kammusu_table(cursor)
 
     # マップテーブルを作成する
     print('マップテーブルを作成...')
-    create_map_table(cursor)
+    #create_map_table(cursor)
 
     # マステーブルを作成する
     print('マステーブルを作成...')
