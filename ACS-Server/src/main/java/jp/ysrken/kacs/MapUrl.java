@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.servlet.annotation.WebServlet;
@@ -13,10 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@WebServlet(name = "MapPositions", urlPatterns = { "/map-positions" })
-public class MapPositions extends HttpServlet {
+@WebServlet(name = "MapUrl", urlPatterns = { "/map-url" })
+public class MapUrl extends HttpServlet {
 	/**
-	 * マップのマス一覧を返す
+	 * マップのURLを返す
 	 */
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -31,23 +32,23 @@ public class MapPositions extends HttpServlet {
 		
 		// パラメーターを確認する
 		String map = request.getParameter("map");
-		System.out.println("/map-positions?map=" + map);
+		System.out.println("/map-url?map=" + map);
 		
 		// クエリを実行する
 		List<Map<String, Object>> result;
 		if (map == null) {
 			result = new ArrayList<>();
 		}else {
-			result = database.select("SELECT DISTINCT(name) FROM position WHERE map=? ORDER BY name", map);
+			result = database.select("SELECT image_url FROM map WHERE name=?", map);
 		}
-		List<String> result2 = result.stream().map(s -> (String) s.get("name")).collect(Collectors.toList());
+		Optional<String> result2 = result.stream().map(s -> (String) s.get("image_url")).findFirst();
 		
 		// 結果をJSONで返却する
 		response.setContentType("text/json");
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		ObjectMapper mapper = new ObjectMapper();
-		response.getWriter().println(mapper.writeValueAsString(result2));
+		response.getWriter().println(mapper.writeValueAsString(result2.isPresent() ? result2.get() : ""));
 	}
 }
 

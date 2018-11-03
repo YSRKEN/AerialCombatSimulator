@@ -26,7 +26,12 @@ export class EnemyDataComponent implements OnInit {
   /**
    * マップのマス一覧
    */
-  PointList: { "value": string, "name": string }[] = []
+  PointList: { "value": string, "name": string }[] = [];
+
+  /**
+   * マップの画像URL
+   */
+  MapUrl: string = '';
 
   constructor(private saveData: SaveDataService, private restApi: RestApiService) { }
 
@@ -38,6 +43,9 @@ export class EnemyDataComponent implements OnInit {
     // マスリストを初期化
     this.PointList = (await this.restApi.getMapPositions(this.SelectedMap))
       .map(v => {return {'value': '' + v, 'name': v}});
+
+    // マップ名を初期化
+    this.MapUrl = await this.restApi.getMapUrl(this.SelectedMap);
 
     // ダミー値
     /*
@@ -73,6 +81,12 @@ export class EnemyDataComponent implements OnInit {
     .then(value => {
         this.PointList = value.map(v => {return {'value': '' + v, 'name': v}});
     });
+
+    // マップ名を更新
+    this.restApi.getMapUrl(this.SelectedMap)
+    .then(value => {
+        this.MapUrl = value;
+    });
   }
 
   /**
@@ -93,13 +107,6 @@ export class EnemyDataComponent implements OnInit {
   }
   set SelectedPoint(value: string) {
     this.saveData.saveString('enemy-data.selected_point', value);
-  }
-
-  /**
-   * マップ画像
-   */
-  get MapUrl(): string {
-    return "https://vignette.wikia.nocookie.net/kancolle/images/b/b7/3-5_Map.png";
   }
 
   /**
