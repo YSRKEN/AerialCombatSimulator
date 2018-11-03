@@ -38,9 +38,13 @@ public class MapPositions extends HttpServlet {
 		if (map == null) {
 			result = new ArrayList<>();
 		}else {
-			result = database.select("SELECT DISTINCT(name) FROM position WHERE map=? ORDER BY name", map);
+			result = database.select("SELECT DISTINCT(name), final_flg FROM position WHERE map=? ORDER BY name", map);
 		}
-		List<String> result2 = result.stream().map(s -> (String) s.get("name")).collect(Collectors.toList());
+		List<String> result2 = result.stream().map(s -> {
+			String name = (String) s.get("name");
+			int final_flg = (Integer) s.get("final_flg");
+			return name + (final_flg == 1 ? " (Final)" : "");
+		}).collect(Collectors.toList());
 		
 		// 結果をJSONで返却する
 		response.setContentType("text/json");
