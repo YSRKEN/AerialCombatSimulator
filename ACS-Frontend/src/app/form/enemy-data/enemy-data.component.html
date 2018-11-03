@@ -3,19 +3,19 @@
     <form class="mx-auto my-3 col-xs-12 col-sm-10 col-md-8">
       <div class="form-group">
         <label for="mapSelect">マップ</label>
-        <select class="form-control" id="mapSelect" name="mapSelect" [ngModel]="SelectedMap" (ngModelChange)="changeSelectedMap($event)">
+        <select class="form-control" id="mapSelect" name="mapSelect" [(ngModel)]="SelectedMap">
           <option *ngFor="let map of MapList" [value]="map.value">{{map.name}}</option>
         </select>
       </div>
       <div class="form-group" [ngClass]="{'d-none': DisableLevelSelect}">
         <label for="levelSelect">難易度</label>
-        <select class="form-control" id="levelSelect" name="levelSelect" [ngModel]="SelectedLevel" (ngModelChange)="changeSelectedLevel($event)">
+        <select class="form-control" id="levelSelect" name="levelSelect" [(ngModel)]="SelectedLevel">
           <option *ngFor="let level of LevelList" [value]="level.value">{{level.name}}</option>
         </select>
       </div>
       <div class="form-group">
         <label for="pointSelect">マス</label>
-        <select class="form-control" id="pointSelect" name="pointSelect" [ngModel]="SelectedPoint" (ngModelChange)="changeSelectedPoint($event)">
+        <select class="form-control" id="pointSelect" name="pointSelect" [(ngModel)]="SelectedPoint">
           <option *ngFor="let point of PointList" [value]="point.value">{{point.name}}</option>
         </select>
       </div>

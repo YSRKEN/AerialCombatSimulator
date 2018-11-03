@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { SaveDataService } from '../../service/save-data.service';
+import { RestApiService } from '../../service/rest-api.service';
 
 @Component({
   selector: 'app-weapon-selector',
@@ -7,123 +8,15 @@ import { SaveDataService } from '../../service/save-data.service';
   styleUrls: ['./weapon-selector.component.scss']
 })
 export class WeaponSelectorComponent implements OnInit {
-
-  /**
-   * 装備種の辞書
-   */
-  private readonly weaponTypeDict: { [key: number]: string; } = {
-    0: "なし",
-    1: "主砲",
-    2: "副砲",
-    3: "魚雷",
-    5: "艦戦",
-    6: "艦爆",
-    7: "艦攻",
-    8: "艦偵",
-    11: "水偵",
-  };
-
   /**
    * 航空機とみなす装備種の辞書
    */
-  private readonly airTypeSet: { [key: number]: boolean; } = {
-    5: true,
-    6: true,
-    7: true,
-    8: true,
-    11: true,
-  };
+  private airTypeSet: { [key: number]: boolean; } = {};
 
   /**
    * 偵察機とみなす装備種の辞書
    */
-  private readonly searchTypeSet: { [key: number]: boolean; } = {
-    8: true,
-    11: true,
-  };
-
-  /**
-   * 装備種カテゴリに対応した装備種リストを返す
-   * @param category 装備種カテゴリ
-   */
-  private getWeaponTypeList(category: string): { "value": string, "name": string }[] {
-    // 装備種のkeyの一覧を取得する
-    let typeValueList = [];
-    switch (category) {
-      case 'LBAS':
-        typeValueList = [0, 5, 6, 7, 8, 11];
-        break;
-      case 'Normal':
-        typeValueList = [0, 1, 2, 3, 5, 6, 7, 8, 11];
-        break;
-      default:
-        typeValueList = [0];
-        break;
-    }
-
-    // 装備種の一覧を作成する
-    return typeValueList.map(v => {
-      return { 'value': '' + v, 'name': this.weaponTypeDict[v] };
-    });
-  }
-
-  /**
-   * 装備種に対応した装備リストを返す
-   * @param weaponTypeValue 装備種
-   */
-  private getWeaponNameList(weaponTypeValue: string): { "value": string, "name": string }[] {
-    switch (this.weaponTypeDict[parseInt(weaponTypeValue)]) {
-      case "主砲":
-        return [
-          { 'value': '0', 'name': 'なし' },
-          { 'value': '2', 'name': '12.7cm連装砲' },
-          { 'value': '6', 'name': '20.3cm連装砲' },
-          { 'value': '7', 'name': '35.6cm連装砲' },
-        ];
-      case "副砲":
-        return [
-          { 'value': '0', 'name': 'なし' },
-          { 'value': '11', 'name': '15.2cm単装砲' },
-        ];
-      case "魚雷":
-        return [
-          { 'value': '0', 'name': 'なし' },
-          { 'value': '13', 'name': '61cm三連装魚雷' },
-        ];
-        case "艦戦":
-        return [
-          { 'value': '0', 'name': 'なし' },
-          { 'value': '19', 'name': '九六式艦戦' },
-          { 'value': '22', 'name': '烈風' },
-        ];
-        case "艦爆":
-        return [
-          { 'value': '0', 'name': 'なし' },
-          { 'value': '23', 'name': '九九式艦爆' },
-          { 'value': '57', 'name': '彗星一二型甲' },
-        ];
-        case "艦攻":
-        return [
-          { 'value': '0', 'name': 'なし' },
-          { 'value': '16', 'name': '九七式艦攻' },
-          { 'value': '52', 'name': '流星改' },
-        ];
-        case "艦偵":
-        return [
-          { 'value': '0', 'name': 'なし' },
-          { 'value': '54', 'name': '彩雲' },
-        ];
-        case "水偵":
-        return [
-          { 'value': '0', 'name': 'なし' },
-          { 'value': '25', 'name': '零式水上偵察機' },
-        ];
-      default:
-        return [
-          { 'value': '0', 'name': 'なし' },
-        ];
-    }
-  }
+  private searchTypeSet: { [key: number]: boolean; } = {};
 
   /**
    * 指定した搭載数を最大値とする搭載数リストを返す
@@ -211,19 +104,25 @@ export class WeaponSelectorComponent implements OnInit {
     { "value": '0', "name": '0' }
   ];
 
-  constructor(private saveData: SaveDataService) { }
+  constructor(private saveData: SaveDataService, private restApi: RestApiService) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     // @Inputをチェックする
     if (this.prefix === undefined || undefined === '') {
       throw new Error("<app-weapon-selector>のprefix属性は省略できません。");
     }
 
     // 装備種リストを初期化
-    this.WeaponTypeList = this.getWeaponTypeList(this.category);
-    
+    this.WeaponTypeList = (await this.restApi.getWeaponTypes(this.category, true))
+      .map(v => {return {'value': '' + v.id, 'name': v.name}});
+    this.WeaponTypeList.unshift({'value': '0', 'name': 'なし'});
+
     // 装備リストを初期化
-    this.WeaponNameList = this.getWeaponNameList(this.WeaponTypeValue);
+    this.WeaponNameList = (await this.restApi.getWeaponNames(parseInt(this.WeaponTypeValue)))
+      .map(v => {return {'value': '' + v.id, 'name': v.name}});
+    if (this.WeaponTypeValue !== '0'){
+      this.WeaponNameList.unshift({'value': '0', 'name': 'なし'});
+    }
 
     // 搭載数リストを初期化
     // ('LBAS'はここで初期化されるが、そうでない場合は@Input() set slotSizeで初期化される)
@@ -231,6 +130,13 @@ export class WeaponSelectorComponent implements OnInit {
       var maxSlotSize: string = this.searchTypeSet[parseInt(this.WeaponTypeValue)] ? '4' : '18';
       this.SlotCountList = this.getSlotCountList(maxSlotSize);
     }
+
+    // その他初期化
+    this.airTypeSet = {};
+    (await this.restApi.getWeaponTypes('Air')).forEach(pair => this.airTypeSet[pair.id] = pair.name);
+    this.searchTypeSet = {};
+    (await this.restApi.getWeaponTypes('Recon')).forEach(pair => this.airTypeSet[pair.id] = pair.name);
+
   }
 
   /**
@@ -244,17 +150,22 @@ export class WeaponSelectorComponent implements OnInit {
     this.saveData.saveString(this.prefix + '.weapon_type', value);
     
     // 装備名一覧を更新
-    this.WeaponNameList = this.getWeaponNameList(this.WeaponTypeValue);
-    if (this.WeaponNameList.filter(pair => pair.value === this.WeaponNameValue).length === 0){
-      this.WeaponNameValue = '0';
-    }
-
-    // 搭載数を更新
-    if (this.category === 'LBAS') {
-      var maxSlotSize: string = this.searchTypeSet[parseInt(this.WeaponTypeValue)] ? '4' : '18';
-      this.SlotCountList = this.getSlotCountList(maxSlotSize);
-    }
-    this.SlotCountValue = '' + (this.SlotCountList.length - 1);
+    this.restApi.getWeaponNames(parseInt(this.WeaponTypeValue))
+      .then(value => {
+        // 装備名一覧を更新
+        this.WeaponNameList = value.map(v => {return {'value': '' + v.id, 'name': v.name}});
+        this.WeaponNameList.unshift({'value': '0', 'name': 'なし'});
+        if (this.WeaponNameList.filter(pair => pair.value === this.WeaponNameValue).length === 0){
+          this.WeaponNameValue = '0';
+        }
+    
+        // 搭載数を更新
+        if (this.category === 'LBAS') {
+          var maxSlotSize: string = this.searchTypeSet[parseInt(this.WeaponTypeValue)] ? '4' : '18';
+          this.SlotCountList = this.getSlotCountList(maxSlotSize);
+        }
+        this.SlotCountValue = '' + (this.SlotCountList.length - 1);
+      })
   }
 
   /**

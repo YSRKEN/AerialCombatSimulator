@@ -17,6 +17,8 @@ import { FormsModule } from "@angular/forms";
 import { LBASUnitComponent } from './form/lbasunit/lbasunit.component';
 import { OwnUnitComponent } from './form/own-unit/own-unit.component';
 import { WeaponSelectorComponent } from './control/weapon-selector/weapon-selector.component';
+import { HttpClientModule } from '@angular/common/http';
+import { RestApiService } from './service/rest-api.service';
 
 @NgModule({
   declarations: [
@@ -36,9 +38,10 @@ import { WeaponSelectorComponent } from './control/weapon-selector/weapon-select
     AppRoutingModule,
     ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
     RouterModule,
-    FormsModule
+    FormsModule,
+    HttpClientModule
   ],
-  providers: [SaveDataService],
+  providers: [SaveDataService, RestApiService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

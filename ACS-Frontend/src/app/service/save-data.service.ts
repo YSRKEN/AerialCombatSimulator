@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class SaveDataService {
 
-  constructor() { }
+  constructor() {}
 
   /**
    * 文字列をセーブする
