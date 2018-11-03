@@ -17,10 +17,10 @@ export class EnemyDataComponent implements OnInit {
    * マップの難易度一覧
    */
   LevelList: { "value": string, "name": string }[] = [
-    {"value":"甲", "name":"甲"},
-    {"value":"乙", "name":"乙"},
-    {"value":"丙", "name":"丙"},
-    {"value":"丁", "name":"丁"},
+    {"value":"0", "name":"甲"},
+    {"value":"1", "name":"乙"},
+    {"value":"2", "name":"丙"},
+    {"value":"3", "name":"丁"},
   ];
 
   /**
@@ -32,6 +32,11 @@ export class EnemyDataComponent implements OnInit {
    * マップの画像URL
    */
   MapUrl: string = '';
+
+  /**
+   * 編成情報
+   */
+  FleetInfo: string = '';
 
   constructor(private saveData: SaveDataService, private restApi: RestApiService) { }
 
@@ -46,6 +51,9 @@ export class EnemyDataComponent implements OnInit {
 
     // マップ名を初期化
     this.MapUrl = await this.restApi.getMapUrl(this.SelectedMap);
+
+    // 編成情報を初期化
+    this.FleetInfo = await this.restApi.getFleetInfo(this.SelectedMap, this.SelectedPoint, this.SelectedLevel);
 
     // ダミー値
     /*
@@ -93,7 +101,7 @@ export class EnemyDataComponent implements OnInit {
    * マップの難易度選択
    */
   get SelectedLevel(): string {
-    return this.saveData.loadString('enemy-data.selected_level', '甲');
+    return this.saveData.loadString('enemy-data.selected_level', '0');
   }
   set SelectedLevel(value: string) {
     this.saveData.saveString('enemy-data.selected_level', value);
@@ -106,13 +114,13 @@ export class EnemyDataComponent implements OnInit {
     return this.saveData.loadString('enemy-data.selected_point', 'A-1');
   }
   set SelectedPoint(value: string) {
+    // 保存
     this.saveData.saveString('enemy-data.selected_point', value);
-  }
 
-  /**
-   * マップの情報
-   */
-  get FleetInfo(): string {
-    return "test";
+    // 敵編成表示を更新
+    this.restApi.getFleetInfo(this.SelectedMap, this.SelectedPoint, this.SelectedLevel)
+    .then(value => {
+        this.FleetInfo = value;
+    });
   }
 }

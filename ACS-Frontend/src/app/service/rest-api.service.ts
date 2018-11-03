@@ -212,4 +212,25 @@ export class RestApiService {
     // 成功時の処理
     return result;
   }
+
+  /**
+   * fleet-infoエンドポイント
+   * @param map マップ名
+   */
+  public async getFleetInfo(map: string, point: string, level: string): Promise<string> {
+    // 準備をする
+    const key = 'getFleetInfo#' + map + ',' + point + ',' + level;
+    const endpoint = 'fleet-info?map=' + map + '&point=' + point + '&level=' + level;
+
+    // 結果を取得する
+    const result = await this.getRequest<string>(key, endpoint);
+
+    // 失敗時の処理
+    if (result === null) {
+      return '';
+    }
+
+    // 成功時の処理
+    return result;
+  }
 }
