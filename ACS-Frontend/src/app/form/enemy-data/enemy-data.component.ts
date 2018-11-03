@@ -95,6 +95,12 @@ export class EnemyDataComponent implements OnInit {
     .then(value => {
         this.MapUrl = value;
     });
+
+    // 敵編成表示を更新
+    this.restApi.getFleetInfo(this.SelectedMap, this.SelectedPoint, this.SelectedLevel)
+    .then(value => {
+        this.FleetInfo = value;
+    });
   }
 
   /**
