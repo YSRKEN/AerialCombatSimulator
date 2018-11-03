@@ -150,4 +150,45 @@ export class RestApiService {
     // 成功時の処理
     return result;
   }
+
+  /**
+   * map-namesエンドポイント
+   */
+  public async getMapNames(): Promise<string[]> {
+    // 準備をする
+    const key = 'getMapNames';
+    const endpoint = 'map-names';
+
+    // 結果を取得する
+    const result = await this.getRequest<string[]>(key, endpoint);
+
+    // 失敗時の処理
+    if (result === null) {
+      return [];
+    }
+
+    // 成功時の処理
+    return result;
+  }
+
+  /**
+   * map-positionsエンドポイント
+   * @param map マップ名
+   */
+  public async getMapPositions(map: string): Promise<string[]> {
+    // 準備をする
+    const key = 'getMapPositions#' + map;
+    const endpoint = 'map-positions?map=' + map;
+
+    // 結果を取得する
+    const result = await this.getRequest<string[]>(key, endpoint);
+
+    // 失敗時の処理
+    if (result === null) {
+      return [];
+    }
+
+    // 成功時の処理
+    return result;
+  }
 }

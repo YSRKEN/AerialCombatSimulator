@@ -15,11 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @WebServlet(name = "WeaponNames", urlPatterns = { "/weapon-names" })
 public class WeaponNames extends HttpServlet {
 	/**
-	 * 一意なバージョンID
-	 */
-	private static final long serialVersionUID = 2L;
-
-	/**
 	 * 装備の種類一覧を返す
 	 */
 	@Override

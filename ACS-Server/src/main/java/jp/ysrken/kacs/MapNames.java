@@ -1,9 +1,9 @@
 package jp.ysrken.kacs;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@WebServlet(name = "KammusuTypes", urlPatterns = { "/kammusu-types" })
-public class KammusuTypes extends HttpServlet {
+@WebServlet(name = "MapNames", urlPatterns = { "/map-names" })
+public class MapNames extends HttpServlet {
 	/**
 	 * 装備の種類一覧を返す
 	 */
@@ -28,21 +28,17 @@ public class KammusuTypes extends HttpServlet {
 			return;
 		}
 		
-		// パラメーターを確認する
-		String short_name_flg = request.getParameter("short_name_flg");
-		System.out.println("/kammusu-types?short_name_flg=" + short_name_flg);
+		System.out.println("/map-names");
 		
 		// クエリを実行する
-		String tempQuery = (short_name_flg != null && short_name_flg.equals("1") ? "short_name as name" : "name");
-
-		List<Map<String, Object>> result = database.select("SELECT id, " + tempQuery + " FROM kammusu_type ORDER BY id");
+		List<Map<String, Object>> result = database.select("SELECT name FROM map ORDER BY name");
+		List<String> result2 = result.stream().map(s -> (String) s.get("name")).collect(Collectors.toList());
 		
 		// 結果をJSONで返却する
 		response.setContentType("text/json");
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		ObjectMapper mapper = new ObjectMapper();
-		response.getWriter().println(mapper.writeValueAsString(result));
+		response.getWriter().println(mapper.writeValueAsString(result2));
 	}
 }
-
