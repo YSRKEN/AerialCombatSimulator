@@ -23,10 +23,10 @@ export class OwnDataComponent implements OnInit {
       ];
     }else{
       return [
-        {"value":"4", "name":"第一警戒航行序列(対潜警戒)"},
-        {"value":"1", "name":"第二警戒航行序列(前方警戒)"},
-        {"value":"2", "name":"第三警戒航行序列(輪形陣)"},
-        {"value":"0", "name":"第四警戒航行序列(戦闘隊形)"},
+        {"value":"14", "name":"第一警戒航行序列(対潜警戒)"},
+        {"value":"11", "name":"第二警戒航行序列(前方警戒)"},
+        {"value":"12", "name":"第三警戒航行序列(輪形陣)"},
+        {"value":"10", "name":"第四警戒航行序列(戦闘隊形)"},
       ];
     }
   }
