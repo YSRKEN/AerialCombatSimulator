@@ -801,6 +801,8 @@ def crawl_position_data(cursor) -> List[any]:
     return result
 
 
+command = ""
+
 def create_position_table(cursor) -> None:
     """ マステーブルを作成する
     """
@@ -820,6 +822,26 @@ def create_position_table(cursor) -> None:
     command = '''INSERT INTO position (map, name, unit_index, final_flg, enemy) VALUES (?,?,?,?,?)'''
     map_data = crawl_position_data(cursor)
     cursor.executemany(command, map_data)
+
+
+def create_formation_category_table(cursor) -> None:
+    """ 陣形カテゴリテーブルを作成する
+    """
+    # 陣形カテゴリテーブルを作成する
+    if has_table(cursor, 'formation_category'):
+        cursor.execute('DROP TABLE formation_category')
+    command = '''CREATE TABLE [formation_category] (
+                [id] INTEGER NOT NULL UNIQUE,
+                [category] TEXT NOT NULL,
+                PRIMARY KEY([id]))'''
+    cursor.execute(command)
+
+    # 陣形カテゴリテーブルにデータを追加する
+    command = 'INSERT INTO formation_category (id, category) VALUES (?,?)'
+    formation_category_df = pandas.read_csv(os.path.join(ROOT_DIRECTORY, 'formation_category.csv'))
+    data = list(map(lambda x: (x[0], x[1]), formation_category_df.values))
+    cursor.executemany(command, data)
+    connect.commit()
 
 
 # 当該Pythonファイルのディレクトリ
@@ -858,8 +880,12 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
     print('マップテーブルを作成...')
     #create_map_table(cursor)
 
+    # 陣形カテゴリテーブルを作成する
+    print('陣形カテゴリテーブルを作成...')
+    create_formation_category_table(cursor)
+
     # マステーブルを作成する
     print('マステーブルを作成...')
-    create_position_table(cursor)
+    #create_position_table(cursor)
 
     connect.commit()
