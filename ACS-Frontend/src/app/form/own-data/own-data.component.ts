@@ -17,7 +17,7 @@ export class OwnDataComponent implements OnInit {
         {"value":"0", "name":"単縦陣"},
         {"value":"1", "name":"複縦陣"},
         {"value":"2", "name":"輪形陣"},
-        {"value":"3", "name":"提携陣"},
+        {"value":"3", "name":"梯形陣"},
         {"value":"4", "name":"単横陣"},
         {"value":"5", "name":"警戒陣"},
       ];
