@@ -54,17 +54,6 @@ export class EnemyDataComponent implements OnInit {
 
     // 編成情報を初期化
     this.FleetInfo = await this.restApi.getFleetInfo(this.SelectedMap, this.SelectedPoint, this.SelectedLevel);
-
-    // ダミー値
-    /*
-    this.FleetInfo = "輪形陣\n";
-    this.FleetInfo +=  "(1)北方棲姫 Lv1　[0]5inch単装高射砲,[64]深海猫艦戦,[68]深海地獄艦爆,[40]深海復讐艦攻\n";
-    this.FleetInfo += "(2)護衛要塞 Lv1　[0]8inch三連装砲,[35]深海棲艦戦 Mark.II,[35]深海棲艦爆 Mark.II\n";
-    this.FleetInfo += "(3)護衛要塞 Lv1　[0]8inch三連装砲,[35]深海棲艦戦 Mark.II,[35]深海棲艦攻 Mark.II\n";
-    this.FleetInfo += "(4)護衛要塞 Lv1　[0]8inch三連装砲,[35]深海棲艦戦 Mark.II,[35]深海棲艦攻 Mark.II\n";
-    this.FleetInfo += "(5)護衛要塞 Lv1　[0]8inch三連装砲,[35]深海棲艦戦 Mark.II,[35]深海棲艦攻 Mark.II\n";
-    this.FleetInfo += "(6)護衛要塞 Lv1　[0]8inch三連装砲,[35]深海棲艦戦 Mark.II,[35]深海棲艦攻 Mark.II\n";
-    */
   }
 
   /**
