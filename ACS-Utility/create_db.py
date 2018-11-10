@@ -6,6 +6,7 @@ import re
 import sqlite3
 import urllib.request
 from contextlib import closing
+from pprint import pprint
 from typing import List, Dict
 
 import lxml.cssselect
@@ -707,6 +708,17 @@ def crawl_position_data(cursor) -> List[any]:
 
     # 順番に読み取り、配列に記録する
     result: List[any] = []
+    formation_image_alt_dict = {
+        'LineAhead': 1,    # 単縦陣
+        'DoubleLine': 2,   # 複縦陣
+        'Diamond': 3,      # 輪形陣
+        'Echelon': 4,      # 梯形陣
+        'LineAbreast': 5,  # 単横陣
+        'Formation 1': 15, # 第一警戒航行序列(対潜警戒)
+        'Formation 2': 12, # 第二警戒航行序列(前方警戒)
+        'Formation 3': 13, # 第三警戒航行序列(輪形陣)
+        'Formation 4': 11, # 第四警戒航行序列(戦闘隊形)
+    }
     for map_data in map_list:
         map_name, map_url = map_data
         print(f'{map_name} - {map_url}')
@@ -788,9 +800,21 @@ def crawl_position_data(cursor) -> List[any]:
                 td_text = ','.join(list(map(lambda x: x.text_content(), td_list)))
                 final_flg = '(Final)' in td_text
 
+                # 敵の陣形を読み取る
+                formation_image_tag = td_list[1 if first_flg else 0].cssselect('img')[0]
+                attributes = formation_image_tag.attrib
+                formation_image_alt = attributes.get('alt')
+
                 # 読み取った敵編成を登録する
                 for i in range(0, len(enemy_list)):
-                    unit_data = (map_name, f'{point_name}-{pattern_index}', i, final_flg, enemy_list[i])
+                    unit_data = (
+                        map_name,
+                        f'{point_name}-{pattern_index}',
+                        i,
+                        final_flg,
+                        formation_image_alt_dict[formation_image_alt],
+                        enemy_list[i]
+                    )
                     result.append(unit_data)
 
                 # 次のループに向けた処理
@@ -800,8 +824,6 @@ def crawl_position_data(cursor) -> List[any]:
 
     return result
 
-
-command = ""
 
 def create_position_table(cursor) -> None:
     """ マステーブルを作成する
@@ -814,12 +836,13 @@ def create_position_table(cursor) -> None:
                 [name] TEXT,
                 [unit_index] INTEGER NOT NULL,
                 [final_flg] INTEGER NOT NULL,
+                [formation] INTEGER REFERENCES [formation_category]([id]),
                 [enemy] INTEGER REFERENCES [kammusu]([id]),
                 PRIMARY KEY([map],[name],[unit_index]))'''
     cursor.execute(command)
 
     # マステーブルにデータを追加する
-    command = '''INSERT INTO position (map, name, unit_index, final_flg, enemy) VALUES (?,?,?,?,?)'''
+    command = '''INSERT INTO position (map, name, unit_index, final_flg, formation, enemy) VALUES (?,?,?,?,?,?)'''
     map_data = crawl_position_data(cursor)
     cursor.executemany(command, map_data)
 
@@ -858,34 +881,34 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
 
     # 装備種テーブルを作成する
     print('装備種テーブルを作成...')
-    #create_weapon_type_table(cursor)
+    # create_weapon_type_table(cursor)
 
     # 装備カテゴリテーブルを作成する
     print('装備カテゴリテーブルを作成...')
-    #create_weapon_category_table(cursor)
+    # create_weapon_category_table(cursor)
 
     # 装備テーブルを作成する
     print('装備テーブルを作成...')
-    #create_weapon_table(cursor)
+    # create_weapon_table(cursor)
 
     # 艦種テーブルを作成する
     print('艦種テーブルを作成...')
-    #create_kammusu_type_table(cursor)
+    # create_kammusu_type_table(cursor)
 
     # 艦娘テーブルを作成する
     print('艦娘テーブルを作成...')
-    #create_kammusu_table(cursor)
+    # create_kammusu_table(cursor)
 
     # マップテーブルを作成する
     print('マップテーブルを作成...')
-    #create_map_table(cursor)
+    # create_map_table(cursor)
 
     # 陣形カテゴリテーブルを作成する
     print('陣形カテゴリテーブルを作成...')
-    create_formation_category_table(cursor)
+    # create_formation_category_table(cursor)
 
     # マステーブルを作成する
     print('マステーブルを作成...')
-    #create_position_table(cursor)
+    create_position_table(cursor)
 
     connect.commit()
