@@ -30,3 +30,4 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 
 - `ng run ACS-Frontend:app-shell:production`でデプロイ用ビルドを作成
 - `npx pushstate-server ./dist/ACS-Frontend`でデプロイ用ビルドをテスト
+- `firebase deploy`でデプロイ
