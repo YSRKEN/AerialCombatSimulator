@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { SaveDataService } from './save-data.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,11 +13,6 @@ export class RestApiService {
   private serverUrl = "http://localhost:8080";
 
   /**
-   * データキャッシュ
-   */
-  private cache :{[key: string]: any; } = {};
-
-  /**
    * セマフォ
    */
   private semaphore: boolean = false;
@@ -25,11 +21,31 @@ export class RestApiService {
    * コンストラクタ
    * @param http HTTPクライアント
    */
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private saveData: SaveDataService) {
     // ローカルサーバーで動いていない際は、本番用serverにアクセスするようにする
     if (window.location.href.indexOf("localhost") < 0){
       this.serverUrl = "https://aerial-combat-service.appspot.com";
     }
+  }
+
+  /**
+   * データキャッシュ
+   */
+  private getCache<T>(key: string): T | null {
+    const cacheData = this.saveData.loadObject<{[key: string]: any; }>('rest-api.cache', {});
+    if (key in cacheData) {
+      return <T>(cacheData[key]);
+    } else {
+      return null;
+    }
+  }
+  private setCache<T>(key: string, value: T) {
+    const cacheData = this.saveData.loadObject<{[key: string]: any; }>('rest-api.cache', {});
+    cacheData[key] = value;
+    this.saveData.saveObject('rest-api.cache', cacheData);
+  }
+  clearCache() {
+    this.saveData.saveObject('rest-api.cache', {});
   }
 
   /**
@@ -40,9 +56,10 @@ export class RestApiService {
   private async getRequest<T>(key: string, endpoint: string): Promise<T | null> {
     try {
       // キャッシュに存在する場合はそちらを返却する
-      if (key in this.cache){
+      const cache = this.getCache<T>(key);
+      if (cache != null) {
         console.log("[cache] " + key);
-        return this.cache[key];
+        return cache;
       }
 
       // セマフォが立っている際は、何かしらの通信中なので、読み込みを待機する
@@ -55,7 +72,7 @@ export class RestApiService {
       console.log("[non-cache] " + key);
       this.semaphore = true;
       const result = await this.http.get<T>(this.serverUrl + '/' + endpoint).toPromise();
-      this.cache[key] = result;  // キャッシュにデータを追加
+      this.setCache<T>(key, result);
       this.semaphore = false;
 
       return result;

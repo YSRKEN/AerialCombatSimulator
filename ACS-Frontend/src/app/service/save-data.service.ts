@@ -90,7 +90,8 @@ export class SaveDataService {
    * @param key キー
    * @return オブジェクト
    */
-  loadObject<T>(key: string): any{
-    return JSON.parse(window.localStorage.getItem(key));
+  loadObject<T>(key: string, defaultValue: T = null): T{
+    const rawValue = window.localStorage.getItem(key);
+    return rawValue == null ? defaultValue : JSON.parse(rawValue);
   }
 }

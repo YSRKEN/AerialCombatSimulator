@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SaveDataService } from '../service/save-data.service';
+import { RestApiService } from '../service/rest-api.service';
 
 @Component({
   selector: 'app-main',
@@ -13,7 +14,7 @@ export class MainComponent implements OnInit {
    */
   Mode: number;
 
-  constructor(private saveData: SaveDataService) { }
+  constructor(private saveData: SaveDataService, private restApi: RestApiService) { }
 
   ngOnInit() {
     /**
@@ -52,5 +53,12 @@ export class MainComponent implements OnInit {
   selectSimulationMode(){
     this.Mode = 3;
     this.saveData.saveNumber('main.mode', this.Mode);
+  }
+
+  /**
+   * LocalStorageに保存したキャッシュを削除する
+   */
+  clearCache(){
+    this.restApi.clearCache();
   }
 }
