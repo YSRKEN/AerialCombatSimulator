@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@SuppressWarnings("serial")
 @WebServlet(name = "MapPositions", urlPatterns = { "/map-positions" })
 public class MapPositions extends HttpServlet {
 	/**

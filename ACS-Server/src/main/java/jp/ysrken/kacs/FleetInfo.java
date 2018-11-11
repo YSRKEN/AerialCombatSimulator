@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@SuppressWarnings("serial")
 @WebServlet(name = "FleetInfo", urlPatterns = { "/fleet-info" })
 public class FleetInfo extends HttpServlet {
 	/**
@@ -43,24 +44,33 @@ public class FleetInfo extends HttpServlet {
 		}else {
 			int finalFlg = point.contains(" (Final)") ? 1 : 0;
 			point = point.replace(" (Final)", "");
-			String query = "SELECT CASE WHEN unit_index < 6 THEN 1 ELSE 2 END AS index1,\r\n" + 
+			String query = "SELECT fc.category AS formation, CASE WHEN unit_index < 6 THEN 1 ELSE 2 END AS index1,\r\n" + 
 					"CASE WHEN unit_index < 6 THEN unit_index + 1 ELSE unit_index - 5 END AS index2,\r\n" + 
 					"kammusu.name, slotsize, slot1, slot2, slot3, slot4, slot5,\r\n" + 
 					"w1.name AS weapon1, w2.name AS weapon2, w3.name AS weapon3,\r\n" + 
 					"w4.name AS weapon4, w5.name AS weapon5\r\n" + 
 					"FROM position,weapon AS w1,weapon AS w2,weapon AS w3,weapon AS w4,weapon AS w5\r\n" + 
+					",formation_category AS fc\r\n" +
 					"INNER JOIN kammusu ON kammusu.id = position.enemy\r\n" + 
 					"WHERE map=? AND position.name=? AND final_flg=?\r\n" + 
 					"AND w1.id = kammusu.weapon1 AND w2.id = kammusu.weapon2\r\n" + 
 					"AND w3.id = kammusu.weapon3 AND w4.id = kammusu.weapon4\r\n" + 
-					"AND w5.id = kammusu.weapon5\r\n" + 
+					"AND w5.id = kammusu.weapon5 AND fc.id=position.formation\r\n" + 
 					"ORDER BY unit_index";
 			result = database.select(query, map, point, finalFlg);
 		}
 		
 		// クエリを実行する(それぞれの敵艦の情報を取り出し文字列化する)
 		StringBuffer buffer = new StringBuffer();
+		boolean add_formation_flg = false;
 		for(Map<String, Object> pair : result) {
+			// 陣形
+			if (!add_formation_flg) {
+				String formation = (String) pair.get("formation");
+				buffer.append(String.format("%s%n", formation));
+				add_formation_flg = true;
+			}
+
 			// 艦隊番号
 			int index1 = (Integer) pair.get("index1");
 			int index2 = (Integer) pair.get("index2");
