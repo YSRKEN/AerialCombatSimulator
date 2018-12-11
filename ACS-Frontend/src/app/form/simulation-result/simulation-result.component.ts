@@ -75,10 +75,50 @@ export class SimulationResultComponent implements OnInit {
   }
 
   /**
+   * 自艦隊のデータを取得する
+   */
+  getOwnData(): {} {
+    const data: {} = {};
+    data['formation'] = this.saveData.loadString('own-data.fleet_type', '0');
+    data['fleet'] = [];
+    for (let fi = 1; fi <= 12; ++fi) {
+      // 艦娘が選択されていないものは飛ばす
+      const fleetName = this.saveData.loadString('own-unit.[' + fi + '].kammusu_name', '0');
+      if (fleetName == '0') {
+        continue;
+      }
+
+      const fleetData = {'name': fleetName, 'weapon': []};
+
+      // 各スロットの情報を確認する
+      for (let wi = 1; wi <= 5; ++wi) {
+        // 装備名を確認し、「なし」なら飛ばす
+        const prefix = 'own-unit.[' + fi + '].[' + wi + ']';
+        const name = this.saveData.loadString(prefix + '.weapon_name', '0');
+        if (name == '0') {
+          continue;
+        }
+
+        // 情報をまとめる
+        const fleetWeapon = {
+          'name': name,
+          'rf': this.saveData.loadString(prefix + '.weapon_rf', '0'),
+          'mas': this.saveData.loadString(prefix + '.weapon_mas', '7'),
+          'slot_count': this.saveData.loadString(prefix + '.slot_count', '0'),
+        };
+        fleetData.weapon.push(fleetWeapon);
+      }
+      data['fleet'].push(fleetData);
+    }
+    return data;
+  }
+
+  /**
    * シミュレーションを開始する
    */
   startSimulation(){
     console.log(this.getLBASData());
     console.log(this.getEnemyData());
+    console.log(this.getOwnData());
   }
 }
