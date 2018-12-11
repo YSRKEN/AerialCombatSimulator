@@ -19,8 +19,10 @@
           <option *ngFor="let point of PointList" [value]="point.value">{{point.name}}</option>
         </select>
       </div>
-      <img class="w-100 d-inline d-sm-none col-xs-12 col-sm-10 col-md-8" src="{{MapUrl}}">
-      <img class="w-100 d-none d-sm-inline" src="{{MapUrl}}">
+      <a href="{{MapUrl}}">
+        <img class="w-100 d-inline d-sm-none col-xs-12 col-sm-10 col-md-8" src="{{MapUrl}}">
+        <img class="w-100 d-none d-sm-inline" src="{{MapUrl}}">
+      </a>
       <div class="form-group">
         <label for="exampleFormControlTextarea1">編成</label>
         <textarea class="form-control" id="exampleFormControlTextarea1" rows="7" wrap="off" readonly>{{FleetInfo}}</textarea>
