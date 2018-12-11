@@ -25,10 +25,18 @@ export class SimulationResultComponent implements OnInit {
     this.saveData.saveString('simulation-result.simulation_type', this.SimulationType);
   }
 
+  getEnemyData(): { "map": string, "point": string, "level": string } {
+    return {
+      "map": this.saveData.loadString('enemy-data.selected_map', '1-1'),
+      "point": this.saveData.loadString('enemy-data.selected_point', 'A-1'),
+      "level": this.saveData.loadString('enemy-data.selected_level', '0')
+    }
+  }
+
   /**
    * シミュレーションを開始する
    */
   startSimulation(){
-
+    console.log(this.getEnemyData());
   }
 }
