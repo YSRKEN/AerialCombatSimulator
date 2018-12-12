@@ -38,7 +38,7 @@ export class SimulationResultComponent implements OnInit {
         continue;
       }
 
-      const lbasUnit = {'count': parseInt(count), 'weapon': []};
+      const lbasUnit = {'count': count, 'weapon': []};
 
       // 各スロットの情報を確認する
       for (let j = 1; j <= 4; ++j) {
