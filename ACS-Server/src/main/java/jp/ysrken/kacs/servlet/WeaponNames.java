@@ -1,10 +1,9 @@
-package jp.ysrken.kacs;
+package jp.ysrken.kacs.servlet;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -13,11 +12,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@SuppressWarnings("serial")
-@WebServlet(name = "MapPositions", urlPatterns = { "/map-positions" })
-public class MapPositions extends HttpServlet {
+import jp.ysrken.kacs.DatabaseService;
+
+@WebServlet(name = "WeaponNames", urlPatterns = { "/weapon-names" })
+public class WeaponNames extends HttpServlet {
 	/**
-	 * マップのマス一覧を返す
+	 * 装備の種類一覧を返す
 	 */
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -31,28 +31,26 @@ public class MapPositions extends HttpServlet {
 		}
 		
 		// パラメーターを確認する
-		String map = request.getParameter("map");
-		System.out.println("/map-positions?map=" + map);
+		String type = request.getParameter("type");
+		String for_kammusu_flg = request.getParameter("for_kammusu_flg");
+		System.out.println("/weapon-names?type=" + type + "&for_kammusu_flg=" + for_kammusu_flg);
 		
 		// クエリを実行する
+		String tempQuery1 = (for_kammusu_flg != null ? "WHERE for_kammusu_flg='" + for_kammusu_flg + "' " : "");
+		String tempQuery2 = (for_kammusu_flg != null ? "AND for_kammusu_flg='" + for_kammusu_flg + "' " : "");
+
 		List<Map<String, Object>> result;
-		if (map == null) {
-			result = new ArrayList<>();
-		}else {
-			result = database.select("SELECT DISTINCT(name), final_flg FROM position WHERE map=? ORDER BY name", map);
+		if (type == null){
+			result = database.select("SELECT id, name FROM weapon " + tempQuery1 + "ORDER BY id");
+		} else {
+			result = database.select("SELECT id, name FROM weapon WHERE type = '" + type + "' " + tempQuery2 + "ORDER BY id");
 		}
-		List<String> result2 = result.stream().map(s -> {
-			String name = (String) s.get("name");
-			int final_flg = (Integer) s.get("final_flg");
-			return name + (final_flg == 1 ? " (Final)" : "");
-		}).collect(Collectors.toList());
 		
 		// 結果をJSONで返却する
 		response.setContentType("text/json");
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		ObjectMapper mapper = new ObjectMapper();
-		response.getWriter().println(mapper.writeValueAsString(result2));
+		response.getWriter().println(mapper.writeValueAsString(result));
 	}
 }
-

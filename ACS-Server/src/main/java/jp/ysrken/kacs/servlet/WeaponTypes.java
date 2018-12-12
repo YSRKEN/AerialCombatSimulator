@@ -1,4 +1,4 @@
-package jp.ysrken.kacs;
+package jp.ysrken.kacs.servlet;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,8 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@WebServlet(name = "WeaponNames", urlPatterns = { "/weapon-names" })
-public class WeaponNames extends HttpServlet {
+import jp.ysrken.kacs.DatabaseService;
+
+@WebServlet(name = "WeaponTypes", urlPatterns = { "/weapon-types" })
+public class WeaponTypes extends HttpServlet {
 	/**
 	 * 装備の種類一覧を返す
 	 */
@@ -29,19 +31,20 @@ public class WeaponNames extends HttpServlet {
 		}
 		
 		// パラメーターを確認する
-		String type = request.getParameter("type");
-		String for_kammusu_flg = request.getParameter("for_kammusu_flg");
-		System.out.println("/weapon-names?type=" + type + "&for_kammusu_flg=" + for_kammusu_flg);
+		String category = request.getParameter("category");
+		String short_name_flg = request.getParameter("short_name_flg");
+		System.out.println("/weapon-types?category=" + category + "&short_name_flg=" + short_name_flg);
 		
 		// クエリを実行する
-		String tempQuery1 = (for_kammusu_flg != null ? "WHERE for_kammusu_flg='" + for_kammusu_flg + "' " : "");
-		String tempQuery2 = (for_kammusu_flg != null ? "AND for_kammusu_flg='" + for_kammusu_flg + "' " : "");
+		String tempQuery1 = (short_name_flg != null && short_name_flg.equals("1") ? "short_name as name" : "name");
+		String tempQuery2 = "WHERE weapon_type.name IN (SELECT type FROM weapon_category WHERE category=?)";
 
 		List<Map<String, Object>> result;
-		if (type == null){
-			result = database.select("SELECT id, name FROM weapon " + tempQuery1 + "ORDER BY id");
+		if (category == null || category.equals("Normal")){
+			result = database.select("SELECT id, " + tempQuery1 + " FROM weapon_type WHERE name <> 'なし' ORDER BY id");
 		} else {
-			result = database.select("SELECT id, name FROM weapon WHERE type = '" + type + "' " + tempQuery2 + "ORDER BY id");
+			String query = "SELECT id, " + tempQuery1 + " FROM weapon_type " + tempQuery2 + "ORDER BY id";
+			result = database.select(query, category);
 		}
 		
 		// 結果をJSONで返却する
@@ -52,3 +55,4 @@ public class WeaponNames extends HttpServlet {
 		response.getWriter().println(mapper.writeValueAsString(result));
 	}
 }
+

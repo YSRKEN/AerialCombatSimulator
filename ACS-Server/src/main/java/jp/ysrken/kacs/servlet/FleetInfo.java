@@ -1,4 +1,4 @@
-package jp.ysrken.kacs;
+package jp.ysrken.kacs.servlet;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jp.ysrken.kacs.DatabaseService;
 
 @SuppressWarnings("serial")
 @WebServlet(name = "FleetInfo", urlPatterns = { "/fleet-info" })

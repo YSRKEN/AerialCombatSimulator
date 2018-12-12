@@ -1,9 +1,10 @@
-package jp.ysrken.kacs;
+package jp.ysrken.kacs.servlet;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -12,10 +13,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@WebServlet(name = "WeaponTypes", urlPatterns = { "/weapon-types" })
-public class WeaponTypes extends HttpServlet {
+import jp.ysrken.kacs.DatabaseService;
+
+@SuppressWarnings("serial")
+@WebServlet(name = "MapPositions", urlPatterns = { "/map-positions" })
+public class MapPositions extends HttpServlet {
 	/**
-	 * 装備の種類一覧を返す
+	 * マップのマス一覧を返す
 	 */
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -29,28 +33,28 @@ public class WeaponTypes extends HttpServlet {
 		}
 		
 		// パラメーターを確認する
-		String category = request.getParameter("category");
-		String short_name_flg = request.getParameter("short_name_flg");
-		System.out.println("/weapon-types?category=" + category + "&short_name_flg=" + short_name_flg);
+		String map = request.getParameter("map");
+		System.out.println("/map-positions?map=" + map);
 		
 		// クエリを実行する
-		String tempQuery1 = (short_name_flg != null && short_name_flg.equals("1") ? "short_name as name" : "name");
-		String tempQuery2 = "WHERE weapon_type.name IN (SELECT type FROM weapon_category WHERE category=?)";
-
 		List<Map<String, Object>> result;
-		if (category == null || category.equals("Normal")){
-			result = database.select("SELECT id, " + tempQuery1 + " FROM weapon_type WHERE name <> 'なし' ORDER BY id");
-		} else {
-			String query = "SELECT id, " + tempQuery1 + " FROM weapon_type " + tempQuery2 + "ORDER BY id";
-			result = database.select(query, category);
+		if (map == null) {
+			result = new ArrayList<>();
+		}else {
+			result = database.select("SELECT DISTINCT(name), final_flg FROM position WHERE map=? ORDER BY name", map);
 		}
+		List<String> result2 = result.stream().map(s -> {
+			String name = (String) s.get("name");
+			int final_flg = (Integer) s.get("final_flg");
+			return name + (final_flg == 1 ? " (Final)" : "");
+		}).collect(Collectors.toList());
 		
 		// 結果をJSONで返却する
 		response.setContentType("text/json");
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		ObjectMapper mapper = new ObjectMapper();
-		response.getWriter().println(mapper.writeValueAsString(result));
+		response.getWriter().println(mapper.writeValueAsString(result2));
 	}
 }
 
