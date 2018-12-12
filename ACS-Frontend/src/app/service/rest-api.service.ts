@@ -250,4 +250,36 @@ export class RestApiService {
     // 成功時の処理
     return result;
   }
+
+  public async postSimulation(lbas: {}[], enemy: {}, own: {}, type: string): Promise<{}> {
+    try {
+      // セマフォが立っている際は、何かしらの通信中なので、読み込みを待機する
+      if (this.semaphore) {
+        await new Promise(resolve => setTimeout(resolve, 1));
+        return this.postSimulation(lbas, enemy, own, type);
+      }
+
+      // 寝ているセマフォを立て、通信後にまた寝かせる
+      this.semaphore = true;
+      const endpoint = 'simulation?type=' + type;
+      const result = await this.http.post<{}>(this.serverUrl + '/' + endpoint,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          params: JSON.stringify({
+            'lbas': lbas,
+            'enemy': enemy,
+            'own': own
+          })
+        }
+      ).toPromise();
+      this.semaphore = false;
+
+      return result;
+    } catch (e) {
+      console.log(e);
+      return {};
+    }
+  }
 }

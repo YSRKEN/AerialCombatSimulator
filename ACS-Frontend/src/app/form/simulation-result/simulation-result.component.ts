@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SaveDataService } from '../../service/save-data.service';
+import { RestApiService } from 'src/app/service/rest-api.service';
 
 @Component({
   selector: 'app-simulation-result',
@@ -10,7 +11,7 @@ export class SimulationResultComponent implements OnInit {
 
   SimulationType: string = '1';
 
-  constructor(private saveData: SaveDataService) { }
+  constructor(private saveData: SaveDataService, private restApi: RestApiService) { }
 
   ngOnInit() {
     this.SimulationType = this.saveData.loadString('simulation-result.simulation_type', '1');
@@ -116,9 +117,10 @@ export class SimulationResultComponent implements OnInit {
   /**
    * シミュレーションを開始する
    */
-  startSimulation(){
-    console.log(this.getLBASData());
-    console.log(this.getEnemyData());
-    console.log(this.getOwnData());
+  async startSimulation(){
+    const lbas = this.getLBASData();
+    const enemy = this.getEnemyData();
+    const own = this.getOwnData();
+    console.log(await this.restApi.postSimulation(lbas, enemy, own, this.SimulationType));
   }
 }
