@@ -3,6 +3,7 @@ package jp.ysrken.kacs.servlet;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -11,6 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jp.ysrken.kacs.model.RequestData;
+import jp.ysrken.kacs.model.SimulationData;
 
 @WebServlet(name = "Simulation", urlPatterns = { "/simulation" })
 public class Simulation extends HttpServlet {
@@ -24,16 +28,16 @@ public class Simulation extends HttpServlet {
 		if (type == null) {
 			type = "1";
 		}
-		BufferedReader buffer = new BufferedReader(request.getReader());
-		String reqJson = buffer.readLine();
+		
+		// リクエストボディからJSON部分を取り出す
+		ObjectMapper mapper = new ObjectMapper();
+		String requestBody = request.getReader().lines().collect(Collectors.joining(""));
+		RequestData temp = mapper.readValue(requestBody, RequestData.class);
+		String jsonData = temp.getParams();
 
 		// JSONをオブジェクトに変更
-		ObjectMapper mapper = new ObjectMapper();
-		Map<String, Object> reqMap = 
-			mapper.readValue(reqJson, new TypeReference<Map<String, Object>>() {});
-		String params = (String) reqMap.get("params");
-		reqMap = 
-				mapper.readValue(params, new TypeReference<Map<String, Object>>() {});
+		SimulationData simulationData = 
+			mapper.readValue(jsonData, SimulationData.class);
 		return;
 	}
 }

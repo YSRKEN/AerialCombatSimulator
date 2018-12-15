@@ -1,0 +1,134 @@
+{
+	"headers": {
+		"Content-Type": "hoge"
+	},
+	"params": {
+		"lbas": [
+			{
+				"count": "1",
+				"weapon": [
+					{
+						"name": "22",
+						"rf": "7",
+						"mas": "5",
+						"slot_count": "18"
+					},
+					{
+						"name": "175",
+						"rf": "4",
+						"mas": "7",
+						"slot_count": "18"
+					},
+					{
+						"name": "138",
+						"rf": "7",
+						"mas": "2",
+						"slot_count": "10"
+					},
+					{
+						"name": "170",
+						"rf": "10",
+						"mas": "7",
+						"slot_count": "18"
+					}
+				]
+			},
+			{
+				"count": "2",
+				"weapon": [
+					{
+						"name": "22",
+						"rf": "0",
+						"mas": "7",
+						"slot_count": "18"
+					}
+				]
+			}
+		],
+		"enemy": {
+			"map": "1-1",
+			"point": "C-3",
+			"level": "0"
+		},
+		"own": {
+			"formation": "0",
+			"fleet": [
+				{
+					"name": "426",
+					"weapon": [
+						{
+							"name": "2",
+							"rf": "6",
+							"mas": "7",
+							"slot_count": "0"
+						},
+						{
+							"name": "2",
+							"rf": "6",
+							"mas": "7",
+							"slot_count": "0"
+						},
+						{
+							"name": "58",
+							"rf": "6",
+							"mas": "7",
+							"slot_count": "0"
+						}
+					]
+				},
+				{
+					"name": "277",
+					"weapon": [
+						{
+							"name": "52",
+							"rf": "0",
+							"mas": "7",
+							"slot_count": "20"
+						},
+						{
+							"name": "57",
+							"rf": "0",
+							"mas": "7",
+							"slot_count": "20"
+						},
+						{
+							"name": "22",
+							"rf": "0",
+							"mas": "7",
+							"slot_count": "32"
+						},
+						{
+							"name": "54",
+							"rf": "0",
+							"mas": "7",
+							"slot_count": "10"
+						}
+					]
+				},
+				{
+					"name": "118",
+					"weapon": [
+						{
+							"name": "58",
+							"rf": "10",
+							"mas": "7",
+							"slot_count": "0"
+						},
+						{
+							"name": "58",
+							"rf": "10",
+							"mas": "7",
+							"slot_count": "0"
+						},
+						{
+							"name": "41",
+							"rf": "0",
+							"mas": "7",
+							"slot_count": "0"
+						}
+					]
+				}
+			]
+		}
+	}
+}
