@@ -1,7 +1,5 @@
 package jp.ysrken.kacs.model;
 
-import java.util.Map;
-
 import lombok.Data;
 
 @Data

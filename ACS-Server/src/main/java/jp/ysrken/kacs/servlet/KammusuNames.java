@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jp.ysrken.kacs.DatabaseService;
 
+@SuppressWarnings("serial")
 @WebServlet(name = "KammusuNames", urlPatterns = { "/kammusu-names" })
 public class KammusuNames extends HttpServlet {
 	/**

@@ -263,16 +263,11 @@ export class RestApiService {
       this.semaphore = true;
       const endpoint = 'simulation?type=' + type;
       const result = await this.http.post<{}>(this.serverUrl + '/' + endpoint,
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          params: JSON.stringify({
-            'lbas': lbas,
-            'enemy': enemy,
-            'own': own
-          })
-        }
+        JSON.stringify({
+          'lbas': lbas,
+          'enemy': enemy,
+          'own': own
+        })
       ).toPromise();
       this.semaphore = false;
 

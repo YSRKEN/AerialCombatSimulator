@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jp.ysrken.kacs.DatabaseService;
 
+@SuppressWarnings("serial")
 @WebServlet(name = "MapNames", urlPatterns = { "/map-names" })
 public class MapNames extends HttpServlet {
 	/**
