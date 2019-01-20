@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jp.ysrken.kacs.SimulationMode;
 import jp.ysrken.kacs.model.RequestData;
 import jp.ysrken.kacs.model.SimulationData;
 
@@ -25,20 +26,22 @@ public class Simulation extends HttpServlet {
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		// POSTされた各種データを確認する
-		String type = request.getParameter("type");
-		if (type == null) {
-			type = "1";
+		//シミュレーションの種類(0→全部、1→基地航空隊vs敵艦隊、2→自艦隊vs敵艦隊)
+		SimulationMode type = SimulationMode.All;
+		if (request.getParameter("type") != null) {
+			type = SimulationMode.fromInt(Integer.parseInt(request.getParameter("type")));
 		}
+		//基地航空隊・敵艦隊・自艦隊の情報
+		BufferedReader reader = request.getReader();
 		
 		// リクエストボディからJSON部分を取り出し、オブジェクトに変更
 		ObjectMapper mapper = new ObjectMapper();
-		BufferedReader reader = request.getReader();
 		SimulationData simulationData = 
-			mapper.readValue(request.getReader(), SimulationData.class);
+			mapper.readValue(reader, SimulationData.class);
 
 		// シミュレーション処理を行う
 		Map<String, Object> result = new HashMap<>();
-		result.put("type", Integer.parseInt(type));
+		result.put("type", type);
 		result.put("field1", "hoge");
 		result.put("field2", 3.14);
 		result.put("field3", simulationData.hashCode());
