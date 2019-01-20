@@ -14,12 +14,18 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jp.ysrken.kacs.SimulationMode;
+import jp.ysrken.kacs.Simulator;
 import jp.ysrken.kacs.model.RequestData;
 import jp.ysrken.kacs.model.SimulationData;
 
 @SuppressWarnings("serial")
 @WebServlet(name = "Simulation", urlPatterns = { "/simulation" })
 public class Simulation extends HttpServlet {
+	/**
+	 * シミュレーションする回数
+	 */
+	private static int LOOP_COUNT = 10000;
+	
 	/**
 	 * シミュレーションを行い、結果を返す
 	 */
@@ -40,12 +46,8 @@ public class Simulation extends HttpServlet {
 			mapper.readValue(reader, SimulationData.class);
 
 		// シミュレーション処理を行う
-		Map<String, Object> result = new HashMap<>();
-		result.put("type", type);
-		result.put("field1", "hoge");
-		result.put("field2", 3.14);
-		result.put("field3", simulationData.hashCode());
-		
+		Map<String, Object> result = Simulator.simulation(simulationData, type, LOOP_COUNT);
+
 		// 結果をJSONで返却する
 		response.setContentType("text/json");
 		response.setCharacterEncoding("UTF-8");

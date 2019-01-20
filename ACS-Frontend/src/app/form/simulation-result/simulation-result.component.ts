@@ -51,7 +51,7 @@ export class SimulationResultComponent implements OnInit {
 
         // 情報をまとめる
         const lbasWeapon = {
-          'name': name,
+          'id': name,
           'rf': this.saveData.loadString(prefix + '.weapon_rf', '0'),
           'mas': this.saveData.loadString(prefix + '.weapon_mas', '7'),
           'slot_count': this.saveData.loadString(prefix + '.slot_count', '0'),
@@ -102,7 +102,7 @@ export class SimulationResultComponent implements OnInit {
 
         // 情報をまとめる
         const fleetWeapon = {
-          'name': name,
+          'id': name,
           'rf': this.saveData.loadString(prefix + '.weapon_rf', '0'),
           'mas': this.saveData.loadString(prefix + '.weapon_mas', '7'),
           'slot_count': this.saveData.loadString(prefix + '.slot_count', '0'),
