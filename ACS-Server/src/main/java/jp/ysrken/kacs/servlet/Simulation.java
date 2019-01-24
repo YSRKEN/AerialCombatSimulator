@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jp.ysrken.kacs.DatabaseService;
 import jp.ysrken.kacs.SimulationMode;
 import jp.ysrken.kacs.Simulator;
 import jp.ysrken.kacs.model.RequestData;
@@ -31,6 +32,14 @@ public class Simulation extends HttpServlet {
 	 */
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		// データベースを確認する
+		DatabaseService.initialize(getServletContext());
+		DatabaseService database = DatabaseService.getDatabase();
+		if (database == null) {
+			response.sendError(500);
+			return;
+		}
+		
 		// POSTされた各種データを確認する
 		//シミュレーションの種類(0→全部、1→基地航空隊vs敵艦隊、2→自艦隊vs敵艦隊)
 		SimulationMode type = SimulationMode.All;
