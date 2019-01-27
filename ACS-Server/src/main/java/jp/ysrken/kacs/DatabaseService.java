@@ -36,8 +36,6 @@ public class DatabaseService {
 
 	/**
 	 * データベースを初期化する
-	 * 
-	 * @param fileName
 	 */
 	public static void initialize(ServletContext servletContext) {
 		if (database != null) {

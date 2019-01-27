@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jp.ysrken.kacs.model.EnemyData;
 import jp.ysrken.kacs.model.LbasData;
+import jp.ysrken.kacs.model.OwnData;
 import jp.ysrken.kacs.model.SimulationData;
 import jp.ysrken.kacs.model.WeaponData;
 
@@ -38,10 +40,17 @@ public class Simulator {
 	public static Map<String, Object> simulation(SimulationData simulationData, SimulationMode type, int loop_count) {
 		Map<String, Object> result = new HashMap<>();
 		
-		// 敵の制空値分布を算出する
-		Map<Integer, Integer> antiAirValueDict = new HashMap<>();
+		// 基地航空隊の制空値を算出する
 		List<List<Integer>> lbasAntiAirValue = calcLbasAntiAirValue(simulationData.getLbas());
 		result.put("LbasAntiAirValue", lbasAntiAirValue);
+		
+		// 敵の編成を検索する
+		SearcherService searcher = SearcherService.getInstance();
+		EnemyData enemyData = simulationData.getEnemy();
+		OwnData enemyFleetData = searcher.findFromEnemyData(enemyData.getMap(), enemyData.getPoint());
+		
+		// 敵の制空値分布を算出する
+		Map<Integer, Integer> antiAirValueDict = new HashMap<>();
 		for(int i = 0; i < loop_count; ++i) {
 			
 		}

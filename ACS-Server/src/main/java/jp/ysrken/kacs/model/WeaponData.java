@@ -12,9 +12,14 @@ import lombok.Data;
 @Data
 public class WeaponData {
 	/**
-	 * 装備名
+	 * 装備ID
 	 */
 	private int id;
+	
+	/**
+	 * 装備名
+	 */
+	private String name;
 	
 	/**
 	 * 装備種
