@@ -101,6 +101,10 @@
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>appengine-maven-plugin</artifactId>
 				<version>${appengine.maven.plugin.version}</version>
+				<configuration>
+					<enableJarClasses>false</enableJarClasses>
+					<port>8080</port>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

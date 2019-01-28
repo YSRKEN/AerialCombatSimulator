@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jp.ysrken.kacs.DatabaseService;
+import jp.ysrken.kacs.SearcherService;
 import jp.ysrken.kacs.SimulationMode;
 import jp.ysrken.kacs.Simulator;
 import jp.ysrken.kacs.model.RequestData;
@@ -33,9 +34,8 @@ public class Simulation extends HttpServlet {
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		// データベースを確認する
-		DatabaseService.initialize(getServletContext());
-		DatabaseService database = DatabaseService.getDatabase();
-		if (database == null) {
+		SearcherService.initialize(getServletContext());
+		if (SearcherService.getInstance() == null) {
 			response.sendError(500);
 			return;
 		}

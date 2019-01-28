@@ -8,3 +8,4 @@ ACS-Utility/.vscode/
 ACS-Utility/.idea/
 json-parse-test/json-parse-test/.gradle/
 json-parse-test/json-parse-test/bin/
+ACS-Server/.idea/**/workspace.xml
