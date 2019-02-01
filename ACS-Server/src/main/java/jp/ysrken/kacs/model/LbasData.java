@@ -16,10 +16,28 @@ public class LbasData {
 	 * 基地航空隊の装備
 	 */
 	private List<WeaponData> weapon;
-	
+
+	/**
+	 * スロットの搭載数一覧
+	 * @return スロットの搭載数一覧
+	 */
+	public List<Integer> getSlotCount() {
+		return weapon.stream().map(WeaponData::getSlotCount).collect(Collectors.toList());
+	}
+
+	/**
+	 * スロットの搭載数一覧をセットする
+	 * @param slotCount スロットの搭載数一覧
+	 */
+	public void setSlotCount(List<Integer> slotCount) {
+		int weaponSize = weapon.size();
+		for (int i = 0; i < weaponSize; ++i) {
+			weapon.get(i).setSlotCount(slotCount.get(i));
+		}
+	}
+
 	/**
 	 * 制空値を計算して返す
-	 * @param lbasFlg 基地航空隊の場合はtrue
 	 * @return 制空値
 	 */
 	public Integer calcAntiAirValue() {

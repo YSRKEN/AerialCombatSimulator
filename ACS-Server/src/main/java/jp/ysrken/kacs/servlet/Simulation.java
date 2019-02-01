@@ -55,7 +55,9 @@ public class Simulation extends HttpServlet {
 			mapper.readValue(reader, SimulationData.class);
 
 		// シミュレーション処理を行う
-		Map<String, Object> result = Simulator.simulation(simulationData, type, LOOP_COUNT);
+		Simulator.initialize();
+		Simulator simulator = Simulator.getSimulator();
+		Map<String, Object> result = simulator.simulation(simulationData, type, LOOP_COUNT);
 
 		// 結果をJSONで返却する
 		response.setContentType("text/json");
