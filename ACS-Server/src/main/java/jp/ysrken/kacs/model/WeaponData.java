@@ -78,7 +78,25 @@ public class WeaponData {
 		interception = (Integer) result.get("interception");
 		radius = (Integer) result.get("radius");
 	}
-	
+
+	/**
+	 * 艦載機ならtrueを返す
+	 * @param lbasFlg 基地航空隊の場合はtrue
+	 * @return 艦載機ならtrue
+	 */
+	public boolean isAirPlane(boolean lbasFlg) {
+		// 艦載機じゃない場合は制空値を計算しない
+		if (type <= 6) return false;
+		if (type == 17) return false;
+		if (19 <= type && type <= 30) return false;
+		if (34 <= type) return false;
+		if (!lbasFlg) {
+			if (12 <= type && type <= 13) return false;
+			if (type == 16 || type == 18 || type == 31) return false;
+		}
+		return true;
+	}
+
 	/**
 	 * 制空値を計算して返す
 	 * @param lbasFlg 基地航空隊の場合はtrue

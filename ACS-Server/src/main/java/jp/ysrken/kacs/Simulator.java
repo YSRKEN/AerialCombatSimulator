@@ -128,6 +128,7 @@ public class Simulator {
 		SearcherService searcher = SearcherService.getInstance();
 		EnemyData enemyData = simulationData.getEnemy();
 		OwnData enemyFleetData = searcher.findFromEnemyData(enemyData.getMap(), enemyData.getPoint());
+		result.put("enemyFleetData", enemyFleetData.toString());
 		List<List<Integer>> enemySlotCount = enemyFleetData.getSlotCount();
 
 		// 敵の制空値分布を算出する
@@ -136,7 +137,7 @@ public class Simulator {
 			enemyFleetData.setSlotCount(enemySlotCount);
 
 			// 基地航空隊による撃墜
-			/*for (List<Integer> lbas : lbasAntiAirValue) {
+			for (List<Integer> lbas : lbasAntiAirValue) {
 				for (int lbas2 : lbas) {
 					// 敵の制空値を割り出す
 					int enemyAntiAirValue = enemyFleetData.calcAntiAirValue(true);
@@ -147,7 +148,7 @@ public class Simulator {
 					st1DestroyForEnemy(enemySlotCount_, status);
 					enemyFleetData.setSlotCount(enemySlotCount_);
 				}
-			}*/
+			}
 
 			// 連想配列に追加
 			int enemyAntiAirValue = enemyFleetData.calcAntiAirValue(true);

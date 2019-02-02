@@ -118,7 +118,7 @@ public class SearcherService {
 				int slot = (Integer)pair.get("slot" + i);
 				int weaponId = (Integer)pair.get("weapon" + i);
 				WeaponData weapon = findFromWeaponId(weaponId);
-				weapon.setSlotCount(slotSize);
+				weapon.setSlotCount(slot);
 				fleet.getWeapon().add(weapon);
 			}
 			output.getFleet().add(fleet);
