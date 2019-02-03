@@ -12,8 +12,7 @@ export class SimulationResultComponent implements OnInit {
 
   @ViewChild('canvas')
   ref: ElementRef;
-  @Input() data: ChartData;
-  @Input() options: ChartOptions;
+  data: ChartData;
   context: CanvasRenderingContext2D;
   chart: Chart;
 
@@ -28,37 +27,25 @@ export class SimulationResultComponent implements OnInit {
     this.SimulationType = this.saveData.loadString('simulation-result.simulation_type', '1');
 
     this.data = {
-      labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
       datasets: [{
-        label: '# of Votes',
-        data: [12, 19, 3, 5, 2, 3],
-        backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)',
-            'rgba(153, 102, 255, 0.2)',
-            'rgba(255, 159, 64, 0.2)'
-        ],
-        borderColor: [
-            'rgba(255,99,132,1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)'
-        ],
-        borderWidth: 1
+        label: '確率分布',
+        type: "line",
+        showLine: true,
+        lineTension: 0,
+        borderColor: "rgba(160,194,56,1)",
+        backgroundColor: "rgba(160,194,56,0.4)",
+        pointBorderColor: "rgba(160,194,56,1)",
+        data: [],
+      },{
+        label: '下側確率',
+        type: "line",
+        showLine: true,
+        lineTension: 0,
+        borderColor: "rgba(242,207,1,1)",
+        backgroundColor: "rgba(242,207,1,0.4)",
+        pointBorderColor: "rgba(242,207,1,1)",
+        data: [],
       }]
-    };
-    this.options = {
-      scales: {
-        yAxes: [{
-          ticks: {
-            beginAtZero:true
-          }
-        }]
-      }
     };
   }
 
@@ -68,10 +55,26 @@ export class SimulationResultComponent implements OnInit {
 
     // チャートの作成
     this.chart = new Chart(this.context, {
-      type: 'doughnut',
+      type: 'scatter',
       data: this.data,
-      options: this.options
+      options: {
+        scales: {
+          xAxes: [{
+            display: true,
+            scaleLabel: { display: true, labelString: '制空値' },
+            ticks: { stepSize: 1 }
+          }],
+          yAxes: [{
+            display: true,
+            scaleLabel: { display: true, labelString: '割合(％)' },
+            ticks: { min: 0, max: 100, stepSize: 10 }
+          }]
+        }
+      }
     })
+    this.data.datasets[0].data = [{x: 10, y: 30},{x: 11, y: 40},{x: 12, y: 30},]
+    this.data.datasets[1].data = [{x: 10, y: 30},{x: 11, y: 70},{x: 12, y: 100},]
+    this.chart.update();
   }
 
   /**
