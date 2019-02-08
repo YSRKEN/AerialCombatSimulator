@@ -45,7 +45,12 @@ public class LbasData {
 		for (WeaponData w : weapon) {
 			w.refresh();
 		}
-		return weapon.stream().mapToInt(w -> w.calcAntiAirValue(true)).sum();
+		int rawAAV = weapon.stream().mapToInt(w -> w.calcAntiAirValue(true)).sum();
+		if (weapon.stream().anyMatch(w -> w.getType() == 36)) {
+			return (int)(1.15 * rawAAV);
+		} else {
+			return rawAAV;
+		}
 	}
 
 	/**
