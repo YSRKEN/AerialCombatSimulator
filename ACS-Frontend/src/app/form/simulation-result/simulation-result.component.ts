@@ -103,7 +103,10 @@ export class SimulationResultComponent implements OnInit {
   getLBASData(): {}[] {
     const data: {}[] = [];
     for (let i = 1; i <= 3; ++i) {
-      data.push(this.utility.getLBASData(i));
+      const temp = this.utility.getLBASData(i);
+      if (parseInt(temp['count']) > 0) {
+        data.push(temp);
+      }
     }
     return data;
   }

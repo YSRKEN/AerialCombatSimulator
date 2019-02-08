@@ -54,12 +54,16 @@ export class LBASUnitComponent implements OnInit {
    * 制空値・戦闘行動半径を計算し直す
    */
   async calcRadiusAAV() {
-    const lbasUnit = this.utility.getLBASData(parseInt(this.index));
-    console.log(lbasUnit);
-
-    // サーバーにクエリを投げる
-    const lbasInfo = await this.restApi.postLbasInfo(lbasUnit);
-    this.Radius = '' + lbasInfo['Radius'];
-    this.AntiAirValue = '' + lbasInfo['AntiAirValue'];
+    if (parseInt(this.LBASCountValue) == 0) {
+      this.Radius = '0';
+      this.AntiAirValue = '0';
+    } else {
+      const lbasUnit = this.utility.getLBASData(parseInt(this.index));
+  
+      // サーバーにクエリを投げる
+      const lbasInfo = await this.restApi.postLbasInfo(lbasUnit);
+      this.Radius = '' + lbasInfo['Radius'];
+      this.AntiAirValue = '' + lbasInfo['AntiAirValue'];
+    }
   }
 }

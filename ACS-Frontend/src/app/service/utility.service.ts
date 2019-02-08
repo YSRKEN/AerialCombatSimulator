@@ -12,7 +12,7 @@ export class UtilityService {
     // 発進数が0であるものは飛ばす
     const count = this.saveData.loadString('lbasunit.[' + index + '].lbas_count', '0');
     if (count  == '0') {
-      return {};
+      return {'count': '0'};
     }
 
     const lbasUnit = {'count': count, 'weapon': []};
