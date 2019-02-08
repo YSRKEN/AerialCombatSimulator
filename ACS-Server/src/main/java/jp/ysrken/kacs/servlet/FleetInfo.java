@@ -44,6 +44,7 @@ public class FleetInfo extends HttpServlet {
 		if (map == null || point == null || level == null) {
 		} else {
 			OwnData enemyFleets = searcher.findFromEnemyData(map, point);
+			buffer.append("制空値：" + enemyFleets.calcAntiAirValue(true) + " / " + enemyFleets.calcAntiAirValue(false) + "\n");
 			buffer.append(enemyFleets.toString());
 		}
 
