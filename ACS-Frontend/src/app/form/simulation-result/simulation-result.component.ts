@@ -20,6 +20,8 @@ export class SimulationResultComponent implements OnInit {
 
   SimulationType: string = '1';
 
+  simulationFlg: boolean = false;
+
   constructor(
     private saveData: SaveDataService,
     private restApi: RestApiService,
@@ -165,6 +167,11 @@ export class SimulationResultComponent implements OnInit {
    * シミュレーションを開始する
    */
   async startSimulation(){
+    if (this.simulationFlg) {
+      return;
+    }
+    this.simulationFlg = true;
+
     // 情報を取得する
     const lbas = this.getLBASData();
     const enemy = this.getEnemyData();
@@ -177,6 +184,8 @@ export class SimulationResultComponent implements OnInit {
     console.log(simulationResult);
     const enemyAntiAirValueDict: { [key: number]: number; } = simulationResult['EnemyAntiAirValue'];
     this.redrawEnemyAntiAirValue(enemyAntiAirValueDict);
+
+    this.simulationFlg = false;
   }
 
   /**

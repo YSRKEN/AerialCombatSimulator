@@ -3,7 +3,7 @@
     <form class="mx-auto my-3 border p-3 col-xs-12 col-sm-10 col-md-8">
       <div class="form-group d-flex" [ngClass]="{'mb-0': LBASCountValue === '0'}">
         <label class="text-nowrap mr-3 mt-2" for="lbasCount">{{IndexString}}</label>
-        <select class="form-control" name="lbasCount" [(ngModel)]="LBASCountValue">
+        <select class="form-control" name="lbasCount" [(ngModel)]="LBASCountValue" (click)="calcRadiusAAV()">
           <option value="0">なし</option>
           <option value="1">分散</option>
           <option value="2">集中</option>
