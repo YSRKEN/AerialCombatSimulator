@@ -98,6 +98,16 @@ public class WeaponData {
 	}
 
 	/**
+	 * 偵察機ならtrueを返す
+	 * @return 偵察機ならtrue
+	 */
+	public boolean isRecon() {
+		if (12 <= type && type <= 13) return true;
+		if (type == 16 || type == 18 || type == 36) return true;
+		return false;
+	}
+
+	/**
 	 * 制空値を計算して返す
 	 * @param lbasFlg 基地航空隊の場合はtrue
 	 * @return 制空値

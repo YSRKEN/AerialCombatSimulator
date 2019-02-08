@@ -251,6 +251,13 @@ export class RestApiService {
     return result;
   }
 
+  /**
+   * /simulationエンドポイント
+   * @param lbas 基地航空隊
+   * @param enemy 敵艦隊
+   * @param own 自艦隊
+   * @param type シミュレーションの種類
+   */
   public async postSimulation(lbas: {}[], enemy: {}, own: {}, type: string): Promise<{}> {
     try {
       // セマフォが立っている際は、何かしらの通信中なので、読み込みを待機する
@@ -268,6 +275,33 @@ export class RestApiService {
           'enemy': enemy,
           'own': own
         })
+      ).toPromise();
+      this.semaphore = false;
+
+      return result;
+    } catch (e) {
+      console.log(e);
+      return {};
+    }
+  }
+
+  /**
+   * /lbas-infoエンドポイント
+   * @param lbas 基地航空隊
+   */
+  public async postLbasInfo(lbas: {}): Promise<{}> {
+    try {
+      // セマフォが立っている際は、何かしらの通信中なので、読み込みを待機する
+      if (this.semaphore) {
+        await new Promise(resolve => setTimeout(resolve, 1));
+        return this.postLbasInfo(lbas);
+      }
+
+      // 寝ているセマフォを立て、通信後にまた寝かせる
+      this.semaphore = true;
+      const endpoint = 'lbas-info';
+      const result = await this.http.post<{}>(this.serverUrl + '/' + endpoint,
+        JSON.stringify(lbas)
       ).toPromise();
       this.semaphore = false;
 

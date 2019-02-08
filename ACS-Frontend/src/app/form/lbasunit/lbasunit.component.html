@@ -9,12 +9,13 @@
           <option value="2">集中</option>
         </select>
       </div>
-      <div class="form-group mb-0" [ngClass]="{'d-none': LBASCountValue === '0'}">
-        <app-weapon-selector category='LBAS' prefix='lbasunit.[{{index}}].[1]'></app-weapon-selector>
-        <app-weapon-selector category='LBAS' prefix='lbasunit.[{{index}}].[2]'></app-weapon-selector>
-        <app-weapon-selector category='LBAS' prefix='lbasunit.[{{index}}].[3]'></app-weapon-selector>
-        <app-weapon-selector category='LBAS' prefix='lbasunit.[{{index}}].[4]'></app-weapon-selector>
+      <div class="form-group mb-3" [ngClass]="{'d-none': LBASCountValue === '0'}">
+        <app-weapon-selector category='LBAS' prefix='lbasunit.[{{index}}].[1]' (click)="calcRadiusAAV()"></app-weapon-selector>
+        <app-weapon-selector category='LBAS' prefix='lbasunit.[{{index}}].[2]' (click)="calcRadiusAAV()"></app-weapon-selector>
+        <app-weapon-selector category='LBAS' prefix='lbasunit.[{{index}}].[3]' (click)="calcRadiusAAV()"></app-weapon-selector>
+        <app-weapon-selector category='LBAS' prefix='lbasunit.[{{index}}].[4]' (click)="calcRadiusAAV()"></app-weapon-selector>
       </div>
+      <span class="my-3">制空値：{{AntiAirValue}}　戦闘行動半径：{{Radius}}</span>
     </form>
   </div>
 </div>

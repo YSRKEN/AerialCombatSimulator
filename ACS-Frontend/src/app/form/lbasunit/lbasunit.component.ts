@@ -1,5 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { SaveDataService } from '../../service/save-data.service';
+import { UtilityService } from 'src/app/service/utility.service';
+import { RestApiService } from 'src/app/service/rest-api.service';
 
 @Component({
   selector: 'app-lbasunit',
@@ -13,12 +15,29 @@ export class LBASUnitComponent implements OnInit {
   @Input() index: string = '1';
   IndexString: string;
 
-  constructor(private saveData: SaveDataService) { }
+  /**
+   * 戦闘行動半径
+   */
+  Radius: string;
+
+  /**
+   * 制空値
+   */
+  AntiAirValue: string;
+
+  constructor(
+    private saveData: SaveDataService,
+    private utility: UtilityService,
+    private restApi: RestApiService
+    ) { }
 
   ngOnInit() {
     // 基地航空隊の番号を設定
     const indexToString = {'1': '一', '2': '二', '3': '三'};
     this.IndexString = '第' + indexToString[this.index] + '航空隊';
+
+    // 戦闘行動半径と制空値を計算する
+    this.calcRadiusAAV();
   }
 
   /**
@@ -29,5 +48,18 @@ export class LBASUnitComponent implements OnInit {
   }
   set LBASCountValue(value: string) {
     this.saveData.saveString('lbasunit.[' + this.index + '].lbas_count', value);
+  }
+
+  /**
+   * 制空値・戦闘行動半径を計算し直す
+   */
+  async calcRadiusAAV() {
+    const lbasUnit = this.utility.getLBASData(parseInt(this.index));
+    console.log(lbasUnit);
+
+    // サーバーにクエリを投げる
+    const lbasInfo = await this.restApi.postLbasInfo(lbasUnit);
+    this.Radius = '' + lbasInfo['Radius'];
+    this.AntiAirValue = '' + lbasInfo['AntiAirValue'];
   }
 }

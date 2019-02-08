@@ -1,5 +1,6 @@
 package jp.ysrken.kacs.model;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,5 +46,26 @@ public class LbasData {
 			w.refresh();
 		}
 		return weapon.stream().mapToInt(w -> w.calcAntiAirValue(true)).sum();
+	}
+
+	/**
+	 * 戦闘行動半径を計算する
+	 * @return 戦闘行動半径
+	 */
+	public int calcRadius() {
+		/**
+		 * 航空隊の最低戦闘行動半径
+		 */
+		int minRadius = weapon.stream().map(WeaponData::getRadius).min(Comparator.naturalOrder()).orElse(0);
+
+		/**
+		 * 航空隊の偵察機の最大戦闘行動半径
+		 */
+		int maxRadius = weapon.stream().filter(WeaponData::isRecon).map(WeaponData::getRadius).min(Comparator.naturalOrder()).orElse(0);
+		if (maxRadius <= minRadius) {
+			return minRadius;
+		}else {
+			return (int)Math.min(minRadius + Math.round(Math.sqrt(maxRadius - minRadius)), minRadius + 3);
+		}
 	}
 }
