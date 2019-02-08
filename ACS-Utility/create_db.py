@@ -885,7 +885,7 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
 
     # 装備種テーブルを作成する
     print('装備種テーブルを作成...')
-    # create_weapon_type_table(cursor)
+    create_weapon_type_table(cursor)
 
     # 装備カテゴリテーブルを作成する
     print('装備カテゴリテーブルを作成...')
@@ -893,7 +893,7 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
 
     # 装備テーブルを作成する
     print('装備テーブルを作成...')
-    # create_weapon_table(cursor)
+    create_weapon_table(cursor)
 
     # 艦種テーブルを作成する
     print('艦種テーブルを作成...')
