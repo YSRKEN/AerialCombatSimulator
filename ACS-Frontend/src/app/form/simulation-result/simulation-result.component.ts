@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { SaveDataService } from '../../service/save-data.service';
 import { RestApiService } from 'src/app/service/rest-api.service';
 import { Chart, ChartData, ChartOptions } from 'chart.js'
+import { pairs } from 'rxjs';
 
 @Component({
   selector: 'app-simulation-result',
@@ -216,18 +217,32 @@ export class SimulationResultComponent implements OnInit {
     var graph1: {x: number, y: number}[] = [];
     var graph2: {x: number, y: number}[] = [];
     var sum2 = 0;
-    for (var aav in enemyAntiAirValueDict) {
+    for (let aav in enemyAntiAirValueDict) {
       var count = enemyAntiAirValueDict[aav];
       graph1.push({x: parseInt(aav), y: 100.0 * count / sum});
       sum2 += count;
       graph2.push({x: parseInt(aav), y: 100.0 * sum2 / sum});
     }
 
+    // 累積割合がX％を超えた点を検索する
+    var thresholdProbList = [50.0, 70.0, 90.0, 95.0, 99.0];
+    var titleText = '計算結果(';
+    for (let i = 0; i < thresholdProbList.length; ++i) {
+      if (i > 0) {
+        titleText += "　";
+      }
+      let prob = thresholdProbList[i];
+      titleText += '' + prob + '％：' + graph2.find(pair => pair.y >= prob).x;
+    }
+    titleText += ')';
+
     // グラフに計算結果をセットする
     console.log(graph1)
     console.log(graph2)
     this.data.datasets[0].data = graph1
     this.data.datasets[1].data = graph2
+    this.chart.config.options.title.display = true;
+    this.chart.config.options.title.text = titleText;
     this.chart.update()
   }
 }
