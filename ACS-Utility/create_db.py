@@ -656,30 +656,32 @@ def crawl_map_data() -> List[any]:
     for pair in map_data:
         # 各マップ画像のURLを取得
         image_url = ''
-        root = lxml.html.parse(pair[1]).getroot()
-        img_list = root.cssselect('img')
-        for img_Tag in img_list:
-            attributes = img_Tag.attrib
-            if attributes.get('width') is None:
-                continue
-            if attributes.get('height') is None:
-                continue
-            if attributes.get('alt') is None:
-                continue
-            if int(attributes.get('width')) < 500:
-                continue
-            if not 'Map' in attributes['alt']:
-                continue
-            if attributes.get('data-src') is not None:
-                image_url = attributes['data-src']
-                break
-            if attributes.get('src') is not None:
-                image_url = attributes['src']
-                break
-        if image_url != '':
-            image_url = re.sub('\.png.*', '.png', image_url)
-            map_data2.append((pair[0], pair[1], image_url))
-        print(f'{pair[0]} - {image_url}')
+        with urllib.request.urlopen(pair[1]) as f:
+            html_text = f.read().decode('UTF-8')
+            root = lxml.html.fromstring(html_text)
+            img_list = root.cssselect('img')
+            for img_Tag in img_list:
+                attributes = img_Tag.attrib
+                if attributes.get('width') is None:
+                    continue
+                if attributes.get('height') is None:
+                    continue
+                if attributes.get('alt') is None:
+                    continue
+                if int(attributes.get('width')) < 500:
+                    continue
+                if not 'Map' in attributes['alt']:
+                    continue
+                if attributes.get('data-src') is not None:
+                    image_url = attributes['data-src']
+                    break
+                if attributes.get('src') is not None:
+                    image_url = attributes['src']
+                    break
+            if image_url != '':
+                image_url = re.sub('\.png.*', '.png', image_url)
+                map_data2.append((pair[0], pair[1], image_url))
+            print(f'{pair[0]} - {image_url}')
     return map_data2
 
 
@@ -724,103 +726,105 @@ def crawl_position_data(cursor) -> List[any]:
         print(f'{map_name} - {map_url}')
 
         # パース
-        root = lxml.html.parse(map_url).getroot()
+        with urllib.request.urlopen(map_url) as f:
+            html_text = f.read().decode('UTF-8')
+            root = lxml.html.fromstring(html_text)
 
-        # 「マップのマスと敵編成一覧」情報を取り出す
-        scrollable_div_list = root.cssselect('div.scrollable')
-        scrollable_div_tag = None
-        if len(scrollable_div_list) == 0:
-            div_list = root.cssselect('div')
-            for div_tag in div_list:
-                attributes = div_tag.attrib
-                style_attr = attributes.get('style')
-                if style_attr is None:
-                    continue
-                if 'max-height:' not in style_attr:
-                    continue
-                if 'overflow-y:auto' not in style_attr:
-                    continue
-                if 'overflow-x:hidden' not in style_attr:
-                    continue
-                scrollable_div_tag = div_tag
-                break
-        else:
-            scrollable_div_tag = scrollable_div_list[0]
+            # 「マップのマスと敵編成一覧」情報を取り出す
+            scrollable_div_list = root.cssselect('div.scrollable')
+            scrollable_div_tag = None
+            if len(scrollable_div_list) == 0:
+                div_list = root.cssselect('div')
+                for div_tag in div_list:
+                    attributes = div_tag.attrib
+                    style_attr = attributes.get('style')
+                    if style_attr is None:
+                        continue
+                    if 'max-height:' not in style_attr:
+                        continue
+                    if 'overflow-y:auto' not in style_attr:
+                        continue
+                    if 'overflow-x:hidden' not in style_attr:
+                        continue
+                    scrollable_div_tag = div_tag
+                    break
+            else:
+                scrollable_div_tag = scrollable_div_list[0]
 
-        # 「マップのマスと敵編成一覧」をパースして順次代入する
-        point_table_list = scrollable_div_tag.cssselect('table')
-        for point_table_tag in point_table_list:
-            # 戦闘しないテーブルは無視する
-            th_text = ','.join(list(map(lambda x: x.text_content(), point_table_tag.cssselect('th'))))
-            if 'Empty Node' in th_text:
-                continue
-            if 'Resource Node' in th_text:
-                continue
-            if 'Air Raids' in th_text:
-                continue
-
-            # テーブルの中でtdを持つtr一覧を取得し、マス名と敵編成を読み取る
-            tr_list = point_table_tag.cssselect('tr')
-            point_name = ''
-            pattern_index = 1
-            first_flg = True
-            for tr_tag in tr_list:
-                # tdを持たないtrは無視する
-                td_list = tr_tag.cssselect('td')
-                if len(td_list) == 0:
+            # 「マップのマスと敵編成一覧」をパースして順次代入する
+            point_table_list = scrollable_div_tag.cssselect('table')
+            for point_table_tag in point_table_list:
+                # 戦闘しないテーブルは無視する
+                th_text = ','.join(list(map(lambda x: x.text_content(), point_table_tag.cssselect('th'))))
+                if 'Empty Node' in th_text:
+                    continue
+                if 'Resource Node' in th_text:
+                    continue
+                if 'Air Raids' in th_text:
                     continue
 
-                # 最初のtrは、tdとしてマス名を含むので取得する
-                if first_flg:
-                    point_name = td_list[0].text_content().replace("\n", '')
+                # テーブルの中でtdを持つtr一覧を取得し、マス名と敵編成を読み取る
+                tr_list = point_table_tag.cssselect('tr')
+                point_name = ''
+                pattern_index = 1
+                first_flg = True
+                for tr_tag in tr_list:
+                    # tdを持たないtrは無視する
+                    td_list = tr_tag.cssselect('td')
+                    if len(td_list) == 0:
+                        continue
 
-                # 敵編成が記録されているtdの位置を判断する
-                temp_index = -1
-                for i in range(0, len(td_list)):
-                    if len(td_list[i].cssselect('a.link-internal')) > 0:
-                        temp_index = i
-                        break
-                if temp_index == -1:
-                    continue
+                    # 最初のtrは、tdとしてマス名を含むので取得する
+                    if first_flg:
+                        point_name = td_list[0].text_content().replace("\n", '')
 
-                # 余計なタグを削除する
-                span_span_list = td_list[temp_index].cssselect('span > span')
-                for span_tag in span_span_list:
-                    span_tag.drop_tree()
+                    # 敵編成が記録されているtdの位置を判断する
+                    temp_index = -1
+                    for i in range(0, len(td_list)):
+                        if len(td_list[i].cssselect('a.link-internal')) > 0:
+                            temp_index = i
+                            break
+                    if temp_index == -1:
+                        continue
 
-                # 敵編成を読み取る
-                a_list = td_list[temp_index].cssselect('a.link-internal')
-                enemy_list = []
-                for a_tag in a_list:
-                    attributes = a_tag.attrib
-                    enemy_id = int(re.sub(r'.*\((\d+)\):.*', r'\1', attributes.get('title')))
-                    enemy_list.append(enemy_id)
+                    # 余計なタグを削除する
+                    span_span_list = td_list[temp_index].cssselect('span > span')
+                    for span_tag in span_span_list:
+                        span_tag.drop_tree()
 
-                # ラスダンで編成が変わる場合の対策
-                td_text = ','.join(list(map(lambda x: x.text_content(), td_list)))
-                final_flg = '(Final)' in td_text
+                    # 敵編成を読み取る
+                    a_list = td_list[temp_index].cssselect('a.link-internal')
+                    enemy_list = []
+                    for a_tag in a_list:
+                        attributes = a_tag.attrib
+                        enemy_id = int(re.sub(r'.*\((\d+)\):.*', r'\1', attributes.get('title')))
+                        enemy_list.append(enemy_id)
 
-                # 敵の陣形を読み取る
-                formation_image_tag = td_list[1 if first_flg else 0].cssselect('img')[0]
-                attributes = formation_image_tag.attrib
-                formation_image_alt = attributes.get('alt')
+                    # ラスダンで編成が変わる場合の対策
+                    td_text = ','.join(list(map(lambda x: x.text_content(), td_list)))
+                    final_flg = '(Final)' in td_text
 
-                # 読み取った敵編成を登録する
-                for i in range(0, len(enemy_list)):
-                    unit_data = (
-                        map_name,
-                        f'{point_name}-{pattern_index}',
-                        i,
-                        final_flg,
-                        formation_image_alt_dict[formation_image_alt],
-                        enemy_list[i]
-                    )
-                    result.append(unit_data)
+                    # 敵の陣形を読み取る
+                    formation_image_tag = td_list[1 if first_flg else 0].cssselect('img')[0]
+                    attributes = formation_image_tag.attrib
+                    formation_image_alt = attributes.get('alt')
 
-                # 次のループに向けた処理
-                if first_flg:
-                    first_flg = False
-                pattern_index += 1
+                    # 読み取った敵編成を登録する
+                    for i in range(0, len(enemy_list)):
+                        unit_data = (
+                            map_name,
+                            f'{point_name}-{pattern_index}',
+                            i,
+                            final_flg,
+                            formation_image_alt_dict[formation_image_alt],
+                            enemy_list[i]
+                        )
+                        result.append(unit_data)
+
+                    # 次のループに向けた処理
+                    if first_flg:
+                        first_flg = False
+                    pattern_index += 1
 
     return result
 
@@ -885,7 +889,7 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
 
     # 装備カテゴリテーブルを作成する
     print('装備カテゴリテーブルを作成...')
-    # create_weapon_category_table(cursor)
+    create_weapon_category_table(cursor)
 
     # 装備テーブルを作成する
     print('装備テーブルを作成...')
@@ -909,6 +913,6 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
 
     # マステーブルを作成する
     print('マステーブルを作成...')
-    create_position_table(cursor)
+    # create_position_table(cursor)
 
     connect.commit()
