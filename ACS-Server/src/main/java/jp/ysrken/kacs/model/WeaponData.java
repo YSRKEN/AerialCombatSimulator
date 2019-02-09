@@ -71,7 +71,8 @@ public class WeaponData {
 	 */
 	public void refresh() {
 		DatabaseService db = DatabaseService.getDatabase();
-		Map<String, Object> result = db.select("SELECT type, aa, accuracy, interception, radius FROM weapon WHERE id=? LIMIT 1", id).get(0);
+		Map<String, Object> result = db.select("SELECT name, type, aa, accuracy, interception, radius FROM weapon WHERE id=? LIMIT 1", id).get(0);
+		name = (String) result.get("name");
 		type = (Integer) result.get("type");
 		aa = (Integer) result.get("aa");
 		accuracy = (Integer) result.get("accuracy");
@@ -135,25 +136,25 @@ public class WeaponData {
 		case 32:
 		case 33:
 			// 艦戦 or 水戦 or 陸戦 or 局戦
-			return (int)((aa + 0.2 * rf) * Math.sqrt(slotCount) + Math.sqrt(masTable[mas] / 10.0) + pfTable[mas]);
+			return (int)((aa + 0.2 * rf + (lbasFlg ? interception * 1.5 : 0.0)) * Math.sqrt(slotCount) + Math.sqrt(masTable[mas] / 10.0) + pfTable[mas]);
 		case 9:
 			// 爆戦
-			return (int)((aa + 0.25 * rf) * Math.sqrt(slotCount) + Math.sqrt(masTable[mas]));
+			return (int)((aa + 0.25 * rf) * Math.sqrt(slotCount) + Math.sqrt(masTable[mas] / 10.0));
 		case 15:
 			// 水爆
-			return (int)(aa * Math.sqrt(slotCount) + Math.sqrt(masTable[mas]) + wbTable[mas]);
+			return (int)(aa * Math.sqrt(slotCount) + Math.sqrt(masTable[mas] / 10.0) + wbTable[mas]);
 		case 8:
 		case 10:
 		case 11:
 			// 艦攻 or 艦爆 or 噴式
-			return (int)(aa * Math.sqrt(slotCount) + Math.sqrt(masTable[mas]));
+			return (int)(aa * Math.sqrt(slotCount) + Math.sqrt(masTable[mas] / 10.0));
 		case 12:
 		case 13:
 		case 16:
 		case 18:
 		case 31:
 			if (!lbasFlg) return 0;
-			return (int)(aa * Math.sqrt(slotCount) + Math.sqrt(masTable[mas]));
+			return (int)((aa + interception * 1.5) * Math.sqrt(slotCount) + Math.sqrt(masTable[mas] / 10.0));
 		default:
 			return 0;
 		}

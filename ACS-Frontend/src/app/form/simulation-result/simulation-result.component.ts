@@ -110,10 +110,12 @@ export class SimulationResultComponent implements OnInit {
         scales: {
           xAxes: [{
             stacked: true,
-            categoryPercentage:0.4
+            categoryPercentage:0.4,
+            scaleLabel: { display: true, labelString: '基地航空隊/自艦隊' },
           }],
           yAxes: [{
-            stacked: true
+            stacked: true,
+            scaleLabel: { display: true, labelString: '制空状況の割合(％)' },
           }]
         },
         legend: {
@@ -299,7 +301,7 @@ export class SimulationResultComponent implements OnInit {
     this.chart2.data.labels = labelList;
     this.chart2.data.datasets = [];
     const statusNameList = ['確保', '優勢', '均衡', '劣勢', '喪失'];
-    const statusColorList = ['#121554', '#1d3681', '#2e70a7', '#4eadc7', '#a7d8bf'];
+    const statusColorList = ['#4E9A06', '#C88D00', '#CC0000', '#204A87', '#FF0000'];
     const loopCount = 10000;
     for (let i = statusNameList.length - 1; i >= 0; --i) {
       const temp = {

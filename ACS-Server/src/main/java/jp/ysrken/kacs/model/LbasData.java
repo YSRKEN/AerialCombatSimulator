@@ -45,9 +45,21 @@ public class LbasData {
 		for (WeaponData w : weapon) {
 			w.refresh();
 		}
-		int rawAAV = weapon.stream().mapToInt(w -> w.calcAntiAirValue(true)).sum();
+		System.out.println(this.toString());
+		System.out.println("calcAntiAirValue");
+		int rawAAV = weapon.stream().mapToInt(w -> {
+			int temp = w.calcAntiAirValue(true);
+			System.out.println("  " + w.getName() + " " + temp);
+			return temp;
+		}).sum();
 		if (weapon.stream().anyMatch(w -> w.getType() == 36)) {
-			return (int)(1.15 * rawAAV);
+			if (weapon.stream().anyMatch(w -> w.getId() == 312)) {
+				// 二色陸上偵察機(熟練)があった場合
+				return (int) (1.18 * rawAAV);
+			} else {
+				// 二色陸上偵察機しかなかった場合
+				return (int) (1.15 * rawAAV);
+			}
 		} else {
 			return rawAAV;
 		}
