@@ -1,0 +1,27 @@
+<div class="container">
+  <div class="row">
+    <form class="mx-auto border p-3 col-xs-12 col-sm-10 col-md-8">
+      <div class="form-group d-flex" [ngClass]="{'mb-0': KammusuNameValue === '0'}">
+        <label class="text-nowrap mr-3 mt-2" for="kammusuType">{{UnitString}}</label>
+        <select class="form-control mr-3 w-double-square" name="kammusuType" [(ngModel)]="KammusuTypeValue">
+          <option *ngFor="let kammusuType of KammusuTypeList" [value]="kammusuType.value">{{kammusuType.name}}</option>
+        </select>
+        <select class="form-control" name="kammusuName" [(ngModel)]="KammusuNameValue">
+          <option *ngFor="let kammusuName of KammusuNameList" [value]="kammusuName.value">{{kammusuName.name}}</option>
+        </select>
+      </div>
+      <div class="form-group mb-0" [ngClass]="{'d-none': KammusuNameValue === '0'}">
+        <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[1]' slotSize="{{SlotSize[0]}}"
+          [ngClass]="{'d-none': SlotCount < 1}"></app-weapon-selector>
+        <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[2]' slotSize="{{SlotSize[1]}}"
+        [ngClass]="{'d-none': SlotCount < 2}"></app-weapon-selector>
+        <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[3]' slotSize="{{SlotSize[2]}}"
+        [ngClass]="{'d-none': SlotCount < 3}"></app-weapon-selector>
+        <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[4]' slotSize="{{SlotSize[3]}}"
+        [ngClass]="{'d-none': SlotCount < 4}"></app-weapon-selector>
+        <app-weapon-selector category='Normal' prefix='own-unit.[{{index}}].[5]' slotSize="{{SlotSize[4]}}"
+        [ngClass]="{'d-none': SlotCount < 5}"></app-weapon-selector>
+      </div>
+    </form>
+  </div>
+</div>

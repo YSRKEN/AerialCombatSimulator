@@ -1,0 +1,27 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">航空戦シミュレーター</a>
+  <button (click)="clearCache()">キャッシュクリア</button>
+  <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#Navber" aria-controls="Navber" aria-expanded="false" aria-label="ナビゲーションの切替">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="Navber">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item" [ngClass]="{'active bg-primary': Mode === 0}">
+        <a class="nav-link" href="#" (click)="selectLBASMode()">基地航空隊</a>
+      </li>
+      <li class="nav-item" [ngClass]="{'active bg-primary': Mode === 1}">
+        <a class="nav-link" href="#" (click)="selectEnemyMode()">敵艦隊</a>
+      </li>
+      <li class="nav-item" [ngClass]="{'active bg-primary': Mode === 2}">
+        <a class="nav-link" href="#" (click)="selectOwnMode()">自艦隊</a>
+      </li>
+      <li class="nav-item" [ngClass]="{'active bg-primary': Mode === 3}">
+        <a class="nav-link" href="#" (click)="selectSimulationMode()">シミュレーション</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+<app-lbasdata [ngClass]="{'d-none': Mode !== 0}"></app-lbasdata>
+<app-enemy-data [ngClass]="{'d-none': Mode !== 1}"></app-enemy-data>
+<app-own-data [ngClass]="{'d-none': Mode !== 2}"></app-own-data>
+<app-simulation-result [ngClass]="{'d-none': Mode !== 3}"></app-simulation-result>

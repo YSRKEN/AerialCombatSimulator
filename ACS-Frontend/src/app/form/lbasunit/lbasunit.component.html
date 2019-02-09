@@ -1,0 +1,21 @@
+<div class="container">
+  <div class="row">
+    <form class="mx-auto my-3 border p-3 col-xs-12 col-sm-10 col-md-8">
+      <div class="form-group d-flex" [ngClass]="{'mb-0': LBASCountValue === '0'}">
+        <label class="text-nowrap mr-3 mt-2" for="lbasCount">{{IndexString}}</label>
+        <select class="form-control" name="lbasCount" [(ngModel)]="LBASCountValue" (click)="calcRadiusAAV()">
+          <option value="0">なし</option>
+          <option value="1">分散</option>
+          <option value="2">集中</option>
+        </select>
+      </div>
+      <div class="form-group mb-3" [ngClass]="{'d-none': LBASCountValue === '0'}">
+        <app-weapon-selector category='LBAS' prefix='lbasunit.[{{index}}].[1]' (click)="calcRadiusAAV()"></app-weapon-selector>
+        <app-weapon-selector category='LBAS' prefix='lbasunit.[{{index}}].[2]' (click)="calcRadiusAAV()"></app-weapon-selector>
+        <app-weapon-selector category='LBAS' prefix='lbasunit.[{{index}}].[3]' (click)="calcRadiusAAV()"></app-weapon-selector>
+        <app-weapon-selector category='LBAS' prefix='lbasunit.[{{index}}].[4]' (click)="calcRadiusAAV()"></app-weapon-selector>
+      </div>
+      <span class="my-3">制空値：{{AntiAirValue}}　戦闘行動半径：{{Radius}}</span>
+    </form>
+  </div>
+</div>

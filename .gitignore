@@ -1,0 +1,12 @@
+ACS-Frontend/.firebase/
+ACS-Server/.classpath
+ACS-Server/.project
+ACS-Server/.settings/
+ACS-Server/target/
+*.lnk
+ACS-Utility/.vscode/
+ACS-Utility/.idea/
+json-parse-test/json-parse-test/.gradle/
+json-parse-test/json-parse-test/bin/
+ACS-Server/.idea/**/workspace.xml
+ACS-Frontend_/.firebase/
