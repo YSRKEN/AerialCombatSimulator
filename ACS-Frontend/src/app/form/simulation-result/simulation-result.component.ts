@@ -18,6 +18,11 @@ export class SimulationResultComponent implements OnInit {
   context: CanvasRenderingContext2D;
   chart: Chart;
 
+  @ViewChild('canvas2')
+  ref2: ElementRef;
+  context2: CanvasRenderingContext2D;
+  chart2: Chart;
+
   SimulationType: string = '1';
 
   simulationFlg: boolean = false;
@@ -59,6 +64,8 @@ export class SimulationResultComponent implements OnInit {
     // canvasを取得
     this.context = this.ref.nativeElement.getContext('2d');
 
+    this.context2 = this.ref2.nativeElement.getContext('2d');
+
     // チャートの作成
     this.chart = new Chart(this.context, {
       type: 'scatter',
@@ -88,6 +95,39 @@ export class SimulationResultComponent implements OnInit {
     this.data.datasets[0].data = [{x: 10, y: 30},{x: 11, y: 40},{x: 12, y: 30},]
     this.data.datasets[1].data = [{x: 10, y: 30},{x: 11, y: 70},{x: 12, y: 100},]
     this.chart.update();
+
+    this.chart2 = new Chart(this.context2, {
+      type: 'bar',
+      data: {
+        labels: [],
+        datasets: [],
+      },
+      options: {
+        title: {
+          display: true,
+          text: '制空状況',
+        },
+        scales: {
+          xAxes: [{
+            stacked: true,
+            categoryPercentage:0.4
+          }],
+          yAxes: [{
+            stacked: true
+          }]
+        },
+        legend: {
+          labels: {
+            boxWidth:30,
+            padding:20
+          },
+          display: true
+        },
+        tooltips:{
+          mode:'label'
+        }
+      }
+    })
   }
 
   /**
@@ -184,6 +224,8 @@ export class SimulationResultComponent implements OnInit {
     console.log(simulationResult);
     const enemyAntiAirValueDict: { [key: number]: number; } = simulationResult['EnemyAntiAirValue'];
     this.redrawEnemyAntiAirValue(enemyAntiAirValueDict);
+    const antiAirStatusList: number[][] = simulationResult['LbasStatus'];
+    this.redrawAntiAirStatus(antiAirStatusList);
 
     this.simulationFlg = false;
   }
@@ -230,6 +272,45 @@ export class SimulationResultComponent implements OnInit {
     this.data.datasets[1].data = graph2
     this.chart.config.options.title.display = true;
     this.chart.config.options.title.text = titleText;
-    this.chart.update()
+    this.chart.update();
+  }
+
+  /**
+   * 制空状況の配列から、グラフ描画用のデータに変換する
+   * @param antiAirStatusList 制空状況の配列
+   */
+  redrawAntiAirStatus(antiAirStatusList: number[][]) {
+    // 出撃させた基地航空隊の名称一覧を作る
+    const labelList: string[] = [];
+    for (let i = 1; i <= 3; ++i) {
+      // 発進数が0であるものは飛ばす
+      const count = this.saveData.loadString('lbasunit.[' + i + '].lbas_count', '0');
+      if (count  == '0') {
+        continue;
+      }
+
+      // 一覧に追加する
+      for(let j = 1; j <= parseInt(count); ++j) {
+        labelList.push('' + i + '-' + j);
+      }
+    }
+
+    // グラフを描画する
+    this.chart2.data.labels = labelList;
+    this.chart2.data.datasets = [];
+    const statusNameList = ['確保', '優勢', '均衡', '劣勢', '喪失'];
+    const statusColorList = ['#121554', '#1d3681', '#2e70a7', '#4eadc7', '#a7d8bf'];
+    const loopCount = 10000;
+    for (let i = statusNameList.length - 1; i >= 0; --i) {
+      const temp = {
+        label: statusNameList[i],
+        borderWith: 1,
+        backgroundColor: statusColorList[i],
+        borderColor: statusColorList[i],
+        data: antiAirStatusList.map(list => Math.round(1000.0 * list[i] / loopCount) / 10)
+      };
+      this.chart2.data.datasets.push(temp);
+    }
+    this.chart2.update();
   }
 }
