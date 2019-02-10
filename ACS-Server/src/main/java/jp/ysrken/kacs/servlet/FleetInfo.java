@@ -2,6 +2,7 @@ package jp.ysrken.kacs.servlet;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.annotation.WebServlet;
@@ -40,12 +41,16 @@ public class FleetInfo extends HttpServlet {
 		System.out.println("/fleet-info?map=" + map + "&point=" + point + "&level=" + level);
 
 		// クエリを実行する(指定した条件の敵艦一覧を取り出す)
-		StringBuffer buffer = new StringBuffer();
+		Map<String, Object> res = new LinkedHashMap<>();
 		if (map == null || point == null || level == null) {
 		} else {
+			StringBuffer buffer = new StringBuffer();
 			OwnData enemyFleets = searcher.findFromEnemyData(map, point);
 			buffer.append("制空値：" + enemyFleets.calcAntiAirValue(true) + " / " + enemyFleets.calcAntiAirValue(false) + "\n");
 			buffer.append(enemyFleets.toString());
+			res.put("text", buffer.toString());
+			res.put("aav1", enemyFleets.calcAntiAirValue(true));
+			res.put("aav2", enemyFleets.calcAntiAirValue(false));
 		}
 
 		// 結果をJSONで返却する
@@ -53,7 +58,6 @@ public class FleetInfo extends HttpServlet {
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		ObjectMapper mapper = new ObjectMapper();
-		response.getWriter().println(mapper.writeValueAsString(buffer.toString()));
+		response.getWriter().println(mapper.writeValueAsString(res));
 	}
 }
-

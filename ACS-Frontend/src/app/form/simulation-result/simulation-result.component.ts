@@ -223,7 +223,6 @@ export class SimulationResultComponent implements OnInit {
     const simulationResult = await this.restApi.postSimulation(lbas, enemy, own, this.SimulationType);
 
     // サーバーから返ってきた結果を処理する
-    console.log(simulationResult);
     const enemyAntiAirValueDict: { [key: number]: number; } = simulationResult['EnemyAntiAirValue'];
     this.redrawEnemyAntiAirValue(enemyAntiAirValueDict);
     const antiAirStatusList: number[][] = simulationResult['LbasStatus'];
@@ -268,10 +267,8 @@ export class SimulationResultComponent implements OnInit {
     titleText += ')';
 
     // グラフに計算結果をセットする
-    console.log(graph1)
-    console.log(graph2)
-    this.data.datasets[0].data = graph1
-    this.data.datasets[1].data = graph2
+    this.data.datasets[0].data = graph1;
+    this.data.datasets[1].data = graph2;
     this.chart.config.options.title.display = true;
     this.chart.config.options.title.text = titleText;
     this.chart.update();

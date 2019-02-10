@@ -25,6 +25,11 @@ export class LBASUnitComponent implements OnInit {
    */
   AntiAirValue: string;
 
+  /**
+   * 制空判定
+   */
+  Status: string;
+
   constructor(
     private saveData: SaveDataService,
     private utility: UtilityService,
@@ -50,6 +55,20 @@ export class LBASUnitComponent implements OnInit {
     this.saveData.saveString('lbasunit.[' + this.index + '].lbas_count', value);
   }
 
+  calcStatus(friendAAV: number, enemyAAV: number): string {
+    if (friendAAV >= enemyAAV * 3) {
+      return "確保";
+    } else if (friendAAV * 2 >= enemyAAV * 3) {
+      return "優勢";
+    } else if (friendAAV * 3 > enemyAAV * 2) {
+      return "均衡";
+    } else if (friendAAV * 3 > enemyAAV) {
+      return "劣勢";
+    } else {
+      return "喪失";
+    }
+  }
+
   /**
    * 制空値・戦闘行動半径を計算し直す
    */
@@ -64,6 +83,7 @@ export class LBASUnitComponent implements OnInit {
       const lbasInfo = await this.restApi.postLbasInfo(lbasUnit);
       this.Radius = '' + lbasInfo['Radius'];
       this.AntiAirValue = '' + lbasInfo['AntiAirValue'];
+      this.Status = this.calcStatus(lbasInfo['AntiAirValue'], this.saveData.loadInt('aav1', 0));
     }
   }
 }
