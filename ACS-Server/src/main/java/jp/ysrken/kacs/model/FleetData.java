@@ -1,15 +1,23 @@
 package jp.ysrken.kacs.model;
 
-import java.util.ArrayList;
+import lombok.Data;
+
 import java.util.List;
 import java.util.stream.Collectors;
-
-import lombok.Data;
 
 @Data
 public class FleetData {
 	private String name;
 	private List<WeaponData> weapon;
+
+	/**
+	 * POJOとして与えられたデータを元に、他の情報を復元する
+	 */
+	public void refresh() {
+		for (WeaponData weaponData : weapon) {
+			weaponData.refresh();
+		}
+	}
 
 	/**
 	 * スロットの搭載数一覧

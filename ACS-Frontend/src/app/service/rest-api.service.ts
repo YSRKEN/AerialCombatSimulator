@@ -311,4 +311,31 @@ export class RestApiService {
       return {};
     }
   }
+
+  /**
+   * /own-fleet-infoエンドポイント
+   * @param own 自艦隊
+   */
+  public async postOwnInfo(own: {}): Promise<{}> {
+    try {
+      // セマフォが立っている際は、何かしらの通信中なので、読み込みを待機する
+      if (this.semaphore) {
+        await new Promise(resolve => setTimeout(resolve, 1));
+        return this.postOwnInfo(own);
+      }
+
+      // 寝ているセマフォを立て、通信後にまた寝かせる
+      this.semaphore = true;
+      const endpoint = 'own-fleet-info';
+      const result = await this.http.post<{}>(this.serverUrl + '/' + endpoint,
+        JSON.stringify(own)
+      ).toPromise();
+      this.semaphore = false;
+
+      return result;
+    } catch (e) {
+      console.log(e);
+      return {};
+    }
+  }
 }
