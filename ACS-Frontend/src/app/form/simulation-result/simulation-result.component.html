@@ -1,21 +1,21 @@
 <div class="container">
   <div class="row">
     <form class="mx-auto my-3 p-3 col-xs-12 col-sm-10 col-md-8">
-        <div class="form-group">
-            <label for="simulationType">シミュレーションの種類</label>
-            <select class="form-control" name="simulationType" [ngModel]="SimulationType"  (ngModelChange)="changeSimulationType($event)">
-              <option value="0">全部</option>
-              <option value="1">基地航空隊 vs 敵艦隊</option>
-              <option value="2">自艦隊 vs 敵艦隊</option>
-            </select>
-            </div>
+      <div class="form-group">
+        <label for="simulationType">シミュレーションの種類</label>
+        <select class="form-control" name="simulationType" [ngModel]="SimulationType"  (ngModelChange)="changeSimulationType($event)">
+          <option value="0">全部</option>
+          <option value="1">基地航空隊 vs 敵艦隊</option>
+          <option value="2">自艦隊 vs 敵艦隊</option>
+        </select>
+      </div>
       <button type="submit" class="btn btn-primary" (click)="startSimulation()">シミュレーション開始</button>
     </form>
     <div class="mx-auto my-3 p-3 col-xs-12 col-sm-10 col-md-8">
       <canvas #canvas width="450" height="450"></canvas>
     </div>
     <div class="mx-auto my-3 p-3 col-xs-12 col-sm-10 col-md-8">
-      <canvas #canvas2 width="450" height="200"></canvas>
+      <canvas #canvas2 width="450" height="450"></canvas>
     </div>
   </div>
 </div>

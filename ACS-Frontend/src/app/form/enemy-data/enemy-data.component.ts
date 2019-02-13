@@ -53,7 +53,14 @@ export class EnemyDataComponent implements OnInit {
     this.MapUrl = await this.restApi.getMapUrl(this.SelectedMap);
 
     // 編成情報を初期化
-    this.FleetInfo = await this.restApi.getFleetInfo(this.SelectedMap, this.SelectedPoint, this.SelectedLevel);
+    this.setFleetInfo();
+  }
+
+  async setFleetInfo() {
+    const temp = await this.restApi.getFleetInfo(this.SelectedMap, this.SelectedPoint, this.SelectedLevel);
+    this.FleetInfo = temp['text'];
+    this.saveData.saveNumber('aav1', temp['aav1']);
+    this.saveData.saveNumber('aav2', temp['aav2']);
   }
 
   /**
@@ -86,10 +93,7 @@ export class EnemyDataComponent implements OnInit {
     });
 
     // 敵編成表示を更新
-    this.restApi.getFleetInfo(this.SelectedMap, this.SelectedPoint, this.SelectedLevel)
-    .then(value => {
-        this.FleetInfo = value;
-    });
+    this.setFleetInfo();
   }
 
   /**
@@ -113,9 +117,6 @@ export class EnemyDataComponent implements OnInit {
     this.saveData.saveString('enemy-data.selected_point', value);
 
     // 敵編成表示を更新
-    this.restApi.getFleetInfo(this.SelectedMap, this.SelectedPoint, this.SelectedLevel)
-    .then(value => {
-        this.FleetInfo = value;
-    });
+    this.setFleetInfo();
   }
 }

@@ -45,11 +45,8 @@ public class LbasData {
 		for (WeaponData w : weapon) {
 			w.refresh();
 		}
-		System.out.println(this.toString());
-		System.out.println("calcAntiAirValue");
 		int rawAAV = weapon.stream().mapToInt(w -> {
 			int temp = w.calcAntiAirValue(true);
-			System.out.println("  " + w.getName() + " " + temp);
 			return temp;
 		}).sum();
 		if (weapon.stream().anyMatch(w -> w.getType() == 36)) {

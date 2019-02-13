@@ -124,19 +124,21 @@ export class WeaponSelectorComponent implements OnInit {
       this.WeaponNameList.unshift({'value': '0', 'name': 'なし'});
     }
 
+    // 装備種の初期化
+    this.airTypeSet = {};
+    (await this.restApi.getWeaponTypes('Air')).forEach(pair => this.airTypeSet[pair.id] = pair.name);
+    this.searchTypeSet = {};
+    (await this.restApi.getWeaponTypes('Recon')).forEach(pair => {
+      this.airTypeSet[pair.id] = pair.name;
+      this.searchTypeSet[pair.id] = pair.name;
+    });
+
     // 搭載数リストを初期化
     // ('LBAS'はここで初期化されるが、そうでない場合は@Input() set slotSizeで初期化される)
     if (this.category === 'LBAS') {
       var maxSlotSize: string = this.searchTypeSet[parseInt(this.WeaponTypeValue)] ? '4' : '18';
       this.SlotCountList = this.getSlotCountList(maxSlotSize);
     }
-
-    // その他初期化
-    this.airTypeSet = {};
-    (await this.restApi.getWeaponTypes('Air')).forEach(pair => this.airTypeSet[pair.id] = pair.name);
-    this.searchTypeSet = {};
-    (await this.restApi.getWeaponTypes('Recon')).forEach(pair => this.airTypeSet[pair.id] = pair.name);
-
   }
 
   /**

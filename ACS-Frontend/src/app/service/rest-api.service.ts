@@ -234,17 +234,17 @@ export class RestApiService {
    * fleet-infoエンドポイント
    * @param map マップ名
    */
-  public async getFleetInfo(map: string, point: string, level: string): Promise<string> {
+  public async getFleetInfo(map: string, point: string, level: string): Promise<{}> {
     // 準備をする
     const key = 'getFleetInfo#' + map + ',' + point + ',' + level;
     const endpoint = 'fleet-info?map=' + map + '&point=' + point + '&level=' + level;
 
     // 結果を取得する
-    const result = await this.getRequest<string>(key, endpoint);
+    const result = await this.getRequest<{}>(key, endpoint);
 
     // 失敗時の処理
     if (result === null) {
-      return '';
+      return {};
     }
 
     // 成功時の処理
@@ -302,6 +302,33 @@ export class RestApiService {
       const endpoint = 'lbas-info';
       const result = await this.http.post<{}>(this.serverUrl + '/' + endpoint,
         JSON.stringify(lbas)
+      ).toPromise();
+      this.semaphore = false;
+
+      return result;
+    } catch (e) {
+      console.log(e);
+      return {};
+    }
+  }
+
+  /**
+   * /own-fleet-infoエンドポイント
+   * @param own 自艦隊
+   */
+  public async postOwnInfo(own: {}): Promise<{}> {
+    try {
+      // セマフォが立っている際は、何かしらの通信中なので、読み込みを待機する
+      if (this.semaphore) {
+        await new Promise(resolve => setTimeout(resolve, 1));
+        return this.postOwnInfo(own);
+      }
+
+      // 寝ているセマフォを立て、通信後にまた寝かせる
+      this.semaphore = true;
+      const endpoint = 'own-fleet-info';
+      const result = await this.http.post<{}>(this.serverUrl + '/' + endpoint,
+        JSON.stringify(own)
       ).toPromise();
       this.semaphore = false;
 

@@ -167,45 +167,6 @@ export class SimulationResultComponent implements OnInit {
   }
 
   /**
-   * 自艦隊のデータを取得する
-   */
-  getOwnData(): {} {
-    const data: {} = {};
-    data['formation'] = this.saveData.loadString('own-data.fleet_type', '0');
-    data['fleet'] = [];
-    for (let fi = 1; fi <= 12; ++fi) {
-      // 艦娘が選択されていないものは飛ばす
-      const fleetName = this.saveData.loadString('own-unit.[' + fi + '].kammusu_name', '0');
-      if (fleetName == '0') {
-        continue;
-      }
-
-      const fleetData = {'name': fleetName, 'weapon': []};
-
-      // 各スロットの情報を確認する
-      for (let wi = 1; wi <= 5; ++wi) {
-        // 装備名を確認し、「なし」なら飛ばす
-        const prefix = 'own-unit.[' + fi + '].[' + wi + ']';
-        const name = this.saveData.loadString(prefix + '.weapon_name', '0');
-        if (name == '0') {
-          continue;
-        }
-
-        // 情報をまとめる
-        const fleetWeapon = {
-          'id': name,
-          'rf': this.saveData.loadString(prefix + '.weapon_rf', '0'),
-          'mas': this.saveData.loadString(prefix + '.weapon_mas', '7'),
-          'slot_count': this.saveData.loadString(prefix + '.slot_count', '0'),
-        };
-        fleetData.weapon.push(fleetWeapon);
-      }
-      data['fleet'].push(fleetData);
-    }
-    return data;
-  }
-
-  /**
    * シミュレーションを開始する
    */
   async startSimulation(){
@@ -217,13 +178,12 @@ export class SimulationResultComponent implements OnInit {
     // 情報を取得する
     const lbas = this.getLBASData();
     const enemy = this.getEnemyData();
-    const own = this.getOwnData();
+    const own = this.utility.getOwnData();
 
     // サーバーにクエリを投げる
     const simulationResult = await this.restApi.postSimulation(lbas, enemy, own, this.SimulationType);
 
     // サーバーから返ってきた結果を処理する
-    console.log(simulationResult);
     const enemyAntiAirValueDict: { [key: number]: number; } = simulationResult['EnemyAntiAirValue'];
     this.redrawEnemyAntiAirValue(enemyAntiAirValueDict);
     const antiAirStatusList: number[][] = simulationResult['LbasStatus'];
@@ -268,10 +228,8 @@ export class SimulationResultComponent implements OnInit {
     titleText += ')';
 
     // グラフに計算結果をセットする
-    console.log(graph1)
-    console.log(graph2)
-    this.data.datasets[0].data = graph1
-    this.data.datasets[1].data = graph2
+    this.data.datasets[0].data = graph1;
+    this.data.datasets[1].data = graph2;
     this.chart.config.options.title.display = true;
     this.chart.config.options.title.text = titleText;
     this.chart.update();

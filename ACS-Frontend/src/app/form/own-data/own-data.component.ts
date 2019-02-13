@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SaveDataService } from '../../service/save-data.service';
+import { UtilityService } from 'src/app/service/utility.service';
+import { RestApiService } from 'src/app/service/rest-api.service';
 
 @Component({
   selector: 'app-own-data',
@@ -36,10 +38,35 @@ export class OwnDataComponent implements OnInit {
    */
   FleetFormationList: { "value": string, "name": string }[];
 
-  constructor(private saveData: SaveDataService) { }
+  /**
+   * 制空値(特殊)
+   */
+  AntiAirValue1: string = '0';
+
+  /**
+   * 制空値(通常)
+   */
+  AntiAirValue2: string = '0';
+
+  /**
+   * 制空判定(特殊)
+   */
+  Status1: string = '';
+
+  /**
+   * 制空判定(通常)
+   */
+  Status2: string = '';
+
+  constructor(private saveData: SaveDataService,
+    private utility: UtilityService,
+    private restApi: RestApiService) { }
 
   ngOnInit() {
     this.FleetFormationList = this.getFleetFormationList(this.fleetTypeString);
+
+    // 制空値を計算する
+    this.calcAAV();
   }
 
   /**
@@ -83,5 +110,19 @@ export class OwnDataComponent implements OnInit {
   }
   set FleetFormationValue(value: string) {
     this.saveData.saveString('own-data.fleet_formation', value);
+  }
+
+  /**
+   * 制空値を計算し直す
+   */
+  async calcAAV() {
+    const ownUnit = this.utility.getOwnData();
+  
+    // サーバーにクエリを投げる
+    const ownInfo = await this.restApi.postOwnInfo(ownUnit);
+    this.AntiAirValue1 = '' + ownInfo['aav1'];
+    this.AntiAirValue2 = '' + ownInfo['aav2'];
+    this.Status1 = this.utility.calcStatus(ownInfo['aav1'], this.saveData.loadInt('aav1', 0));
+    this.Status2 = this.utility.calcStatus(ownInfo['aav2'], this.saveData.loadInt('aav2', 0));
   }
 }

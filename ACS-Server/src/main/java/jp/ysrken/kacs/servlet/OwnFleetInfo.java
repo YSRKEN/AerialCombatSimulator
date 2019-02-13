@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jp.ysrken.kacs.SearcherService;
 import jp.ysrken.kacs.model.LbasData;
 import jp.ysrken.kacs.model.OwnData;
-import jp.ysrken.kacs.model.SimulationData;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -16,8 +15,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-@WebServlet(name = "LbasInfo", urlPatterns = { "/lbas-info" })
-public class LbasInfo extends HttpServlet {
+@WebServlet(name = "OwnFleetInfo", urlPatterns = { "/own-fleet-info" })
+public class OwnFleetInfo extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // データベースを確認する
@@ -28,18 +27,19 @@ public class LbasInfo extends HttpServlet {
         }
 
         // POSTされたデータを確認する
-        //基地航空隊の情報
+        //自艦隊の情報
         BufferedReader reader = request.getReader();
 
         // リクエストボディからJSON部分を取り出し、オブジェクトに変更
         ObjectMapper mapper = new ObjectMapper();
-        LbasData lbasData =
-                mapper.readValue(reader, LbasData.class);
+        OwnData ownData =
+                mapper.readValue(reader, OwnData.class);
 
         // 計算結果を返す
         Map<String, Object> result = new LinkedHashMap<>();
-        result.put("AntiAirValue", lbasData.calcAntiAirValue());
-        result.put("Radius", lbasData.calcRadius());
+        ownData.refresh();
+        result.put("aav1", ownData.calcAntiAirValue(true));
+        result.put("aav2", ownData.calcAntiAirValue(false));
 
         // 結果をJSONで返却する
         response.setContentType("text/json");

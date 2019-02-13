@@ -39,6 +39,15 @@ public class OwnData {
 		return fleet.stream().mapToInt(f -> f.calcAntiAirValue(lbasFlg)).sum();
 	}
 
+	/**
+	 * POJOとして与えられたデータを元に、他の情報を復元する
+	 */
+	public void refresh() {
+		for (FleetData fleetData : fleet) {
+			fleetData.refresh();
+		}
+	}
+
 	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
@@ -58,6 +67,7 @@ public class OwnData {
 			// 装備情報
 			List<String> temp = new ArrayList<>();
 			fleet.getWeapon().forEach(weapon -> {
+				weapon.refresh();
 				temp.add(String.format("[%d]%s", weapon.getSlotCount(), weapon.getName()));
 			});
 			buffer.append(String.format("　%s%n", String.join(",", temp)));

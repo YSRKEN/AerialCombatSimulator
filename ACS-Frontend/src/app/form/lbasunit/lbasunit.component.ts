@@ -25,6 +25,11 @@ export class LBASUnitComponent implements OnInit {
    */
   AntiAirValue: string;
 
+  /**
+   * 制空判定
+   */
+  Status: string;
+
   constructor(
     private saveData: SaveDataService,
     private utility: UtilityService,
@@ -64,6 +69,7 @@ export class LBASUnitComponent implements OnInit {
       const lbasInfo = await this.restApi.postLbasInfo(lbasUnit);
       this.Radius = '' + lbasInfo['Radius'];
       this.AntiAirValue = '' + lbasInfo['AntiAirValue'];
+      this.Status = this.utility.calcStatus(lbasInfo['AntiAirValue'], this.saveData.loadInt('aav1', 0));
     }
   }
 }
