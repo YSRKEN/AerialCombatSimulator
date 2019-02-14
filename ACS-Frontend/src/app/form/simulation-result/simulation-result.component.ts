@@ -242,17 +242,22 @@ export class SimulationResultComponent implements OnInit {
   redrawAntiAirStatus(antiAirStatusList: number[][]) {
     // 出撃させた基地航空隊の名称一覧を作る
     const labelList: string[] = [];
-    for (let i = 1; i <= 3; ++i) {
-      // 発進数が0であるものは飛ばす
-      const count = this.saveData.loadString('lbasunit.[' + i + '].lbas_count', '0');
-      if (count  == '0') {
-        continue;
+    if (this.SimulationType != '2') {
+      for (let i = 1; i <= 3; ++i) {
+        // 発進数が0であるものは飛ばす
+        const count = this.saveData.loadString('lbasunit.[' + i + '].lbas_count', '0');
+        if (count  == '0') {
+          continue;
+        }
+  
+        // 一覧に追加する
+        for(let j = 1; j <= parseInt(count); ++j) {
+          labelList.push('' + i + '-' + j);
+        }
       }
-
-      // 一覧に追加する
-      for(let j = 1; j <= parseInt(count); ++j) {
-        labelList.push('' + i + '-' + j);
-      }
+    }
+    if (this.SimulationType != '1') {
+      labelList.push('本隊');
     }
 
     // グラフを描画する

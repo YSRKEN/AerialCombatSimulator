@@ -119,18 +119,30 @@ public class Simulator {
 	 */
 	public Map<String, Object> simulation(SimulationData simulationData, SimulationMode type, int loop_count) {
 		Map<String, Object> result = new HashMap<>();
-		
+
 		// 基地航空隊の制空値を算出する
 		List<List<Integer>> lbasAntiAirValue = calcLbasAntiAirValue(simulationData.getLbas());
 		result.put("LbasAntiAirValue", lbasAntiAirValue);
 
-		// 基地航空隊の制空状況をカウントするための配列を用意する
+		// 基地航空隊＋本隊の制空状況をカウントするための配列を用意する
 		List<List<Integer>> lbasStatusCount = new ArrayList<>();
-		for (int i = 0; i < lbasAntiAirValue.size(); ++i) {
-			for (int j = 0; j < lbasAntiAirValue.get(i).size(); ++j) {
-				lbasStatusCount.add(Arrays.asList(0, 0, 0, 0, 0));
+		if (type != SimulationMode.Main) {
+			for (int i = 0; i < lbasAntiAirValue.size(); ++i) {
+				for (int j = 0; j < lbasAntiAirValue.get(i).size(); ++j) {
+					lbasStatusCount.add(Arrays.asList(0, 0, 0, 0, 0));
+				}
 			}
 		}
+		if (type != SimulationMode.LBAS) {
+			lbasStatusCount.add(Arrays.asList(0, 0, 0, 0, 0));
+		}
+
+		// 本隊の制空値を算出する
+		simulationData.getOwn().refresh();
+		int ownAntiAirValue1 = simulationData.getOwn().calcAntiAirValue(true);
+		int ownAntiAirValue2 = simulationData.getOwn().calcAntiAirValue(false);
+		result.put("OwnAntiAirValue1", ownAntiAirValue1);
+		result.put("OwnAntiAirValue2", ownAntiAirValue2);
 
 		// 敵の編成を検索する
 		SearcherService searcher = SearcherService.getInstance();
@@ -145,30 +157,38 @@ public class Simulator {
 			enemyFleetData.setSlotCount(enemySlotCount);
 
 			// 基地航空隊による撃墜
-			int j = 0;
-			for (List<Integer> lbas : lbasAntiAirValue) {
-				for (int lbas2 : lbas) {
-					// 敵の制空値を割り出す
-					int enemyAntiAirValue = enemyFleetData.calcAntiAirValue(true);
+			if (type != SimulationMode.Main) {
+				int j = 0;
+				for (List<Integer> lbas : lbasAntiAirValue) {
+					for (int lbas2 : lbas) {
+						// 敵の制空値を割り出す
+						int enemyAntiAirValue = enemyFleetData.calcAntiAirValue(true);
 
-					// St1撃墜する
-					int status = judgeAirStatus(lbas2, enemyAntiAirValue);
-					List<List<Integer>> enemySlotCount_ = enemyFleetData.getSlotCount();
-					st1DestroyForEnemy(enemySlotCount_, status);
-					enemyFleetData.setSlotCount(enemySlotCount_);
+						// St1撃墜する
+						int status = judgeAirStatus(lbas2, enemyAntiAirValue);
+						List<List<Integer>> enemySlotCount_ = enemyFleetData.getSlotCount();
+						st1DestroyForEnemy(enemySlotCount_, status);
+						enemyFleetData.setSlotCount(enemySlotCount_);
 
-					// カウントを追加する
-					lbasStatusCount.get(j).set(status, lbasStatusCount.get(j).get(status) + 1);
-					++j;
+						// カウントを追加する
+						lbasStatusCount.get(j).set(status, lbasStatusCount.get(j).get(status) + 1);
+						++j;
+					}
 				}
 			}
 
 			// 連想配列に追加
-			int enemyAntiAirValue = enemyFleetData.calcAntiAirValue(true);
+			int enemyAntiAirValue = enemyFleetData.calcAntiAirValue(false);
 			if (antiAirValueDict.containsKey(enemyAntiAirValue)) {
 				antiAirValueDict.put(enemyAntiAirValue, antiAirValueDict.get(enemyAntiAirValue) + 1);
 			} else {
 				antiAirValueDict.put(enemyAntiAirValue, 1);
+			}
+
+			// 本隊による攻撃
+			if (type != SimulationMode.LBAS) {
+				int status = judgeAirStatus(ownAntiAirValue2, enemyAntiAirValue);
+				lbasStatusCount.get(lbasStatusCount.size() - 1).set(status, lbasStatusCount.get(lbasStatusCount.size() - 1).get(status) + 1);
 			}
 		}
 		result.put("EnemyAntiAirValue", antiAirValueDict);
