@@ -195,7 +195,9 @@ public class Simulator {
 				// St2撃墜する
 				for(FleetData fleet : enemyFleetData.getFleet()) {
 					for(WeaponData weapon : fleet.getWeapon()) {
-						
+						if (weapon.isAttackPlane()) {
+
+						}
 					}
 				}
 			}

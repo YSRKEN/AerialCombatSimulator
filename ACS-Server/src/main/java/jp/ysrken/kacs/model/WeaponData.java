@@ -110,6 +110,24 @@ public class WeaponData {
 	}
 
 	/**
+	 * 攻撃系機ならtrueを返す
+	 * @return 攻撃系機ならtrue
+	 */
+	public boolean isAttackPlane() {
+		switch (WeaponType.of(this.type)){
+			case CarrierBomber:
+			case FighterBomber:
+			case Jet:
+			case CarrierAttacker:
+			case SeaBomber:
+			case LandAttacker:
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	/**
 	 * 偵察機ならtrueを返す
 	 * @return 偵察機ならtrue
 	 */

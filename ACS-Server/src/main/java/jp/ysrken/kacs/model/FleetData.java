@@ -1,12 +1,16 @@
 package jp.ysrken.kacs.model;
 
+import jp.ysrken.kacs.DatabaseService;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Data
 public class FleetData {
+	private String id;
+	private int aa;
 	private String name;
 	private List<WeaponData> weapon;
 
@@ -17,6 +21,10 @@ public class FleetData {
 		for (WeaponData weaponData : weapon) {
 			weaponData.refresh();
 		}
+		DatabaseService db = DatabaseService.getDatabase();
+		Map<String, Object> result = db.select("SELECT name, aa FROM kammusu WHERE id=? LIMIT 1", id).get(0);
+		name = (String) result.get("name");
+		aa = (Integer) result.get("aa");
 	}
 
 	/**
@@ -45,5 +53,15 @@ public class FleetData {
 	 */
 	public Integer calcAntiAirValue(boolean lbasFlg) {
 		return weapon.stream().mapToInt(w -> w.calcAntiAirValue(lbasFlg)).sum();
+	}
+
+	/**
+	 * 加重対空値を計算する
+	 * @return 加重対空値
+	 */
+	public double calcWeightedAntiAir() {
+		double weightedAntiAir = aa;
+		// スタブ
+		return weightedAntiAir;
 	}
 }
