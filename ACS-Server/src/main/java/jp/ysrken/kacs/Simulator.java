@@ -2,11 +2,7 @@ package jp.ysrken.kacs;
 
 import java.util.*;
 
-import jp.ysrken.kacs.model.EnemyData;
-import jp.ysrken.kacs.model.LbasData;
-import jp.ysrken.kacs.model.OwnData;
-import jp.ysrken.kacs.model.SimulationData;
-import jp.ysrken.kacs.model.WeaponData;
+import jp.ysrken.kacs.model.*;
 import lombok.Getter;
 
 public class Simulator {
@@ -187,8 +183,21 @@ public class Simulator {
 
 			// 本隊による攻撃
 			if (type != SimulationMode.LBAS) {
+				// 制空状況のカウントを追加する
 				int status = judgeAirStatus(ownAntiAirValue2, enemyAntiAirValue);
 				lbasStatusCount.get(lbasStatusCount.size() - 1).set(status, lbasStatusCount.get(lbasStatusCount.size() - 1).get(status) + 1);
+
+				// St1撃墜する
+				List<List<Integer>> enemySlotCount_ = enemyFleetData.getSlotCount();
+				st1DestroyForEnemy(enemySlotCount_, status);
+				enemyFleetData.setSlotCount(enemySlotCount_);
+
+				// St2撃墜する
+				for(FleetData fleet : enemyFleetData.getFleet()) {
+					for(WeaponData weapon : fleet.getWeapon()) {
+						
+					}
+				}
 			}
 		}
 		result.put("EnemyAntiAirValue", antiAirValueDict);

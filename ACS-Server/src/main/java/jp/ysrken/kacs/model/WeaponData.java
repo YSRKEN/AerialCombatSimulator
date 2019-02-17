@@ -86,16 +86,27 @@ public class WeaponData {
 	 * @return 艦載機ならtrue
 	 */
 	public boolean isAirPlane(boolean lbasFlg) {
-		// 艦載機じゃない場合は制空値を計算しない
-		if (type <= 6) return false;
-		if (type == 17) return false;
-		if (19 <= type && type <= 30) return false;
-		if (34 <= type) return false;
-		if (!lbasFlg) {
-			if (12 <= type && type <= 13) return false;
-			if (type == 16 || type == 18 || type == 31) return false;
+		switch (WeaponType.of(this.type)){
+		case CarrierFighter:
+		case CarrierBomber:
+		case FighterBomber:
+		case Jet:
+		case CarrierAttacker:
+		case SeaFighter:
+		case SeaBomber:
+		case LandAttacker:
+		case LandFighter1:
+		case LandFighter2:
+			return true;
+		case CarrierReconn:
+		case Saiun:
+		case SeaReconn:
+		case FlyingBoat:
+		case LandReconn:
+			return lbasFlg;
+		default:
+			return false;
 		}
-		return true;
 	}
 
 	/**
@@ -103,9 +114,16 @@ public class WeaponData {
 	 * @return 偵察機ならtrue
 	 */
 	public boolean isRecon() {
-		if (12 <= type && type <= 13) return true;
-		if (type == 16 || type == 18 || type == 36) return true;
-		return false;
+		switch (WeaponType.of(this.type)){
+		case CarrierReconn:
+		case Saiun:
+		case SeaReconn:
+		case FlyingBoat:
+		case LandReconn:
+			return true;
+		default:
+			return false;
+		}
 	}
 
 	/**
@@ -115,13 +133,8 @@ public class WeaponData {
 	 */
 	public int calcAntiAirValue(boolean lbasFlg) {
 		// 艦載機じゃない場合は制空値を計算しない
-		if (type <= 6) return 0;
-		if (type == 17) return 0;
-		if (19 <= type && type <= 30) return 0;
-		if (34 <= type) return 0;
-		if (!lbasFlg) {
-			if (12 <= type && type <= 13) return 0;
-			if (type == 16 || type == 18 || type == 31) return 0;
+		if (!this.isAirPlane(lbasFlg)) {
+			return 0;
 		}
 		
 		// 外部熟練度を内部熟練度に変換する
@@ -130,29 +143,29 @@ public class WeaponData {
 		final int[] wbTable = {0, 0, 1, 1, 1, 3, 3, 6, 6};
 		
 		// 制空値を計算する
-		switch(type) {
-		case 7:
-		case 14:
-		case 32:
-		case 33:
+		switch(WeaponType.of(this.type)) {
+		case CarrierFighter:
+		case SeaFighter:
+		case LandFighter1:
+		case LandFighter2:
 			// 艦戦 or 水戦 or 陸戦 or 局戦
 			return (int)((aa + 0.2 * rf + (lbasFlg ? interception * 1.5 : 0.0)) * Math.sqrt(slotCount) + Math.sqrt(masTable[mas] / 10.0) + pfTable[mas]);
-		case 9:
+		case FighterBomber:
 			// 爆戦
 			return (int)((aa + 0.25 * rf) * Math.sqrt(slotCount) + Math.sqrt(masTable[mas] / 10.0));
-		case 15:
+		case SeaBomber:
 			// 水爆
 			return (int)(aa * Math.sqrt(slotCount) + Math.sqrt(masTable[mas] / 10.0) + wbTable[mas]);
-		case 8:
-		case 10:
-		case 11:
+		case CarrierBomber:
+		case Jet:
+		case CarrierAttacker:
 			// 艦攻 or 艦爆 or 噴式
 			return (int)(aa * Math.sqrt(slotCount) + Math.sqrt(masTable[mas] / 10.0));
-		case 12:
-		case 13:
-		case 16:
-		case 18:
-		case 31:
+		case CarrierReconn:
+		case Saiun:
+		case SeaReconn:
+		case FlyingBoat:
+		case LandAttacker:
 			if (!lbasFlg) return 0;
 			return (int)((aa + interception * 1.5) * Math.sqrt(slotCount) + Math.sqrt(masTable[mas] / 10.0));
 		default:
