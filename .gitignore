@@ -10,3 +10,4 @@ json-parse-test/json-parse-test/.gradle/
 json-parse-test/json-parse-test/bin/
 ACS-Server/.idea/**/workspace.xml
 ACS-Frontend_/.firebase/
+ACS-Utility/venv/

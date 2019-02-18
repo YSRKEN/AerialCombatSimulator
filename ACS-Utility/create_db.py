@@ -366,7 +366,7 @@ def crawl_friend_kammusu_data_deckbuilder() -> List[any]:
                 continue
 
             # 対空
-            aa = json_data['aac']
+            aa = json_data['max_aac']
 
             # スロットサイズ
             slot_size = json_data['slot']
@@ -897,22 +897,22 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
 
     # 艦種テーブルを作成する
     print('艦種テーブルを作成...')
-    # create_kammusu_type_table(cursor)
+    create_kammusu_type_table(cursor)
 
     # 艦娘テーブルを作成する
     print('艦娘テーブルを作成...')
-    # create_kammusu_table(cursor)
+    create_kammusu_table(cursor)
 
     # マップテーブルを作成する
     print('マップテーブルを作成...')
-    # create_map_table(cursor)
+    create_map_table(cursor)
 
     # 陣形カテゴリテーブルを作成する
     print('陣形カテゴリテーブルを作成...')
-    # create_formation_category_table(cursor)
+    create_formation_category_table(cursor)
 
     # マステーブルを作成する
     print('マステーブルを作成...')
-    # create_position_table(cursor)
+    create_position_table(cursor)
 
     connect.commit()
