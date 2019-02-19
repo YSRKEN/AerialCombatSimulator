@@ -31,6 +31,14 @@ public class OwnData {
 	}
 
 	/**
+	 * St1撃墜される可能性がある一覧を返す
+	 * @return 一覧
+	 */
+	public List<List<Boolean>> getSt1Flg() {
+		return fleet.stream().map(FleetData::getSt1Flg).collect(Collectors.toList());
+	}
+
+	/**
 	 * 制空値を計算して返す
 	 * @param lbasFlg 基地航空隊関係ならtrue
 	 * @return 制空値
@@ -46,6 +54,23 @@ public class OwnData {
 		for (FleetData fleetData : fleet) {
 			fleetData.refresh();
 		}
+	}
+
+	/**
+	 * 艦隊防空値を計算する
+	 * @return 艦隊防空値
+	 */
+	public double calcAntiAirBonus() {
+		// 陣形補正を計算する
+		double formationMultiple = 1.0;
+		if (formation.equals("警戒陣")) {
+			formationMultiple = 1.1;
+		} else if (formation.equals("複縦陣")) {
+			formationMultiple = 1.2;
+		} else if (formation.equals("輪形陣")) {
+			formationMultiple = 1.6;
+		}
+		return (int)(formationMultiple * fleet.stream().mapToDouble(FleetData::calcAntiAirBonus).sum()) * (2.0 / 1.3);
 	}
 
 	@Override

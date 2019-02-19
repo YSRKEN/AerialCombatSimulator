@@ -110,6 +110,28 @@ public class WeaponData {
 	}
 
 	/**
+	 * St1撃墜される可能性があるならtrueを返す
+	 * @return あるならtrue
+	 */
+	public boolean getSt1Flg() {
+		switch (WeaponType.of(this.type)){
+			case CarrierFighter:
+			case CarrierBomber:
+			case FighterBomber:
+			case Jet:
+			case CarrierAttacker:
+			case SeaFighter:
+			case SeaBomber:
+			case LandAttacker:
+			case LandFighter1:
+			case LandFighter2:
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	/**
 	 * 攻撃系機ならtrueを返す
 	 * @return 攻撃系機ならtrue
 	 */
@@ -189,5 +211,99 @@ public class WeaponData {
 		default:
 			return 0;
 		}
+	}
+
+	/**
+	 * 高角砲ならtrue
+	 * @return 高角砲ならtrue
+	 */
+	public boolean isKoukakuHou() {
+		if (getName().contains("高角砲")) {
+			return true;
+		} else if (getId() == 284 || getId() == 295 || getId() == 296 || getId() == 313
+				|| getId() == 308 || getId() == 160 || getId() == 172) {
+			// 5inch単装砲 Mk.30
+			// 12.7cm連装砲A型改三(戦時改修)＋高射装置
+			// 12.7cm連装砲B型改四(戦時改修)＋高射装置
+			// 5inch単装砲 Mk.30改
+			// 5inch単装砲 Mk.30改＋GFCS Mk.37
+			// 10.5cm連装砲
+			// 5inch連装砲 Mk.28 mod.2
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 加重対空値を計算するための下計算
+	 * @return 加重対空値
+	 */
+	public double getWeightedAntiAir() {
+		// 装備倍率を取得する
+		int multiple = 0;
+		WeaponType type = WeaponType.of(this.type);
+		if (type == WeaponType.AntiAirGun) {
+			multiple = 6;
+		} else if (type == WeaponType.AntiAirFireDirector || isKoukakuHou()) {
+			multiple = 4;
+		} else if (type == WeaponType.AirRadar || type == WeaponType.SurfaceRadar) {
+			multiple = 3;
+		}
+
+		// 改修係数を取得する
+		int rfCoeff = 0;
+		if (type == WeaponType.AntiAirGun) {
+			rfCoeff = 4;
+		} else if (isKoukakuHou()) {
+			if (getAa() >= 8) {
+				rfCoeff = 3;
+			} else {
+				rfCoeff = 2;
+			}
+		} else if (type == WeaponType.AntiAirFireDirector) {
+			rfCoeff = 2;
+		}
+
+		// 加重対空値を計算する
+		return 1.0 * multiple * getAa() + rfCoeff * Math.sqrt(getRf());
+	}
+
+	/**
+	 * 艦隊防空値を計算
+	 * @return 艦隊防空値
+	 */
+	public double getAntiAirBonus() {
+		// 装備倍率を取得する
+		double multiple = 0;
+		WeaponType type = WeaponType.of(this.type);
+		if (type == WeaponType.AntiAirShell) {
+			multiple = 0.6;
+		} else if (type == WeaponType.AirRadar || type == WeaponType.SurfaceRadar) {
+			multiple = 0.4;
+		} else if (type == WeaponType.AntiAirFireDirector || isKoukakuHou()) {
+			multiple = 0.35;
+		} else if (getName().equals("46cm三連装砲")) {
+			multiple = 0.25;
+		} else if (type == WeaponType.SmallGun || type == WeaponType.MediumGun
+		|| type == WeaponType.LargeGun || type == WeaponType.AntiAirGun
+		|| type == WeaponType.CarrierFighter || type == WeaponType.CarrierBomber
+		|| type == WeaponType.SeaReconn) {
+			multiple = 0.2;
+		}
+
+		// 改修係数を取得する
+		double rfCoeff = 0.0;
+		if (isKoukakuHou()) {
+			if (getAa() >= 8) {
+				rfCoeff = 3.0;
+			} else {
+				rfCoeff = 2.0;
+			}
+		} else if (type == WeaponType.AirRadar || type == WeaponType.SurfaceRadar) {
+			rfCoeff = 1.5;
+		}
+
+		// 艦隊防空値を計算する
+		return 1.0 * multiple * getAa() + rfCoeff * Math.sqrt(getRf());
 	}
 }

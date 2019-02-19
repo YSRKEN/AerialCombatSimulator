@@ -47,6 +47,14 @@ public class FleetData {
 	}
 
 	/**
+	 * St1撃墜される可能性がある一覧を返す
+	 * @return 一覧
+	 */
+	public List<Boolean> getSt1Flg() {
+		return weapon.stream().map(WeaponData::getSt1Flg).collect(Collectors.toList());
+	}
+
+	/**
 	 * 制空値を計算して返す
 	 * @param lbasFlg 基地航空隊関係ならtrue
 	 * @return 制空値
@@ -60,8 +68,16 @@ public class FleetData {
 	 * @return 加重対空値
 	 */
 	public double calcWeightedAntiAir() {
-		double weightedAntiAir = aa;
-		// スタブ
-		return weightedAntiAir;
+		double weightedAntiAir = aa + weapon.stream().mapToDouble(WeaponData::getWeightedAntiAir).sum();
+		int a = weapon.stream().anyMatch(w -> w.getId() != 0) ? 2 : 1;
+		return a * (int)(weightedAntiAir / a);
+	}
+
+	/**
+	 * 艦隊防空値を計算する
+	 * @return 艦隊防空値
+	 */
+	public double calcAntiAirBonus() {
+		return (int)(weapon.stream().mapToDouble(WeaponData::getAntiAirBonus).sum());
 	}
 }

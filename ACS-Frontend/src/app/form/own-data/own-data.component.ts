@@ -58,6 +58,16 @@ export class OwnDataComponent implements OnInit {
    */
   Status2: string = '';
 
+  /**
+   * 艦隊防空値
+   */
+  AntiAirBonus: string = '';
+
+  /**
+   * 加重対空値
+   */
+  WeightedAntiAir: number[] = [];
+
   constructor(private saveData: SaveDataService,
     private utility: UtilityService,
     private restApi: RestApiService) { }
@@ -124,5 +134,7 @@ export class OwnDataComponent implements OnInit {
     this.AntiAirValue2 = '' + ownInfo['aav2'];
     this.Status1 = this.utility.calcStatus(ownInfo['aav1'], this.saveData.loadInt('aav1', 0));
     this.Status2 = this.utility.calcStatus(ownInfo['aav2'], this.saveData.loadInt('aav2', 0));
+    this.AntiAirBonus = '' + Math.round(ownInfo['aab'] * 10) / 10;
+    this.WeightedAntiAir = ownInfo['waa'];
   }
 }

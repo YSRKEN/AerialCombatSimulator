@@ -2,6 +2,7 @@ package jp.ysrken.kacs.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jp.ysrken.kacs.SearcherService;
+import jp.ysrken.kacs.model.FleetData;
 import jp.ysrken.kacs.model.OwnData;
 
 import javax.servlet.annotation.WebServlet;
@@ -12,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("serial")
 @WebServlet(name = "OwnFleetInfo", urlPatterns = { "/own-fleet-info" })
@@ -39,6 +41,8 @@ public class OwnFleetInfo extends HttpServlet {
         ownData.refresh();
         result.put("aav1", ownData.calcAntiAirValue(true));
         result.put("aav2", ownData.calcAntiAirValue(false));
+        result.put("aab", ownData.calcAntiAirBonus());
+        result.put("waa", ownData.getFleet().stream().map(FleetData::calcWeightedAntiAir).collect(Collectors.toList()));
 
         // 結果をJSONで返却する
         response.setContentType("text/json");

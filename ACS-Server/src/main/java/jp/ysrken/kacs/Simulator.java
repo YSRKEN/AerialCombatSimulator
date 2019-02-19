@@ -82,11 +82,14 @@ public class Simulator {
 		}
 	}
 
-	private void st1DestroyForEnemy(List<List<Integer>> slotCount, int status) {
-		for (List<Integer> integer : slotCount) {
+	private void st1DestroyForEnemy(List<List<Integer>> slotCount, List<List<Boolean>> enemySt1Flg, int status) {
+		for (int i = 0; i < slotCount.size(); ++i) {
+			List<Integer> integer = slotCount.get(i);
 			for (int j = 0; j < integer.size(); ++j) {
-				List<Integer> candidate = killedSlot.get(integer.get(j)).get(status);
-				integer.set(j, candidate.get(random.nextInt(candidate.size())));
+				if (enemySt1Flg.get(i).get(j)) {
+					List<Integer> candidate = killedSlot.get(integer.get(j)).get(status);
+					integer.set(j, candidate.get(random.nextInt(candidate.size())));
+				}
 			}
 		}
 	}
@@ -146,9 +149,11 @@ public class Simulator {
 		OwnData enemyFleetData = searcher.findFromEnemyData(enemyData.getMap(), enemyData.getPoint());
 		result.put("enemyFleetData", enemyFleetData.toString());
 		List<List<Integer>> enemySlotCount = enemyFleetData.getSlotCount();
+		List<List<Boolean>> enemySt1Flg = enemyFleetData.getSt1Flg();
 
 		// 敵の制空値分布を算出する
 		Map<Integer, Integer> antiAirValueDict = new HashMap<>();
+		double ownAntiAirBonus = simulationData.getOwn().calcAntiAirBonus();
 		for(int i = 0; i < loop_count; ++i) {
 			enemyFleetData.setSlotCount(enemySlotCount);
 
@@ -163,7 +168,7 @@ public class Simulator {
 						// St1撃墜する
 						int status = judgeAirStatus(lbas2, enemyAntiAirValue);
 						List<List<Integer>> enemySlotCount_ = enemyFleetData.getSlotCount();
-						st1DestroyForEnemy(enemySlotCount_, status);
+						st1DestroyForEnemy(enemySlotCount_, enemySt1Flg, status);
 						enemyFleetData.setSlotCount(enemySlotCount_);
 
 						// カウントを追加する
@@ -189,14 +194,33 @@ public class Simulator {
 
 				// St1撃墜する
 				List<List<Integer>> enemySlotCount_ = enemyFleetData.getSlotCount();
-				st1DestroyForEnemy(enemySlotCount_, status);
+				st1DestroyForEnemy(enemySlotCount_, enemySt1Flg, status);
 				enemyFleetData.setSlotCount(enemySlotCount_);
 
 				// St2撃墜する
 				for(FleetData fleet : enemyFleetData.getFleet()) {
 					for(WeaponData weapon : fleet.getWeapon()) {
 						if (weapon.isAttackPlane()) {
+							// ランダムに迎撃艦を選択する
+							List<FleetData> ownFleets = simulationData.getOwn().getFleet();
+							FleetData ownFleet = ownFleets.get(random.nextInt(ownFleets.size()));
 
+							// 割合撃墜と固定撃墜の数を数える
+							double weightedAntiAir = ownFleet.calcWeightedAntiAir();
+							int perDestroy = (random.nextInt(2) == 1
+									? (int)(weightedAntiAir * weapon.getSlotCount() / 400)
+									: 0);
+							int fixedDestroy = (random.nextInt(2) == 1
+									? (int)((weightedAntiAir + ownAntiAirBonus) * 1.0 / 10)
+									: 0);
+
+							// 撃墜処理を行う
+							int allDestroy = perDestroy + fixedDestroy;
+							if (weapon.getSlotCount() >= allDestroy) {
+								weapon.setSlotCount(weapon.getSlotCount() - allDestroy);
+							} else {
+								weapon.setSlotCount(0);
+							}
 						}
 					}
 				}

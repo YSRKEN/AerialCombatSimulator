@@ -14,8 +14,10 @@
         </select>
       </div>
       <div class="form-group">
-        <span class="my-3 mr-3">制空値：{{AntiAirValue1}} / {{AntiAirValue2}}　判定：{{Status1}} / {{Status2}}</span>
-        <button type="button" class="btn btn-primary p-1" (click)="calcAAV()">制空値を更新</button>
+        <span class="my-3 mr-3">制空値：{{AntiAirValue1}} / {{AntiAirValue2}}　判定：{{Status1}} / {{Status2}}</span><br>
+        <span class="my-3 mr-3">艦隊防空値：{{AntiAirBonus}}</span><br>
+        <span class="my-3 mr-3">加重対空値：{{WeightedAntiAir}}</span><br>
+        <button type="button" class="btn btn-primary p-1 mt-3" (click)="calcAAV()">制空値を更新</button>
       </div>
     </form>
   </div>
