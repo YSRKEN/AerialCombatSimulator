@@ -127,8 +127,9 @@ def calc_weapon_status(td_tag):
     aa = int(status['Icon_AA']) if 'Icon_AA' in status else -1
     accuracy = int(status['Icon_Hit']) if 'Icon_Hit' in status else 0
     interception = int(status['Icon_Interception']) if 'Icon_Interception' in status else 0
+    attack = int(status['Icon_Gun']) if 'Icon_Gun' in status else 0
 
-    return aa, accuracy, interception
+    return aa, accuracy, interception, attack
 
 
 def calc_weapon_type(td_tag, name, aa, weapon_type_default_dict, weapon_type_wikia_dict) -> int:
@@ -213,7 +214,7 @@ def crawl_friend_weapon_data() -> List[any]:
             name = calc_weapon_name(td_tag_list[2])
 
             # スペックを読み取る
-            aa, accuracy, interception = calc_weapon_status(td_tag_list[4])
+            aa, accuracy, interception, attack = calc_weapon_status(td_tag_list[4])
             radius = weapon_radius_dict[name] if name in weapon_radius_dict else 0
 
             # 装備種を読み取る
@@ -221,7 +222,7 @@ def crawl_friend_weapon_data() -> List[any]:
 
             # データを入力する
             aa = aa if aa >= 0 else 0
-            weapon_data.append((id, weapon_type, name, aa, accuracy, interception, radius, 1))
+            weapon_data.append((id, weapon_type, name, aa, accuracy, interception, radius, 1, attack))
     return weapon_data
 
 
@@ -253,14 +254,14 @@ def crawl_enemy_weapon_data() -> List[any]:
             name = calc_weapon_name(td_tag_list[2])
 
             # スペックを読み取る
-            aa, accuracy, interception = calc_weapon_status(td_tag_list[4])
+            aa, accuracy, interception, attack = calc_weapon_status(td_tag_list[4])
 
             # 装備種を読み取る
             weapon_type = calc_weapon_type(td_tag_list[3], name, aa, weapon_type_default_dict, weapon_type_wikia_dict)
 
             # データを入力する
             aa = aa if aa >= 0 else 0
-            weapon_data.append((id, weapon_type, name, aa, accuracy, 0, 0, 0))
+            weapon_data.append((id, weapon_type, name, aa, accuracy, 0, 0, 0, attack))
     return weapon_data
 
 
@@ -274,7 +275,7 @@ def crawl_weapon_data() -> List[any]:
     enemy_weapon_data = crawl_enemy_weapon_data()
 
     # 合体させたものを戻り値とする
-    weapon_data = [(0, 0, 'なし', 0, 0, 0, 0, 1)]
+    weapon_data = [(0, 0, 'なし', 0, 0, 0, 0, 1, 0)]
     weapon_data.extend(friend_weapon_data)
     weapon_data.extend(enemy_weapon_data)
     return weapon_data
@@ -295,11 +296,13 @@ def create_weapon_table(cursor) -> None:
                  [interception] INTEGER NOT NULL,
                  [radius] INTEGER NOT NULL,
                  [for_kammusu_flg] INTEGER NOT NULL,
+                 [attack] INTEGER NOT NULL,
                  PRIMARY KEY([id]))'''
     cursor.execute(command)
 
     # 装備テーブルにデータを追加する
-    command = 'INSERT INTO weapon (id, type, name, aa, accuracy, interception, radius, for_kammusu_flg) VALUES (?,?,?,?,?,?,?,?)'
+    command = 'INSERT INTO weapon (id, type, name, aa, accuracy, interception, radius, for_kammusu_flg, attack)' \
+              ' VALUES (?,?,?,?,?,?,?,?,?)'
     data = crawl_weapon_data()
     cursor.executemany(command, data)
     connect.commit()
@@ -368,6 +371,9 @@ def crawl_friend_kammusu_data_deckbuilder() -> List[any]:
             # 対空
             aa = json_data['max_aac']
 
+            # 火力
+            attack = json_data['fire']
+
             # スロットサイズ
             slot_size = json_data['slot']
 
@@ -387,7 +393,7 @@ def crawl_friend_kammusu_data_deckbuilder() -> List[any]:
             data = (id, kammusu_type, name, aa, slot_size,
                     slot[0], slot[1], slot[2], slot[3], slot[4],
                     weapon[0], weapon[1], weapon[2], weapon[3], weapon[4],
-                    1)
+                    1, attack)
             kammusu_data.append(data)
     return kammusu_data
 
@@ -485,7 +491,7 @@ def calc_kammusu_slot(td_tag):
     return slot_size, slot
 
 
-def calc_kammusu_weapon(td_tag, weapon_url_id_dict) -> int:
+def calc_kammusu_weapon(td_tag, weapon_url_id_dict) -> List[int]:
     result = [0, 0, 0, 0, 0]
     href_list = list(map(lambda x: x['href'], td_tag.select('a')))
     index = 0
@@ -552,6 +558,11 @@ def crawl_enemy_kammusu_data() -> List[any]:
             if aa < 0:
                 continue
 
+            # 火力を読み取る
+            attack = calc_kammusu_aa(td_tag_list[7])
+            if attack < 0:
+                continue
+
             # スロットを読み取る
             slot_size, slot = calc_kammusu_slot(td_tag_list[18])
             if slot_size < 0:
@@ -571,7 +582,7 @@ def crawl_enemy_kammusu_data() -> List[any]:
             data = (id, kammusu_type, name, aa, slot_size,
                     slot[0], slot[1], slot[2], slot[3], slot[4],
                     weapon[0], weapon[1], weapon[2], weapon[3], weapon[4],
-                    0)
+                    0, attack)
             kammusu_data.append(data)
 
     return kammusu_data
@@ -587,7 +598,7 @@ def crawl_kammusu_data() -> List[any]:
     enemy_kammusu_data = crawl_enemy_kammusu_data()
 
     # 合体させたものを戻り値とする
-    kammusu_data = [(0, 0, 'なし', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)]
+    kammusu_data = [(0, 0, 'なし', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0)]
     kammusu_data.extend(friend_kammusu_data)
     kammusu_data.extend(enemy_kammusu_data)
     return kammusu_data
@@ -616,6 +627,7 @@ def create_kammusu_table(cursor) -> None:
                 [weapon4] INTEGER NOT NULL REFERENCES [weapon]([id]),
                 [weapon5] INTEGER NOT NULL REFERENCES [weapon]([id]),
                 [kammusu_flg] INTEGER NOT NULL,
+                [attack] INTEGER NOT NULL,
                 PRIMARY KEY([id]))'''
     cursor.execute(command)
 
@@ -623,7 +635,7 @@ def create_kammusu_table(cursor) -> None:
     command = '''INSERT INTO kammusu (id, type, name, aa, slotsize,
                     slot1, slot2, slot3, slot4, slot5,
                     weapon1, weapon2, weapon3, weapon4, weapon5,
-                    kammusu_flg) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+                    kammusu_flg, attack) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
     data = crawl_kammusu_data()
     cursor.executemany(command, data)
 
@@ -885,11 +897,11 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
 
     # 装備種テーブルを作成する
     print('装備種テーブルを作成...')
-    create_weapon_type_table(cursor)
+    # create_weapon_type_table(cursor)
 
     # 装備カテゴリテーブルを作成する
     print('装備カテゴリテーブルを作成...')
-    create_weapon_category_table(cursor)
+    # create_weapon_category_table(cursor)
 
     # 装備テーブルを作成する
     print('装備テーブルを作成...')
@@ -897,22 +909,22 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
 
     # 艦種テーブルを作成する
     print('艦種テーブルを作成...')
-    create_kammusu_type_table(cursor)
+    # create_kammusu_type_table(cursor)
 
     # 艦娘テーブルを作成する
     print('艦娘テーブルを作成...')
-    create_kammusu_table(cursor)
+    # create_kammusu_table(cursor)
 
     # マップテーブルを作成する
     print('マップテーブルを作成...')
-    create_map_table(cursor)
+    # create_map_table(cursor)
 
     # 陣形カテゴリテーブルを作成する
     print('陣形カテゴリテーブルを作成...')
-    create_formation_category_table(cursor)
+    # create_formation_category_table(cursor)
 
     # マステーブルを作成する
     print('マステーブルを作成...')
-    create_position_table(cursor)
+    # create_position_table(cursor)
 
     connect.commit()
