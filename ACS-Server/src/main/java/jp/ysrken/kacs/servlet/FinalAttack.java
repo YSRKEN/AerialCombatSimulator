@@ -2,17 +2,15 @@ package jp.ysrken.kacs.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jp.ysrken.kacs.SearcherService;
-import jp.ysrken.kacs.model.OwnData;
+import jp.ysrken.kacs.model.FleetData;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("serial")
 @WebServlet(name = "FinalAttack", urlPatterns = { "/final-attack" })
@@ -42,6 +40,8 @@ public class FinalAttack extends HttpServlet {
 
         // クエリを実行する(指定した条件の敵艦一覧を取り出す)
         Map<String, Object> res = new LinkedHashMap<>();
+        FleetData enemyFleet = searcher.findFromMapAndPointAndName(map, point, name);
+        System.out.println(enemyFleet.toString());
         res.put("value", 100);
 
         // 結果をJSONで返却する

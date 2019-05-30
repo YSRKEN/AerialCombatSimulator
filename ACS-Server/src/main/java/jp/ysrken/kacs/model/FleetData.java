@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 public class FleetData {
 	private String id;
 	private int aa;
+	private int attack;
+	private int torpedo;
 	private String name;
 	private List<WeaponData> weapon;
 
@@ -22,9 +24,11 @@ public class FleetData {
 			weaponData.refresh();
 		}
 		DatabaseService db = DatabaseService.getDatabase();
-		Map<String, Object> result = db.select("SELECT name, aa FROM kammusu WHERE id=? LIMIT 1", id).get(0);
+		Map<String, Object> result = db.select("SELECT name, aa, attack, torpedo FROM kammusu WHERE id=? LIMIT 1", id).get(0);
 		name = (String) result.get("name");
 		aa = (Integer) result.get("aa");
+		attack = (Integer) result.get("attack");
+		torpedo = (Integer) result.get("torpedo");
 	}
 
 	/**

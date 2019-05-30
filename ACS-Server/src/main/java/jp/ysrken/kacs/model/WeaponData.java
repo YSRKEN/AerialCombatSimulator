@@ -47,7 +47,19 @@ public class WeaponData {
 	 */
 	@JsonIgnore
 	private int aa;
-	
+
+	/**
+	 * 火力
+	 */
+	@JsonIgnore
+	private int attack;
+
+	/**
+	 * 雷装
+	 */
+	@JsonIgnore
+	private int torpedo;
+
 	/**
 	 * 命中値
 	 */
@@ -71,13 +83,15 @@ public class WeaponData {
 	 */
 	public void refresh() {
 		DatabaseService db = DatabaseService.getDatabase();
-		Map<String, Object> result = db.select("SELECT name, type, aa, accuracy, interception, radius FROM weapon WHERE id=? LIMIT 1", id).get(0);
+		Map<String, Object> result = db.select("SELECT name, type, aa, accuracy, interception, radius, attack, torpedo FROM weapon WHERE id=? LIMIT 1", id).get(0);
 		name = (String) result.get("name");
 		type = (Integer) result.get("type");
 		aa = (Integer) result.get("aa");
 		accuracy = (Integer) result.get("accuracy");
 		interception = (Integer) result.get("interception");
 		radius = (Integer) result.get("radius");
+		attack = (Integer) result.get("attack");
+		torpedo = (Integer) result.get("torpedo");
 	}
 
 	/**
