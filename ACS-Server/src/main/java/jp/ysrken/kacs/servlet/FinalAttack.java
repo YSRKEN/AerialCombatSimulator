@@ -16,6 +16,58 @@ import java.util.Map;
 @WebServlet(name = "FinalAttack", urlPatterns = { "/final-attack" })
 public class FinalAttack extends HttpServlet {
     /**
+     * 基本攻撃力を出す
+     * @param fleet 艦
+     * @param type 攻撃種
+     * @return 基本攻撃力
+     */
+    private double calcBasicAttack(FleetData fleet, String type) {
+        if (type.equals("航空")) {
+            return 0.0;
+        } else if (type.equals("砲撃")) {
+            return 0.0;
+        } else if (type.equals("対潜")) {
+            return 0.0;
+        } else if (type.equals("雷撃")) {
+            return 0.0;
+        } else if (type.equals("夜戦")) {
+            return 0.0;
+        } else {
+            return 0.0;
+        }
+    }
+
+    /**
+     * キャップ前攻撃力を出す
+     * @param basicAttack 基本攻撃力
+     * @param formation 陣形
+     * @param status 交戦形態
+     * @return キャップ前攻撃力
+     */
+    private double calcBeforeCapAttack(double basicAttack, String formation, String status) {
+        return 0.0;
+    }
+
+    /**
+     * キャップ後攻撃力を出す
+     * @param beforeCapAttack キャップ前攻撃力
+     * @param type 攻撃種
+     * @return キャップ後攻撃力
+     */
+    private double calcAfterCapAttack(double beforeCapAttack, String type) {
+        return 0.0;
+    }
+
+    /**
+     * 最終攻撃力を出す
+     * @param afterCapAttack キャップ後攻撃力
+     * @return 最終攻撃力
+     */
+    private double calcFinalAttack(double afterCapAttack) {
+        return 0.0;
+    }
+
+    /**
      * マップのURLを返す
      */
     @Override
@@ -41,8 +93,13 @@ public class FinalAttack extends HttpServlet {
         // クエリを実行する(指定した条件の敵艦一覧を取り出す)
         Map<String, Object> res = new LinkedHashMap<>();
         FleetData enemyFleet = searcher.findFromMapAndPointAndName(map, point, name);
-        System.out.println(enemyFleet.toString());
-        res.put("value", 100);
+
+        // 最終攻撃力を計算する
+        double basicAttack = calcBasicAttack(enemyFleet, type); // 基礎攻撃力
+        double beforeCapAttack = calcBeforeCapAttack(basicAttack, formation, status);   // キャップ前攻撃力
+        double afterCapAttack = calcAfterCapAttack(beforeCapAttack, type);  // キャップ後攻撃力
+        double finalAttack = calcFinalAttack(afterCapAttack);    //最終攻撃力
+        res.put("value", (int)finalAttack);
 
         // 結果をJSONで返却する
         response.setContentType("text/json");
