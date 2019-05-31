@@ -13,6 +13,7 @@ public class FleetData {
 	private int aa;
 	private int attack;
 	private int torpedo;
+	private int antiSub;
 	private int type;
 	private String name;
 	private List<WeaponData> weapon;
@@ -25,11 +26,12 @@ public class FleetData {
 			weaponData.refresh();
 		}
 		DatabaseService db = DatabaseService.getDatabase();
-		Map<String, Object> result = db.select("SELECT name, aa, attack, torpedo, type FROM kammusu WHERE id=? LIMIT 1", id).get(0);
+		Map<String, Object> result = db.select("SELECT name, aa, attack, torpedo, type, antisub FROM kammusu WHERE id=? LIMIT 1", id).get(0);
 		name = (String) result.get("name");
 		aa = (Integer) result.get("aa");
 		attack = (Integer) result.get("attack");
 		torpedo = (Integer) result.get("torpedo");
+		antiSub = (Integer) result.get("antisub");
 		type = (Integer) result.get("type");
 	}
 

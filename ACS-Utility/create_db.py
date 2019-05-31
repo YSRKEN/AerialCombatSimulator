@@ -129,8 +129,10 @@ def calc_weapon_status(td_tag):
     interception = int(status['Icon_Interception']) if 'Icon_Interception' in status else 0
     attack = int(status['Icon_Gun']) if 'Icon_Gun' in status else 0
     torpedo = int(status['Icon_Torpedo']) if 'Icon_Torpedo' in status else 0
+    antisub = int(status['Icon_ASW']) if 'Icon_ASW' in status else 0
+    bomber = int(status['Icon_Dive']) if 'Icon_Dive' in status else 0
 
-    return aa, accuracy, interception, attack, torpedo
+    return aa, accuracy, interception, attack, torpedo, antisub, bomber
 
 
 def calc_weapon_type(td_tag, name, aa, weapon_type_default_dict, weapon_type_wikia_dict) -> int:
@@ -215,7 +217,7 @@ def crawl_friend_weapon_data() -> List[any]:
             name = calc_weapon_name(td_tag_list[2])
 
             # スペックを読み取る
-            aa, accuracy, interception, attack, torpedo = calc_weapon_status(td_tag_list[4])
+            aa, accuracy, interception, attack, torpedo, antisub, bomber = calc_weapon_status(td_tag_list[4])
             radius = weapon_radius_dict[name] if name in weapon_radius_dict else 0
 
             # 装備種を読み取る
@@ -223,7 +225,8 @@ def crawl_friend_weapon_data() -> List[any]:
 
             # データを入力する
             aa = aa if aa >= 0 else 0
-            weapon_data.append((id, weapon_type, name, aa, accuracy, interception, radius, 1, attack, torpedo))
+            weapon_data.append((id, weapon_type, name, aa, accuracy, interception, radius, 1, attack, torpedo, antisub,
+                                bomber))
     return weapon_data
 
 
@@ -255,14 +258,14 @@ def crawl_enemy_weapon_data() -> List[any]:
             name = calc_weapon_name(td_tag_list[2])
 
             # スペックを読み取る
-            aa, accuracy, interception, attack, torpedo = calc_weapon_status(td_tag_list[4])
+            aa, accuracy, interception, attack, torpedo, antisub, bomber = calc_weapon_status(td_tag_list[4])
 
             # 装備種を読み取る
             weapon_type = calc_weapon_type(td_tag_list[3], name, aa, weapon_type_default_dict, weapon_type_wikia_dict)
 
             # データを入力する
             aa = aa if aa >= 0 else 0
-            weapon_data.append((id, weapon_type, name, aa, accuracy, 0, 0, 0, attack, torpedo))
+            weapon_data.append((id, weapon_type, name, aa, accuracy, 0, 0, 0, attack, torpedo, antisub, bomber))
     return weapon_data
 
 
@@ -276,7 +279,7 @@ def crawl_weapon_data() -> List[any]:
     enemy_weapon_data = crawl_enemy_weapon_data()
 
     # 合体させたものを戻り値とする
-    weapon_data = [(0, 0, 'なし', 0, 0, 0, 0, 1, 0, 0)]
+    weapon_data = [(0, 0, 'なし', 0, 0, 0, 0, 1, 0, 0, 0, 0)]
     weapon_data.extend(friend_weapon_data)
     weapon_data.extend(enemy_weapon_data)
     return weapon_data
@@ -299,12 +302,14 @@ def create_weapon_table(cursor) -> None:
                  [for_kammusu_flg] INTEGER NOT NULL,
                  [attack] INTEGER NOT NULL,
                  [torpedo] INTEGER NOT NULL,
+                 [antisub] INTEGER NOT NULL,
+                 [bomber] INTEGER NOT NULL,
                  PRIMARY KEY([id]))'''
     cursor.execute(command)
 
     # 装備テーブルにデータを追加する
     command = 'INSERT INTO weapon (id, type, name, aa, accuracy, interception, radius, for_kammusu_flg, attack,' \
-              'torpedo) VALUES (?,?,?,?,?,?,?,?,?,?)'
+              'torpedo, antisub, bomber) VALUES (?,?,?,?,?,?,?,?,?,?,?, ?)'
     data = crawl_weapon_data()
     cursor.executemany(command, data)
     connect.commit()
@@ -379,6 +384,9 @@ def crawl_friend_kammusu_data_deckbuilder() -> List[any]:
             # 雷装
             torpedo = json_data['max_torpedo']
 
+            # 対潜
+            antisub = json_data['max_ass']
+
             # スロットサイズ
             slot_size = json_data['slot']
 
@@ -398,7 +406,7 @@ def crawl_friend_kammusu_data_deckbuilder() -> List[any]:
             data = (id, kammusu_type, name, aa, slot_size,
                     slot[0], slot[1], slot[2], slot[3], slot[4],
                     weapon[0], weapon[1], weapon[2], weapon[3], weapon[4],
-                    1, attack, torpedo)
+                    1, attack, torpedo, antisub)
             kammusu_data.append(data)
     return kammusu_data
 
@@ -573,6 +581,9 @@ def crawl_enemy_kammusu_data() -> List[any]:
             if torpedo < 0:
                 continue
 
+            # 対潜を読み取る
+            antisub = calc_kammusu_aa(td_tag_list[11])
+
             # スロットを読み取る
             slot_size, slot = calc_kammusu_slot(td_tag_list[18])
             if slot_size < 0:
@@ -592,7 +603,7 @@ def crawl_enemy_kammusu_data() -> List[any]:
             data = (id, kammusu_type, name, aa, slot_size,
                     slot[0], slot[1], slot[2], slot[3], slot[4],
                     weapon[0], weapon[1], weapon[2], weapon[3], weapon[4],
-                    0, attack, torpedo)
+                    0, attack, torpedo, antisub)
             kammusu_data.append(data)
 
     return kammusu_data
@@ -608,7 +619,7 @@ def crawl_kammusu_data() -> List[any]:
     enemy_kammusu_data = crawl_enemy_kammusu_data()
 
     # 合体させたものを戻り値とする
-    kammusu_data = [(0, 0, 'なし', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0)]
+    kammusu_data = [(0, 0, 'なし', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0)]
     kammusu_data.extend(friend_kammusu_data)
     kammusu_data.extend(enemy_kammusu_data)
     return kammusu_data
@@ -639,6 +650,7 @@ def create_kammusu_table(cursor) -> None:
                 [kammusu_flg] INTEGER NOT NULL,
                 [attack] INTEGER NOT NULL,
                 [torpedo] INTEGER NOT NULL,
+                [antisub] INTEGER NOT NULL,
                 PRIMARY KEY([id]))'''
     cursor.execute(command)
 
@@ -646,7 +658,7 @@ def create_kammusu_table(cursor) -> None:
     command = '''INSERT INTO kammusu (id, type, name, aa, slotsize,
                     slot1, slot2, slot3, slot4, slot5,
                     weapon1, weapon2, weapon3, weapon4, weapon5,
-                    kammusu_flg, attack, torpedo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+                    kammusu_flg, attack, torpedo, antisub) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
     data = crawl_kammusu_data()
     cursor.executemany(command, data)
 

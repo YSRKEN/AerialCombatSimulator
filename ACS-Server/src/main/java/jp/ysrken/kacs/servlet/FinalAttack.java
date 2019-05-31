@@ -40,7 +40,7 @@ public class FinalAttack extends HttpServlet {
                 if (weapon.getType() == WeaponType.CarrierBomber.ordinal()
                     || weapon.getType() == WeaponType.FighterBomber.ordinal()
                     || weapon.getType() == WeaponType.SeaBomber.ordinal()) {
-                    // sum += (weapon.getBomber() * Math.sqrt(slotSize) + 25);  // 実装漏れ
+                    sum += (weapon.getBomber() * Math.sqrt(slotSize) + 25);
                 }
             }
         } else if (type.equals("砲撃")) {
@@ -56,7 +56,7 @@ public class FinalAttack extends HttpServlet {
                         || weapon.getType() == WeaponType.FighterBomber.ordinal()
                         || weapon.getType() == WeaponType.SeaBomber.ordinal()) {
                         temp += weapon.getTorpedo();
-                        // temp += Math.floor(weapon.getBomber() * 1.3);  // 実装漏れ
+                        temp += Math.floor(weapon.getBomber() * 1.3);
                     }
                 }
                 sum = Math.floor(temp * 1.5) + 55;
@@ -69,7 +69,7 @@ public class FinalAttack extends HttpServlet {
                 }
             }
         } else if (type.equals("対潜")) {
-            // sum += Math.sqrt(fleet.getAntiSub()) * 2;  // 実装漏れ
+            sum += Math.sqrt(fleet.getAntiSub()) * 2;
             if (fleet.getType() == KammusuType.CVL.ordinal()) {
                 // 航空対潜
                 sum += 8.0;
@@ -79,7 +79,7 @@ public class FinalAttack extends HttpServlet {
             }
             for (int i = 0; i < fleet.getWeapon().size(); ++i) {
                 WeaponData weapon = fleet.getWeapon().get(i);
-                // sum += weapon.getAntiSub() * 1.5;  // 実装漏れ
+                sum += weapon.getAntiSub() * 1.5;
             }
         } else if (type.equals("雷撃")) {
             // 通常砲撃戦
