@@ -52,7 +52,7 @@ export class UtilityService {
         continue;
       }
 
-      const fleetData = {'name': fleetName, 'weapon': []};
+      const fleetData = {'id': fleetName, 'weapon': []};
 
       // 各スロットの情報を確認する
       for (let wi = 1; wi <= 5; ++wi) {

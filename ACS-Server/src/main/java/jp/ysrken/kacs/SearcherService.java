@@ -1,11 +1,11 @@
 package jp.ysrken.kacs;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 
@@ -77,7 +77,7 @@ public class SearcherService {
 		point = point.replace(" (Final)", "");
 		String query = "SELECT fc.category AS formation, CASE WHEN unit_index < 6 THEN 1 ELSE 2 END AS index1,\r\n" + 
 				"CASE WHEN unit_index < 6 THEN unit_index + 1 ELSE unit_index - 5 END AS index2,\r\n" + 
-				"kammusu.name, slotsize, slot1, slot2, slot3, slot4, slot5,\r\n" + 
+				"kammusu.id, kammusu.name, slotsize, slot1, slot2, slot3, slot4, slot5,\r\n" +
 				"w1.id AS weapon1, w2.id AS weapon2, w3.id AS weapon3,\r\n" + 
 				"w4.id AS weapon4, w5.id AS weapon5\r\n" + 
 				"FROM position,weapon AS w1,weapon AS w2,weapon AS w3,weapon AS w4,weapon AS w5\r\n" + 
@@ -108,6 +108,8 @@ public class SearcherService {
 			FleetData fleet = new FleetData();
 			String name = (String) pair.get("name");
 			fleet.setName(name);
+			int id = (Integer) pair.get("id");
+			fleet.setId("" + id);
 			
 			// スロット数
 			int slotSize = (Integer)pair.get("slotsize");
@@ -122,6 +124,46 @@ public class SearcherService {
 				fleet.getWeapon().add(weapon);
 			}
 			output.getFleet().add(fleet);
+		}
+		return output;
+	}
+
+	public FleetData findFromMapAndPointAndName(String map, String point, String name) {
+		String query = "SELECT id, aa, attack, torpedo, kammusu.name, slotsize, slot1, slot2, slot3, slot4, slot5, weapon1, weapon2, weapon3, weapon4, weapon5 " +
+				"FROM kammusu, position WHERE position.enemy=kammusu.id AND position.map=? AND " +
+				"position.name=? AND kammusu.name=? LIMIT 1";
+		System.out.println(query);
+		// 検索を行う
+		List<Map<String, Object>> result = database.select(query, map, point, name);
+
+		// 検索結果をFleetData型に変換する
+		FleetData output = new FleetData();
+		for(Map<String, Object> pair : result) {
+			int id = (Integer) pair.get("id");
+			output.setId("" + id);
+			int slotsize = (Integer) pair.get("slotsize");
+			List<Integer> weaponId = Arrays.asList(
+					(Integer) pair.get("weapon1"),
+					(Integer) pair.get("weapon2"),
+					(Integer) pair.get("weapon3"),
+					(Integer) pair.get("weapon4"),
+					(Integer) pair.get("weapon5")
+			).subList(0, slotsize);
+			List<WeaponData> weapon = new ArrayList<>();
+			for (int wid : weaponId) {
+				weapon.add(findFromWeaponId(wid));
+			}
+			output.setWeapon(weapon);
+			List<Integer> slot = Arrays.asList(
+					(Integer) pair.get("slot1"),
+					(Integer) pair.get("slot2"),
+					(Integer) pair.get("slot3"),
+					(Integer) pair.get("slot4"),
+					(Integer) pair.get("slot5")
+			).subList(0, slotsize);
+			output.setSlotCount(slot);
+			output.refresh();
+			break;
 		}
 		return output;
 	}

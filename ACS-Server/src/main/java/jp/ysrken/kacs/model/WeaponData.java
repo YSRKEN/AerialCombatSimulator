@@ -47,7 +47,31 @@ public class WeaponData {
 	 */
 	@JsonIgnore
 	private int aa;
-	
+
+	/**
+	 * 火力
+	 */
+	@JsonIgnore
+	private int attack;
+
+	/**
+	 * 雷装
+	 */
+	@JsonIgnore
+	private int torpedo;
+
+	/**
+	 * 爆装値
+	 */
+	@JsonIgnore
+	private int bomber;
+
+	/**
+	 * 対潜値
+	 */
+	@JsonIgnore
+	private int antiSub;
+
 	/**
 	 * 命中値
 	 */
@@ -71,13 +95,17 @@ public class WeaponData {
 	 */
 	public void refresh() {
 		DatabaseService db = DatabaseService.getDatabase();
-		Map<String, Object> result = db.select("SELECT name, type, aa, accuracy, interception, radius FROM weapon WHERE id=? LIMIT 1", id).get(0);
+		Map<String, Object> result = db.select("SELECT name, type, aa, accuracy, interception, radius, attack, torpedo, bomber, antisub FROM weapon WHERE id=? LIMIT 1", id).get(0);
 		name = (String) result.get("name");
 		type = (Integer) result.get("type");
 		aa = (Integer) result.get("aa");
 		accuracy = (Integer) result.get("accuracy");
 		interception = (Integer) result.get("interception");
 		radius = (Integer) result.get("radius");
+		attack = (Integer) result.get("attack");
+		torpedo = (Integer) result.get("torpedo");
+		bomber = (Integer) result.get("bomber");
+		antiSub = (Integer) result.get("antisub");
 	}
 
 	/**
@@ -86,16 +114,67 @@ public class WeaponData {
 	 * @return 艦載機ならtrue
 	 */
 	public boolean isAirPlane(boolean lbasFlg) {
-		// 艦載機じゃない場合は制空値を計算しない
-		if (type <= 6) return false;
-		if (type == 17) return false;
-		if (19 <= type && type <= 30) return false;
-		if (34 <= type) return false;
-		if (!lbasFlg) {
-			if (12 <= type && type <= 13) return false;
-			if (type == 16 || type == 18 || type == 31) return false;
+		switch (WeaponType.of(this.type)){
+		case CarrierFighter:
+		case CarrierBomber:
+		case FighterBomber:
+		case Jet:
+		case CarrierAttacker:
+		case SeaFighter:
+		case SeaBomber:
+		case LandAttacker:
+		case LandFighter1:
+		case LandFighter2:
+			return true;
+		case CarrierReconn:
+		case Saiun:
+		case SeaReconn:
+		case FlyingBoat:
+		case LandReconn:
+			return lbasFlg;
+		default:
+			return false;
 		}
-		return true;
+	}
+
+	/**
+	 * St1撃墜される可能性があるならtrueを返す
+	 * @return あるならtrue
+	 */
+	public boolean getSt1Flg() {
+		switch (WeaponType.of(this.type)){
+			case CarrierFighter:
+			case CarrierBomber:
+			case FighterBomber:
+			case Jet:
+			case CarrierAttacker:
+			case SeaFighter:
+			case SeaBomber:
+			case LandAttacker:
+			case LandFighter1:
+			case LandFighter2:
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	/**
+	 * 攻撃系機ならtrueを返す
+	 * @return 攻撃系機ならtrue
+	 */
+	public boolean isAttackPlane() {
+		switch (WeaponType.of(this.type)){
+			case CarrierBomber:
+			case FighterBomber:
+			case Jet:
+			case CarrierAttacker:
+			case SeaBomber:
+			case LandAttacker:
+				return true;
+			default:
+				return false;
+		}
 	}
 
 	/**
@@ -103,9 +182,16 @@ public class WeaponData {
 	 * @return 偵察機ならtrue
 	 */
 	public boolean isRecon() {
-		if (12 <= type && type <= 13) return true;
-		if (type == 16 || type == 18 || type == 36) return true;
-		return false;
+		switch (WeaponType.of(this.type)){
+		case CarrierReconn:
+		case Saiun:
+		case SeaReconn:
+		case FlyingBoat:
+		case LandReconn:
+			return true;
+		default:
+			return false;
+		}
 	}
 
 	/**
@@ -115,13 +201,8 @@ public class WeaponData {
 	 */
 	public int calcAntiAirValue(boolean lbasFlg) {
 		// 艦載機じゃない場合は制空値を計算しない
-		if (type <= 6) return 0;
-		if (type == 17) return 0;
-		if (19 <= type && type <= 30) return 0;
-		if (34 <= type) return 0;
-		if (!lbasFlg) {
-			if (12 <= type && type <= 13) return 0;
-			if (type == 16 || type == 18 || type == 31) return 0;
+		if (!this.isAirPlane(lbasFlg)) {
+			return 0;
 		}
 		
 		// 外部熟練度を内部熟練度に変換する
@@ -130,33 +211,127 @@ public class WeaponData {
 		final int[] wbTable = {0, 0, 1, 1, 1, 3, 3, 6, 6};
 		
 		// 制空値を計算する
-		switch(type) {
-		case 7:
-		case 14:
-		case 32:
-		case 33:
+		switch(WeaponType.of(this.type)) {
+		case CarrierFighter:
+		case SeaFighter:
+		case LandFighter1:
+		case LandFighter2:
 			// 艦戦 or 水戦 or 陸戦 or 局戦
 			return (int)((aa + 0.2 * rf + (lbasFlg ? interception * 1.5 : 0.0)) * Math.sqrt(slotCount) + Math.sqrt(masTable[mas] / 10.0) + pfTable[mas]);
-		case 9:
+		case FighterBomber:
 			// 爆戦
 			return (int)((aa + 0.25 * rf) * Math.sqrt(slotCount) + Math.sqrt(masTable[mas] / 10.0));
-		case 15:
+		case SeaBomber:
 			// 水爆
 			return (int)(aa * Math.sqrt(slotCount) + Math.sqrt(masTable[mas] / 10.0) + wbTable[mas]);
-		case 8:
-		case 10:
-		case 11:
+		case CarrierBomber:
+		case Jet:
+		case CarrierAttacker:
 			// 艦攻 or 艦爆 or 噴式
 			return (int)(aa * Math.sqrt(slotCount) + Math.sqrt(masTable[mas] / 10.0));
-		case 12:
-		case 13:
-		case 16:
-		case 18:
-		case 31:
+		case CarrierReconn:
+		case Saiun:
+		case SeaReconn:
+		case FlyingBoat:
+		case LandAttacker:
 			if (!lbasFlg) return 0;
 			return (int)((aa + interception * 1.5) * Math.sqrt(slotCount) + Math.sqrt(masTable[mas] / 10.0));
 		default:
 			return 0;
 		}
+	}
+
+	/**
+	 * 高角砲ならtrue
+	 * @return 高角砲ならtrue
+	 */
+	public boolean isKoukakuHou() {
+		if (getName().contains("高角砲")) {
+			return true;
+		} else if (getId() == 284 || getId() == 295 || getId() == 296 || getId() == 313
+				|| getId() == 308 || getId() == 160 || getId() == 172) {
+			// 5inch単装砲 Mk.30
+			// 12.7cm連装砲A型改三(戦時改修)＋高射装置
+			// 12.7cm連装砲B型改四(戦時改修)＋高射装置
+			// 5inch単装砲 Mk.30改
+			// 5inch単装砲 Mk.30改＋GFCS Mk.37
+			// 10.5cm連装砲
+			// 5inch連装砲 Mk.28 mod.2
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 加重対空値を計算するための下計算
+	 * @return 加重対空値
+	 */
+	public double getWeightedAntiAir() {
+		// 装備倍率を取得する
+		int multiple = 0;
+		WeaponType type = WeaponType.of(this.type);
+		if (type == WeaponType.AntiAirGun) {
+			multiple = 6;
+		} else if (type == WeaponType.AntiAirFireDirector || isKoukakuHou()) {
+			multiple = 4;
+		} else if (type == WeaponType.AirRadar || type == WeaponType.SurfaceRadar) {
+			multiple = 3;
+		}
+
+		// 改修係数を取得する
+		int rfCoeff = 0;
+		if (type == WeaponType.AntiAirGun) {
+			rfCoeff = 4;
+		} else if (isKoukakuHou()) {
+			if (getAa() >= 8) {
+				rfCoeff = 3;
+			} else {
+				rfCoeff = 2;
+			}
+		} else if (type == WeaponType.AntiAirFireDirector) {
+			rfCoeff = 2;
+		}
+
+		// 加重対空値を計算する
+		return 1.0 * multiple * getAa() + rfCoeff * Math.sqrt(getRf());
+	}
+
+	/**
+	 * 艦隊防空値を計算
+	 * @return 艦隊防空値
+	 */
+	public double getAntiAirBonus() {
+		// 装備倍率を取得する
+		double multiple = 0;
+		WeaponType type = WeaponType.of(this.type);
+		if (type == WeaponType.AntiAirShell) {
+			multiple = 0.6;
+		} else if (type == WeaponType.AirRadar || type == WeaponType.SurfaceRadar) {
+			multiple = 0.4;
+		} else if (type == WeaponType.AntiAirFireDirector || isKoukakuHou()) {
+			multiple = 0.35;
+		} else if (getName().equals("46cm三連装砲")) {
+			multiple = 0.25;
+		} else if (type == WeaponType.SmallGun || type == WeaponType.MediumGun
+		|| type == WeaponType.LargeGun || type == WeaponType.AntiAirGun
+		|| type == WeaponType.CarrierFighter || type == WeaponType.CarrierBomber
+		|| type == WeaponType.SeaReconn) {
+			multiple = 0.2;
+		}
+
+		// 改修係数を取得する
+		double rfCoeff = 0.0;
+		if (isKoukakuHou()) {
+			if (getAa() >= 8) {
+				rfCoeff = 3.0;
+			} else {
+				rfCoeff = 2.0;
+			}
+		} else if (type == WeaponType.AirRadar || type == WeaponType.SurfaceRadar) {
+			rfCoeff = 1.5;
+		}
+
+		// 艦隊防空値を計算する
+		return 1.0 * multiple * getAa() + rfCoeff * Math.sqrt(getRf());
 	}
 }
