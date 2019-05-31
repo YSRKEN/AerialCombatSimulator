@@ -1,7 +1,5 @@
 package jp.ysrken.kacs.model;
 
-import java.util.Arrays;
-
 public enum WeaponType {
     None,
     SmallGun,

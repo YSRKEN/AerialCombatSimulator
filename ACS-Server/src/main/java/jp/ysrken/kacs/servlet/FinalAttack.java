@@ -3,12 +3,16 @@ package jp.ysrken.kacs.servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jp.ysrken.kacs.SearcherService;
 import jp.ysrken.kacs.model.FleetData;
+import jp.ysrken.kacs.model.KammusuType;
+import jp.ysrken.kacs.model.WeaponData;
+import jp.ysrken.kacs.model.WeaponType;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,19 +26,76 @@ public class FinalAttack extends HttpServlet {
      * @return 基本攻撃力
      */
     private double calcBasicAttack(FleetData fleet, String type) {
+        double sum = 0.0;
         if (type.equals("航空")) {
-            return 0.0;
+            for (int i = 0; i < fleet.getWeapon().size(); ++i) {
+                WeaponData weapon = fleet.getWeapon().get(i);
+                int slotSize = fleet.getSlotCount().get(i);
+                if (slotSize <= 0) {
+                    continue;
+                }
+                if (weapon.getType() == WeaponType.CarrierAttacker.ordinal()) {
+                    sum += (weapon.getTorpedo() * Math.sqrt(slotSize) + 25) * 1.5;
+                }
+                if (weapon.getType() == WeaponType.CarrierBomber.ordinal()
+                    || weapon.getType() == WeaponType.FighterBomber.ordinal()
+                    || weapon.getType() == WeaponType.SeaBomber.ordinal()) {
+                    // sum += (weapon.getBomber() * Math.sqrt(slotSize) + 25);  // 実装漏れ
+                }
+            }
         } else if (type.equals("砲撃")) {
-            return 0.0;
+            if (fleet.getType() == KammusuType.CV.ordinal()
+             || fleet.getType() == KammusuType.ACV.ordinal()
+             || fleet.getType() == KammusuType.CVL.ordinal()) {
+                // 空母砲撃戦
+                double temp = fleet.getAttack() + fleet.getTorpedo();
+                for (int i = 0; i < fleet.getWeapon().size(); ++i) {
+                    WeaponData weapon = fleet.getWeapon().get(i);
+                    if (weapon.getType() == WeaponType.CarrierAttacker.ordinal()
+                        || weapon.getType() == WeaponType.CarrierBomber.ordinal()
+                        || weapon.getType() == WeaponType.FighterBomber.ordinal()
+                        || weapon.getType() == WeaponType.SeaBomber.ordinal()) {
+                        temp += weapon.getTorpedo();
+                        // temp += Math.floor(weapon.getBomber() * 1.3);  // 実装漏れ
+                    }
+                }
+                sum = Math.floor(temp * 1.5) + 55;
+            } else {
+                // 通常砲撃戦
+                sum += fleet.getAttack() + 5;
+                for (int i = 0; i < fleet.getWeapon().size(); ++i) {
+                    WeaponData weapon = fleet.getWeapon().get(i);
+                    sum += weapon.getAttack();
+                }
+            }
         } else if (type.equals("対潜")) {
-            return 0.0;
+            // sum += Math.sqrt(fleet.getAntiSub()) * 2;  // 実装漏れ
+            if (fleet.getType() == KammusuType.CVL.ordinal()) {
+                // 航空対潜
+                sum += 8.0;
+            } else {
+                // 通常対潜
+                sum += 13.0;
+            }
+            for (int i = 0; i < fleet.getWeapon().size(); ++i) {
+                WeaponData weapon = fleet.getWeapon().get(i);
+                // sum += weapon.getAntiSub() * 1.5;  // 実装漏れ
+            }
         } else if (type.equals("雷撃")) {
-            return 0.0;
+            // 通常砲撃戦
+            sum += fleet.getTorpedo() + 5;
+            for (int i = 0; i < fleet.getWeapon().size(); ++i) {
+                WeaponData weapon = fleet.getWeapon().get(i);
+                sum += weapon.getTorpedo();
+            }
         } else if (type.equals("夜戦")) {
-            return 0.0;
-        } else {
-            return 0.0;
+            for (int i = 0; i < fleet.getWeapon().size(); ++i) {
+                WeaponData weapon = fleet.getWeapon().get(i);
+                sum += weapon.getAttack();
+                sum += weapon.getTorpedo();
+            }
         }
+        return sum;
     }
 
     /**
@@ -44,8 +105,44 @@ public class FinalAttack extends HttpServlet {
      * @param status 交戦形態
      * @return キャップ前攻撃力
      */
-    private double calcBeforeCapAttack(double basicAttack, String formation, String status) {
-        return 0.0;
+    private double calcBeforeCapAttack(double basicAttack, String formation, String status, String type) {
+        final Map<String, Double> statusDict = new HashMap<String, Double>(){{
+            put("T有", 1.2);
+            put("同航", 1.0);
+            put("反航", 0.8);
+            put("T不", 0.6);
+        }};
+        double statusParam = 1.0;
+        final Map<String, Double> formationDict1 = new HashMap<String, Double>(){{
+            put("単縦", 1.0);
+            put("複縦", 0.8);
+            put("輪形", 0.7);
+            put("梯形", 0.6);
+            put("単横", 0.6);
+            put("第一(単横)", 0.6);
+            put("第二(複縦)", 0.8);
+            put("第三(輪形)", 0.7);
+            put("第四(単縦)", 1.0);
+        }};
+        final Map<String, Double> formationDict2 = new HashMap<String, Double>(){{
+            put("単縦", 0.6);
+            put("複縦", 0.8);
+            put("輪形", 1.2);
+            put("梯形", 1.0);
+            put("単横", 1.3);
+            put("第一(単横)", 1.3);
+            put("第二(複縦)", 0.8);
+            put("第三(輪形)", 1.2);
+            put("第四(単縦)", 0.6);
+        }};
+        if (type.equals("砲撃") || type.equals("雷撃")) {
+            statusParam = formationDict1.get(formation);
+        }
+        if (type.equals("対潜")) {
+            statusParam = formationDict2.get(formation);
+        }
+        // 負傷時の補正はめんどいので省いた
+        return basicAttack * statusDict.get(status) * statusParam;
     }
 
     /**
@@ -55,7 +152,13 @@ public class FinalAttack extends HttpServlet {
      * @return キャップ後攻撃力
      */
     private double calcAfterCapAttack(double beforeCapAttack, String type) {
-        return 0.0;
+        double limit = 180.0;
+        if (type.equals("対潜")) {
+            limit = 100.0;
+        } else if (type.equals("夜戦")) {
+            limit = 300.0;
+        }
+        return (limit > beforeCapAttack ? beforeCapAttack : limit + Math.sqrt(beforeCapAttack - limit));
     }
 
     /**
@@ -64,7 +167,7 @@ public class FinalAttack extends HttpServlet {
      * @return 最終攻撃力
      */
     private double calcFinalAttack(double afterCapAttack) {
-        return 0.0;
+        return Math.floor(afterCapAttack);
     }
 
     /**
@@ -96,7 +199,7 @@ public class FinalAttack extends HttpServlet {
 
         // 最終攻撃力を計算する
         double basicAttack = calcBasicAttack(enemyFleet, type); // 基礎攻撃力
-        double beforeCapAttack = calcBeforeCapAttack(basicAttack, formation, status);   // キャップ前攻撃力
+        double beforeCapAttack = calcBeforeCapAttack(basicAttack, formation, status, type);   // キャップ前攻撃力
         double afterCapAttack = calcAfterCapAttack(beforeCapAttack, type);  // キャップ後攻撃力
         double finalAttack = calcFinalAttack(afterCapAttack);    //最終攻撃力
         res.put("value", (int)finalAttack);
