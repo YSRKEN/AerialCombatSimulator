@@ -1,14 +1,8 @@
 package jp.ysrken.kacs;
 
-import java.io.IOException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * CORS対応させるためのフィルター設定 参考：http://seratch.hatenablog.jp/entry/2013/08/13/153415

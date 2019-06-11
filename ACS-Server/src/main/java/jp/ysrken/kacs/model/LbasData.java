@@ -1,10 +1,10 @@
 package jp.ysrken.kacs.model;
 
+import lombok.Data;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import lombok.Data;
 
 @Data
 public class LbasData {

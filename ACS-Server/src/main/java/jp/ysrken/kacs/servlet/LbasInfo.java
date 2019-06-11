@@ -3,8 +3,6 @@ package jp.ysrken.kacs.servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jp.ysrken.kacs.SearcherService;
 import jp.ysrken.kacs.model.LbasData;
-import jp.ysrken.kacs.model.OwnData;
-import jp.ysrken.kacs.model.SimulationData;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
