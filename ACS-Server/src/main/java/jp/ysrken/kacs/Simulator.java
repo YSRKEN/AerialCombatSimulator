@@ -1,9 +1,9 @@
 package jp.ysrken.kacs;
 
-import java.util.*;
-
 import jp.ysrken.kacs.model.*;
 import lombok.Getter;
+
+import java.util.*;
 
 public class Simulator {
 	/**

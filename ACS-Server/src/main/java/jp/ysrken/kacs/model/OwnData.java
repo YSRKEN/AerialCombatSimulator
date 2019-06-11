@@ -1,10 +1,10 @@
 package jp.ysrken.kacs.model;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import lombok.Data;
 
 @Data
 public class OwnData {

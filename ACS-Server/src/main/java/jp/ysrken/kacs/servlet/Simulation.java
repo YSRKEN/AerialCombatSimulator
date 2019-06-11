@@ -1,24 +1,18 @@
 package jp.ysrken.kacs.servlet;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jp.ysrken.kacs.SearcherService;
+import jp.ysrken.kacs.SimulationMode;
+import jp.ysrken.kacs.Simulator;
+import jp.ysrken.kacs.model.SimulationData;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jp.ysrken.kacs.DatabaseService;
-import jp.ysrken.kacs.SearcherService;
-import jp.ysrken.kacs.SimulationMode;
-import jp.ysrken.kacs.Simulator;
-import jp.ysrken.kacs.model.RequestData;
-import jp.ysrken.kacs.model.SimulationData;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.Map;
 
 @SuppressWarnings("serial")
 @WebServlet(name = "Simulation", urlPatterns = { "/simulation" })

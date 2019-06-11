@@ -12,11 +12,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("serial")
-@WebServlet(name = "FleetInfo", urlPatterns = { "/enemy-names" })
+@WebServlet(name = "EnemyNames", urlPatterns = { "/enemy-names" })
 public class EnemyNames extends HttpServlet {
     /**
      * マップのURLを返す

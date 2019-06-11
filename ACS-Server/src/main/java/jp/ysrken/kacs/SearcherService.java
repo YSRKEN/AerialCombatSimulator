@@ -1,18 +1,15 @@
 package jp.ysrken.kacs;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.servlet.ServletContext;
-
 import jp.ysrken.kacs.model.FleetData;
 import jp.ysrken.kacs.model.OwnData;
 import jp.ysrken.kacs.model.WeaponData;
 import lombok.Getter;
+
+import javax.servlet.ServletContext;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class SearcherService {
 	/**
