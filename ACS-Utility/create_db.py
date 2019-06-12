@@ -672,6 +672,7 @@ def crawl_map_data() -> List[any]:
     """
 
     map_data: List[any] = []
+    # 通常海域
     for i in range(1, 8):
         with urllib.request.urlopen(f'http://kancolle.wikia.com/wiki/World_{i}') as request:
             # 取得、パース
@@ -684,6 +685,39 @@ def crawl_map_data() -> List[any]:
                 a_tag = li_tag.select('a')[0]
                 map_link = f'http://kancolle.wikia.com{a_tag["href"]}'
                 map_text = a_tag.text
+                print(f'{map_text} - {map_link}')
+                map_data.append([map_text, map_link])
+    # 限定海域
+    with urllib.request.urlopen('https://kancolle.fandom.com/wiki/Events/Main') as res:
+        html_text = res.read()
+        with open('temp.html', 'wb') as f:
+            f.write(html_text)
+        page1: lxml.html.HtmlElement = lxml.html.fromstring(html_text)
+        tr_list = page1.cssselect('tr')
+        event_url = ''
+        for record in tr_list:
+            td_list = record.cssselect('td')
+            if len(td_list) < 7:
+                continue
+            temp = td_list[0].cssselect('b')
+            if len(temp) < 1:
+                continue
+            event_url = temp[0].cssselect('a')[0].attrib['href']
+        event_url = f'https://kancolle.fandom.com{event_url}'
+
+        with urllib.request.urlopen(event_url) as request:
+            # 取得、パース
+            soup: BeautifulSoup = BeautifulSoup(request.read(), 'html.parser')
+
+            # マップ名と対応するURLを取得
+            event_div = soup.select('#EventTemplate')[0]
+            li_list = event_div.select('ul > li')
+            for li_tag in li_list:
+                a_tag = li_tag.select('a')[0]
+                map_link = f'http://kancolle.wikia.com{a_tag["href"]}'
+                map_text: str = a_tag.text
+                if map_text[0:2] != 'E-':
+                    continue
                 print(f'{map_text} - {map_link}')
                 map_data.append([map_text, map_link])
 
@@ -755,6 +789,18 @@ def crawl_position_data(cursor) -> List[any]:
         'Formation 2': 12, # 第二警戒航行序列(前方警戒)
         'Formation 3': 13, # 第三警戒航行序列(輪形陣)
         'Formation 4': 11, # 第四警戒航行序列(戦闘隊形)
+    }
+    formation_span_text_dict = {
+        'Line Ahead': 1,  # 単縦陣
+        'Double Line': 2,  # 複縦陣
+        'Diamond': 3,  # 輪形陣
+        'Echelon': 4,  # 梯形陣
+        'Line Abreast': 5,  # 単横陣
+        'Vanguard': 6,  # 警戒陣
+        'CruisingFormation 1': 15,  # 第一警戒航行序列(対潜警戒)
+        'CruisingFormation 2': 12,  # 第二警戒航行序列(前方警戒)
+        'CruisingFormation 3': 13,  # 第三警戒航行序列(輪形陣)
+        'CruisingFormation 4': 11,  # 第四警戒航行序列(戦闘隊形)
     }
     for map_data in map_list:
         map_name, map_url = map_data
@@ -840,9 +886,17 @@ def crawl_position_data(cursor) -> List[any]:
                     final_flg = '(Final)' in td_text
 
                     # 敵の陣形を読み取る
-                    formation_image_tag = td_list[1 if first_flg else 0].cssselect('img')[0]
-                    attributes = formation_image_tag.attrib
-                    formation_image_alt = attributes.get('alt')
+                    print(f'{point_name}-{pattern_index}-{final_flg}-{enemy_list}')
+                    temp = td_list[1 if first_flg else 0].cssselect('img')
+                    if len(temp) > 0:
+                        formation_image_tag = td_list[1 if first_flg else 0].cssselect('img')[0]
+                        attributes = formation_image_tag.attrib
+                        formation_image_alt = attributes.get('alt')
+                        formation_index = formation_image_alt_dict[formation_image_alt]
+                    else:
+                        formation_span_tag = td_list[1 if first_flg else 0].cssselect('span')[0]
+                        formation_span_text = formation_span_tag.text_content()
+                        formation_index = formation_span_text_dict[formation_span_text]
 
                     # 読み取った敵編成を登録する
                     for i in range(0, len(enemy_list)):
@@ -851,7 +905,7 @@ def crawl_position_data(cursor) -> List[any]:
                             f'{point_name}-{pattern_index}',
                             i,
                             final_flg,
-                            formation_image_alt_dict[formation_image_alt],
+                            formation_index,
                             enemy_list[i]
                         )
                         result.append(unit_data)
@@ -928,7 +982,7 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
 
     # 装備テーブルを作成する
     print('装備テーブルを作成...')
-    create_weapon_table(cursor)
+    # create_weapon_table(cursor)
 
     # 艦種テーブルを作成する
     print('艦種テーブルを作成...')
@@ -936,7 +990,7 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
 
     # 艦娘テーブルを作成する
     print('艦娘テーブルを作成...')
-    create_kammusu_table(cursor)
+    # create_kammusu_table(cursor)
 
     # マップテーブルを作成する
     print('マップテーブルを作成...')
@@ -948,6 +1002,6 @@ with closing(sqlite3.connect(os.path.join(ROOT_DIRECTORY, DB_PATH), isolation_le
 
     # マステーブルを作成する
     print('マステーブルを作成...')
-    # create_position_table(cursor)
+    create_position_table(cursor)
 
     connect.commit()
