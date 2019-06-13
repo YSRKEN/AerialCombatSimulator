@@ -12,31 +12,6 @@ import pandas
 from bs4 import BeautifulSoup
 
 
-def create_weapon_category_table(cursor) -> None:
-    """ 装備カテゴリテーブルを作成する
-    """
-    # 装備カテゴリテーブルを作成する
-    if has_table(cursor, 'weapon_category'):
-        cursor.execute('DROP TABLE weapon_category')
-    command = '''CREATE TABLE [weapon_category] (
-                [id] INTEGER NOT NULL UNIQUE,
-                [category] TEXT NOT NULL,
-                [type] TEXT NOT NULL,
-                PRIMARY KEY([id]));'''
-    cursor.execute(command)
-
-    # 装備カテゴリテーブルにデータを追加する
-    command = 'INSERT INTO weapon_category (id, category, type) VALUES (?,?,?)'
-    weapon_category_df = pandas.read_csv(os.path.join(ROOT_DIRECTORY, 'weapon_category.csv'))
-    data = list(map(lambda x: (x[0], x[1], x[2]), weapon_category_df.values))
-    cursor.executemany(command, data)
-    connect.commit()
-
-    # 装備カテゴリテーブルにインデックスを設定する
-    command = 'CREATE INDEX weapon_category_category on weapon_category(category)'
-    cursor.execute(command)
-
-
 def get_weapon_type_dict():
     """装備種と装備種IDとの対応表を作成する
     """
@@ -920,11 +895,6 @@ def create_formation_category_table(cursor) -> None:
     data = list(map(lambda x: (x[0], x[1]), formation_category_df.values))
     cursor.executemany(command, data)
     connect.commit()
-
-    # 装備カテゴリテーブルを作成する
-    print('装備カテゴリテーブルを作成...')
-    create_weapon_category_table(cursor)
-
     # 装備テーブルを作成する
     print('装備テーブルを作成...')
     create_weapon_table(cursor)
