@@ -8,11 +8,11 @@ id,name,short_name,wikia_name
 6,艦載艇,艦載艇,Landing Craft
 7,艦上戦闘機,艦戦,Carrier-based Fighter Aircraft
 8,艦上爆撃機,艦爆,Carrier-based Dive Bomber
-9,艦上爆撃機(爆戦),爆戦,Carrier-based Dive Bomber
+9,艦上爆撃機(爆戦),爆戦,Carrier-based Dive Bomber(Bakusen)
 10,噴式戦闘爆撃機,噴式,Jet-powered Fighter-Bomber
 11,艦上攻撃機,艦攻,Carrier-based Torpedo Bomber
 12,艦上偵察機,艦偵,Carrier-based Reconnaissance Aircraft
-13,艦上偵察機(彩雲),彩雲,Carrier-based Reconnaissance Aircraft
+13,艦上偵察機(彩雲),彩雲,Carrier-based Reconnaissance Aircraft(Saiun)
 14,水上戦闘機,水戦,Seaplane Fighter
 15,水上爆撃機,水爆,Seaplane Bomber
 16,水上偵察機,水偵,Reconnaissance Seaplane
@@ -26,13 +26,13 @@ id,name,short_name,wikia_name
 24,対空機銃,機銃,Anti-Aircraft Gun
 25,高射装置,高射,Anti-Aircraft Fire Director
 26,爆雷投射機,投射機,Depth Charge
-27,爆雷,爆雷,Depth Charge
+27,爆雷,爆雷,Depth Charge(Body)
 28,ソナー,ソナー,Sonar
 29,修理要員,ダメコン,Emergency Repair Personnel
 30,増設バルジ,バルジ,Extra Armor (Medium)
 31,陸上攻撃機,陸攻,Land-based Attack Aircraft
 32,局地戦闘機,局戦,Land-based Fighter
-33,陸軍戦闘機,陸戦,Land-based Fighter
+33,陸軍戦闘機,陸戦,Land-based Fighter(II)
 34,航空要員,妖精,Aviation Personnel
 35,その他,他,Other
 36,陸上偵察機,陸偵,Land-based Reconnaissance Aircraft

@@ -1,4 +1,5 @@
 import os
+from typing import Dict
 
 import pandas
 
@@ -15,7 +16,34 @@ class WeaponTypeService:
         self.df = pandas.read_csv(os.path.join(DATA_PATH, 'weapon_type.csv'))
         self.dbs = dbs
 
-    def find_by_wikia_name(self, key: str) -> WeaponType:
+        self.wikia_to_type_id: Dict[str, int] = {}
+        for record in self.df.to_dict(orient='records'):
+            self.wikia_to_type_id[record['wikia_name']] = record['id']
+        extra_df = pandas.read_csv(os.path.join(DATA_PATH, 'weapon_type_wikia.csv'))
+        for record in extra_df.to_dict(orient='records'):
+            self.wikia_to_type_id[record['wikia_name']] = record['id']
+
+    def find_by_id(self, key: int) -> WeaponType:
+        """IDから装備種情報を検索する
+            (ヒットしない場合は「その他」扱いにする)
+
+        Parameters
+        ----------
+        key
+            ID
+
+        Returns
+        -------
+            装備種情報
+        """
+
+        result = self.df.query(f"id == '{key}'")
+        if len(result) == 0:
+            return self.find_by_id(0)
+        temp = result.to_dict(orient='records')[0]
+        return WeaponType(**temp)
+
+    def find_by_wikia_name(self, key: str, name: str = '', aa: int = 0) -> WeaponType:
         """Wikiaにおける登録名から装備種情報を検索する
             (ヒットしない場合は「その他」扱いにする)
 
@@ -23,16 +51,40 @@ class WeaponTypeService:
         ----------
         key
             Wikiaにおける登録名
+        name
+            装備名
+        aa
+            装備の対空値
 
         Returns
         -------
             装備種情報
         """
-        result = self.df.query(f"wikia_name == '{key}'")
-        if len(result) == 0:
-            return self.find_by_wikia_name('Other')
-        temp = result.to_dict(orient='records')[0]
-        return WeaponType(**temp)
+
+        # 辞書にヒットする場合
+        if key in self.wikia_to_type_id:
+            weapon_type_id = self.wikia_to_type_id[key]
+            # 特殊処理：一部の装備種における特別裁定
+            if weapon_type_id == self.wikia_to_type_id['Carrier-based Reconnaissance Aircraft'] and '彩雲' in name:
+                weapon_type_id = self.wikia_to_type_id['Carrier-based Reconnaissance Aircraft(Saiun)']
+            if weapon_type_id == self.wikia_to_type_id['Carrier-based Dive Bomber'] and '爆戦' in name:
+                weapon_type_id = self.wikia_to_type_id['Carrier-based Dive Bomber(Bakusen)']
+            if weapon_type_id == self.wikia_to_type_id['Depth Charge'] and '投射機' not in name:
+                weapon_type_id = self.wikia_to_type_id['Depth Charge(Body)']
+            if weapon_type_id == self.wikia_to_type_id['Land-based Fighter']:
+                if '雷電' not in name and '紫電' not in name and '烈風' not in name:
+                    weapon_type_id = self.wikia_to_type_id['Land-based Fighter(II)']
+            return self.find_by_id(weapon_type_id)
+
+        # 特殊処理：電探に関する処理
+        if 'Radar' in key:
+            # レーダー系の中で対空値が付いている場合は対空電探とする
+            if aa >= 0:
+                return self.find_by_wikia_name('Surface Radar')
+            else:
+                return self.find_by_wikia_name('Air Radar')
+
+        return self.find_by_id(0)
 
     def dump_to_db(self):
         # テーブルを新規作成する

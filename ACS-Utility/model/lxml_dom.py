@@ -19,3 +19,6 @@ class LxmlDom(Dom):
             return None
         else:
             return LxmlDom(result[0])
+
+    def inner_text(self) -> str:
+        return self.raw_dom.text_content()

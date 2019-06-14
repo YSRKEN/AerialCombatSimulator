@@ -22,7 +22,7 @@ def main():
     # 装備を読み込み、DBにダンプする
     https = HttpService()
     doms: DomService = LxmlDomService(https)
-    ws = WeaponService(dbs, doms)
+    ws = WeaponService(dbs, doms, wts)
     ws.crawl_for_kammusu()
     ws.crawl_for_enemy()
     ws.dump_to_db()

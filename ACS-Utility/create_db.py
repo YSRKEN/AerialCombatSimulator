@@ -12,38 +12,6 @@ import pandas
 from bs4 import BeautifulSoup
 
 
-def get_weapon_type_dict():
-    """装備種と装備種IDとの対応表を作成する
-    """
-    # 装備種一覧を読み込んでおく
-    weapon_type_df = pandas.read_csv(os.path.join(ROOT_DIRECTORY, 'weapon_type.csv'))
-    weapon_type_default_dict: Dict[str, int] = {}
-    weapon_type_wikia_dict: Dict[str, int] = {}
-    for pair in weapon_type_df.values:
-        if pair[3] not in weapon_type_wikia_dict:
-            weapon_type_wikia_dict[pair[3]] = pair[0]
-        weapon_type_default_dict[pair[1]] = pair[0]
-
-    # 微調整
-    weapon_type_wikia_dict['Autogyro'] = weapon_type_default_dict['対潜哨戒機']
-    weapon_type_wikia_dict['Extra Armor (Large)'] = weapon_type_default_dict['増設バルジ']
-    weapon_type_wikia_dict['Midget Submarine'] = weapon_type_default_dict['艦載艇']
-    weapon_type_wikia_dict['Special Amphibious Tank'] = weapon_type_default_dict['艦載艇']
-    weapon_type_wikia_dict['Carrier-based Reconnaissance Aircraft (II)'] = weapon_type_default_dict['艦上偵察機']
-    weapon_type_wikia_dict['Submarine Torpedo'] = weapon_type_default_dict['魚雷']
-    weapon_type_wikia_dict['Large Caliber Main Gun (II)'] = weapon_type_default_dict['大口径主砲']
-    weapon_type_wikia_dict['Large Sonar'] = weapon_type_default_dict['ソナー']
-
-    return weapon_type_default_dict, weapon_type_wikia_dict
-
-
-def calc_weapon_name(td_tag) -> str:
-    """装備名を算出する
-    """
-    name = td_tag.text.replace(td_tag.a.text, '', 1)
-    return re.sub('(^ |\n)', '', name)
-
-
 def calc_weapon_status(td_tag):
     """装備ステータスを算出する
     """
@@ -70,38 +38,6 @@ def calc_weapon_status(td_tag):
     bomber = int(status['Icon_Dive']) if 'Icon_Dive' in status else 0
 
     return aa, accuracy, interception, attack, torpedo, antisub, bomber
-
-
-def calc_weapon_type(td_tag, name, aa, weapon_type_default_dict, weapon_type_wikia_dict) -> int:
-    """装備種を算出する
-    """
-    # 当該文字列を取得する
-    weapon_type = re.sub("\n", '', td_tag.text)
-
-    # 辞書による自動判断
-    if weapon_type in weapon_type_wikia_dict:
-        weapon_type = weapon_type_wikia_dict[weapon_type]
-    else:
-        if 'Radar' in weapon_type:
-            # レーダー系の中で対空値が付いている場合は対空電探とする
-            if aa >= 0:
-                weapon_type = weapon_type_default_dict['対空電探']
-            else:
-                weapon_type = weapon_type_default_dict['水上電探']
-        else:
-            weapon_type = weapon_type_default_dict['その他']
-
-    # 個別ケースに対処
-    if weapon_type == weapon_type_default_dict['艦上偵察機'] and '彩雲' in name:
-        weapon_type = weapon_type_default_dict['艦上偵察機(彩雲)']
-    if weapon_type == weapon_type_default_dict['艦上爆撃機'] and '爆戦' in name:
-        weapon_type = weapon_type_default_dict['艦上爆撃機(爆戦)']
-    if weapon_type == weapon_type_default_dict['爆雷投射機'] and '投射機' not in name:
-        weapon_type = weapon_type_default_dict['爆雷']
-    if weapon_type == weapon_type_default_dict['局地戦闘機'] and name not in ['雷電', '紫電一一型', '紫電二一型 紫電改', '紫電改(三四三空) 戦闘301']:
-        weapon_type = weapon_type_default_dict['陸軍戦闘機']
-
-    return weapon_type
 
 
 def get_kammusu_type_dict():
