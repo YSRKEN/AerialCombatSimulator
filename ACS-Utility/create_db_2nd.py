@@ -1,4 +1,7 @@
+from service.i_dom import DomService
+from service.lxml_dom import LxmlDomService
 from service.sqlite import SQLiteService
+from service.weapon import WeaponService
 from service.weapon_category import WeaponCategoryService
 from service.weapon_type import WeaponTypeService
 
@@ -14,6 +17,13 @@ def main():
     # 装備カテゴリを読み込み、DBにダンプする
     wcs = WeaponCategoryService(dbs)
     wcs.dump_to_db()
+
+    # 装備を読み込み、DBにダンプする
+    doms: DomService = LxmlDomService()
+    ws = WeaponService(dbs, doms)
+    ws.crawl_for_kammusu()
+    ws.crawl_for_enemy()
+    ws.dump_to_db()
 
 
 if __name__ == '__main__':
