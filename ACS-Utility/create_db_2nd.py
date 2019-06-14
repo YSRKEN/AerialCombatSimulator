@@ -1,3 +1,4 @@
+from service.http import HttpService
 from service.i_dom import DomService
 from service.lxml_dom import LxmlDomService
 from service.sqlite import SQLiteService
@@ -19,7 +20,8 @@ def main():
     wcs.dump_to_db()
 
     # 装備を読み込み、DBにダンプする
-    doms: DomService = LxmlDomService()
+    https = HttpService()
+    doms: DomService = LxmlDomService(https)
     ws = WeaponService(dbs, doms)
     ws.crawl_for_kammusu()
     ws.crawl_for_enemy()
