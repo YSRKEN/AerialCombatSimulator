@@ -48,9 +48,14 @@ class WeaponService:
 
         Returns
         -------
-            装備名
+            {カテゴリ: 性能値}
 
         """
+        raw_icons = [re.sub(r".*/Icon_([A-Za-z_]+)\.png.*", r"\1", x.attribute('href', '')) for x in dom.select_many('a')]
+        raw_values = re.sub("(<a.*?</a>|<span.*?\">|</span>|\n| )", "", dom.inner_html())
+        raw_values = raw_values.split('<br>')
+        spec_dict = dict(zip(raw_icons, raw_values))
+        print(spec_dict)
         return {}
 
     def crawl_for_kammusu(self):

@@ -21,4 +21,17 @@ class LxmlDom(Dom):
             return LxmlDom(result[0])
 
     def inner_text(self) -> str:
-        return self.raw_dom.text_content()
+        return str(self.raw_dom.text_content())
+
+    def attribute(self, key: str, default: any) -> any:
+        return self.raw_dom.get(key, default=default)
+
+    def outer_html(self) -> str:
+        return lxml.html.tostring(self.raw_dom, encoding="UTF-8").decode('UTF-8')
+
+    def inner_html(self) -> str:
+        # 参考：https://www.imgless.com/article/112.html
+        html_text = self.outer_html()
+        p_begin = html_text.find('>') + 1
+        p_end = html_text.rfind('<')
+        return html_text[p_begin: p_end]

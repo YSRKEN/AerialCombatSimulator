@@ -17,3 +17,15 @@ class Dom(metaclass=ABCMeta):
     @abstractmethod
     def inner_text(self) -> str:
         pass
+
+    @abstractmethod
+    def attribute(self, key: str, default: any) -> any:
+        pass
+
+    @abstractmethod
+    def outer_html(self) -> str:
+        pass
+
+    @abstractmethod
+    def inner_html(self) -> str:
+        pass
