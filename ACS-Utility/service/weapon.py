@@ -1,6 +1,6 @@
 import re
 from pprint import pprint
-from typing import List
+from typing import List, Dict
 
 from model.i_dom import Dom
 from model.weapon import Weapon
@@ -37,6 +37,22 @@ class WeaponService:
         a_inner_text = dom.select('a').inner_text()
         return re.sub('(^ |\n)', '', all_inner_text.replace(a_inner_text, '', 1))
 
+    @staticmethod
+    def convert_spec(dom: Dom) -> Dict[str, int]:
+        """装備性能のDOMから装備性能を抽出する
+
+        Parameters
+        ----------
+        dom
+            装備性能のDOM
+
+        Returns
+        -------
+            装備名
+
+        """
+        return {}
+
     def crawl_for_kammusu(self):
         # DOMを読み込む
         root_dom = self.doms.create_dom_from_url('https://kancolle.fandom.com/wiki/Equipment')
@@ -51,6 +67,7 @@ class WeaponService:
             # 各種情報を読み取る
             weapon_id = int(td_tag_list[0].inner_text())
             weapon_name = self.convert_name(td_tag_list[2])
+            weapon_spec = self.convert_spec(td_tag_list[4])
             weapon_aa = 0
 
             weapon_type_text = td_tag_list[3].inner_text().replace('\n', '')
