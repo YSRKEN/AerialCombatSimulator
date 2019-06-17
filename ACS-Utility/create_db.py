@@ -29,143 +29,6 @@ def get_kammusu_type_dict():
     return kammusu_type_dict, kammusu_type_wikia_dict
 
 
-def crawl_friend_weapon_data() -> List[any]:
-    """艦娘の装備一覧をクロールして作成する
-    """
-    # 戦闘行動半径を読み込んでおく
-    weapon_radius_df = pandas.read_csv(os.path.join(ROOT_DIRECTORY, 'weapon_radius.csv'))
-    weapon_radius_dict: Dict[str, int] = {}
-    for pair in weapon_radius_df.values:
-        weapon_radius_dict[pair[0]] = pair[1]
-
-    # 装備種一覧を読み込んでおく
-    weapon_type_default_dict, weapon_type_wikia_dict = get_weapon_type_dict()
-
-    # Webページを取得してパースする
-    weapon_data = []
-    with urllib.request.urlopen('http://kancolle.wikia.com/wiki/Equipment') as request:
-        # 取得、パース
-        soup: BeautifulSoup = BeautifulSoup(request.read(), 'html.parser')
-        tr_tag_list = soup.select("table.wikitable tr")
-
-        # 1行づつ読み取っていく
-        for trTag in tr_tag_list:
-            # 関係ない行は無視する
-            td_tag_list = trTag.select("td")
-            if len(td_tag_list) < 9:
-                continue
-
-            # 装備IDを読み取る
-            id = int(td_tag_list[0].text)
-
-            # 装備名を読み取る
-            name = calc_weapon_name(td_tag_list[2])
-
-            # スペックを読み取る
-            aa, accuracy, interception, attack, torpedo, antisub, bomber = calc_weapon_status(td_tag_list[4])
-            radius = weapon_radius_dict[name] if name in weapon_radius_dict else 0
-
-            # 装備種を読み取る
-            weapon_type = calc_weapon_type(td_tag_list[3], name, aa, weapon_type_default_dict, weapon_type_wikia_dict)
-
-            # データを入力する
-            aa = aa if aa >= 0 else 0
-            weapon_data.append((id, weapon_type, name, aa, accuracy, interception, radius, 1, attack, torpedo, antisub,
-                                bomber))
-    return weapon_data
-
-
-def crawl_enemy_weapon_data() -> List[any]:
-    """深海棲艦の装備一覧をクロールして作成する
-    """
-
-    # 装備種一覧を読み込んでおく
-    weapon_type_default_dict, weapon_type_wikia_dict = get_weapon_type_dict()
-
-    # Webページを取得してパースする
-    weapon_data = []
-    with urllib.request.urlopen('http://kancolle.wikia.com/wiki/List_of_equipment_used_by_the_enemy') as request:
-        # 取得、パース
-        soup: BeautifulSoup = BeautifulSoup(request.read(), 'html.parser')
-        tr_tag_list = soup.select("table.wikitable tr")
-
-        # 1行づつ読み取っていく
-        for trTag in tr_tag_list:
-            # 関係ない行は無視する
-            td_tag_list = trTag.select("td")
-            if len(td_tag_list) < 6:
-                continue
-
-            # 装備IDを読み取る
-            id = int(td_tag_list[0].text)
-
-            # 装備名を読み取る
-            name = calc_weapon_name(td_tag_list[2])
-
-            # スペックを読み取る
-            aa, accuracy, interception, attack, torpedo, antisub, bomber = calc_weapon_status(td_tag_list[4])
-
-            # 装備種を読み取る
-            weapon_type = calc_weapon_type(td_tag_list[3], name, aa, weapon_type_default_dict, weapon_type_wikia_dict)
-
-            # データを入力する
-            aa = aa if aa >= 0 else 0
-            weapon_data.append((id, weapon_type, name, aa, accuracy, 0, 0, 0, attack, torpedo, antisub, bomber))
-    return weapon_data
-
-
-def crawl_weapon_data() -> List[any]:
-    """装備一覧をWebクロールして作成する
-    """
-    # 艦娘の装備一覧を読み取る
-    friend_weapon_data = crawl_friend_weapon_data()
-
-    # 深海棲艦の装備一覧を読み取る
-    enemy_weapon_data = crawl_enemy_weapon_data()
-
-    # 合体させたものを戻り値とする
-    weapon_data = [(0, 0, 'なし', 0, 0, 0, 0, 1, 0, 0, 0, 0)]
-    weapon_data.extend(friend_weapon_data)
-    weapon_data.extend(enemy_weapon_data)
-    return weapon_data
-
-
-def create_weapon_table(cursor) -> None:
-    """ 装備テーブルを作成する
-    """
-    # 装備テーブルを作成する
-    if has_table(cursor, 'weapon'):
-        cursor.execute('DROP TABLE weapon')
-    command = '''CREATE TABLE [weapon] (
-                 [id] INTEGER,
-                 [type] INTEGER NOT NULL REFERENCES [weapon_type]([id]),
-                 [name] TEXT NOT NULL,
-                 [aa] INTEGER NOT NULL,
-                 [accuracy] INTEGER NOT NULL,
-                 [interception] INTEGER NOT NULL,
-                 [radius] INTEGER NOT NULL,
-                 [for_kammusu_flg] INTEGER NOT NULL,
-                 [attack] INTEGER NOT NULL,
-                 [torpedo] INTEGER NOT NULL,
-                 [antisub] INTEGER NOT NULL,
-                 [bomber] INTEGER NOT NULL,
-                 PRIMARY KEY([id]))'''
-    cursor.execute(command)
-
-    # 装備テーブルにデータを追加する
-    command = 'INSERT INTO weapon (id, type, name, aa, accuracy, interception, radius, for_kammusu_flg, attack,' \
-              'torpedo, antisub, bomber) VALUES (?,?,?,?,?,?,?,?,?,?,?, ?)'
-    data = crawl_weapon_data()
-    cursor.executemany(command, data)
-    connect.commit()
-
-    # 装備テーブルにインデックスを設定する
-    command = 'CREATE INDEX weapon_name on weapon(name)'
-    cursor.execute(command)
-    command = 'CREATE INDEX weapon_for_kammusu_flg on weapon(for_kammusu_flg)'
-    cursor.execute(command)
-
-
 def create_kammusu_type_table(cursor) -> None:
     """ 艦種テーブルを作成する
     """
@@ -803,9 +666,6 @@ def create_formation_category_table(cursor) -> None:
     data = list(map(lambda x: (x[0], x[1]), formation_category_df.values))
     cursor.executemany(command, data)
     connect.commit()
-    # 装備テーブルを作成する
-    print('装備テーブルを作成...')
-    create_weapon_table(cursor)
 
     # 艦種テーブルを作成する
     print('艦種テーブルを作成...')
@@ -826,5 +686,3 @@ def create_formation_category_table(cursor) -> None:
     # マステーブルを作成する
     print('マステーブルを作成...')
     create_position_table(cursor)
-
-    connect.commit()

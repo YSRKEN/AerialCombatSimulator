@@ -20,7 +20,7 @@ class WeaponService:
         self.doms = doms
         self.wts = wts
         self.wcs = wcs
-        self.weapon_list: List[Weapon] = []
+        self.weapon_list: List[Weapon] = [Weapon(0, 0, '', 0, 0, 0, 0, False, 0, 0, 0, 0)]
 
     @staticmethod
     def convert_name(dom: Dom) -> str:
@@ -160,4 +160,34 @@ class WeaponService:
                                            weapon_antisub, weapon_bomber))
 
     def dump_to_db(self):
-        pprint(self.weapon_list)
+        # テーブルを新規作成する
+        self.dbs.execute('DROP TABLE IF EXISTS weapon')
+        command = '''CREATE TABLE weapon (
+                     id INTEGER,
+                     type INTEGER NOT NULL REFERENCES weapon_type(id),
+                     name TEXT NOT NULL,
+                     aa INTEGER NOT NULL,
+                     accuracy INTEGER NOT NULL,
+                     interception INTEGER NOT NULL,
+                     radius INTEGER NOT NULL,
+                     for_kammusu_flg INTEGER NOT NULL,
+                     attack INTEGER NOT NULL,
+                     torpedo INTEGER NOT NULL,
+                     antisub INTEGER NOT NULL,
+                     bomber INTEGER NOT NULL,
+                     PRIMARY KEY(id))'''
+        self.dbs.execute(command)
+
+        # テーブルにデータを追加する
+        command = 'INSERT INTO weapon (id, type, name, aa, accuracy, interception, radius, for_kammusu_flg, attack,' \
+                  'torpedo, antisub, bomber) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'
+        data = [(x.id, x.type, x.name, x.aa, x.accuracy, x.interception, x.radius, x.for_kammusu_flg, x.attack,
+                 x.torpedo, x.antisub, x.bomber) for x in self.weapon_list]
+        self.dbs.executemany(command, data)
+        self.dbs.commit()
+
+        # テーブルにインデックスを設定する
+        command = 'CREATE INDEX weapon_name on weapon(name)'
+        self.dbs.execute(command)
+        command = 'CREATE INDEX weapon_for_kammusu_flg on weapon(for_kammusu_flg)'
+        self.dbs.execute(command)
