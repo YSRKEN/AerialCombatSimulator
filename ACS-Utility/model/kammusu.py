@@ -1,17 +1,17 @@
 import dataclasses
+from typing import List
 
 
 @dataclasses.dataclass(frozen=True)
-class Weapon:
+class Kammusu:
     id: int
     type: int
     name: str
     aa: int
-    accuracy: int
-    interception: int
-    radius: int
-    for_kammusu_flg: bool
+    slot_size: int
+    slot: List[int]
+    weapon: List[int]
+    kammusu_flg: bool
     attack: int
     torpedo: int
     anti_sub: int
-    bomber: int

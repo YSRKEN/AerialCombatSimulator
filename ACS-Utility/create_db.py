@@ -12,49 +12,6 @@ import pandas
 from bs4 import BeautifulSoup
 
 
-def get_kammusu_type_dict():
-    """艦種と艦種IDとの対応表を作成する
-    """
-    # 装備種一覧を読み込んでおく
-    kammusu_type_df = pandas.read_csv(os.path.join(ROOT_DIRECTORY, 'kammusu_type.csv'))
-    kammusu_type_dict: Dict[str, int] = {}
-    kammusu_type_wikia_dict: Dict[str, int] = {}
-    for pair in kammusu_type_df.values:
-        kammusu_type_dict[pair[1]] = pair[0]
-        kammusu_type_wikia_dict[pair[3]] = pair[0]
-
-    # 微調整
-    kammusu_type_dict['補給艦'] = kammusu_type_dict['給油艦']
-
-    return kammusu_type_dict, kammusu_type_wikia_dict
-
-
-def create_kammusu_type_table(cursor) -> None:
-    """ 艦種テーブルを作成する
-    """
-    # 艦種テーブルを作成する
-    if has_table(cursor, 'kammusu_type'):
-        cursor.execute('DROP TABLE kammusu_type')
-    command = '''CREATE TABLE [kammusu_type] (
-                 [id] INTEGER NOT NULL UNIQUE,
-                 [name] TEXT NOT NULL UNIQUE,
-                 [short_name] TEXT NOT NULL UNIQUE,
-                 PRIMARY KEY([id]))'''
-    cursor.execute(command)
-
-    # 艦種テーブルにデータを追加する
-    command = 'INSERT INTO kammusu_type (id, name, short_name) VALUES (?,?,?)'
-    kammusu_type_df = pandas.read_csv(os.path.join(ROOT_DIRECTORY, 'kammusu_type.csv'))
-    data = list(map(lambda x: (x[0], x[1], x[2]), kammusu_type_df.values))
-    cursor.executemany(command, data)
-
-    # 艦種テーブルにインデックスを設定する
-    command = 'CREATE INDEX kammusu_type_name on kammusu_type(name)'
-    cursor.execute(command)
-    command = 'CREATE INDEX kammusu_type_short_name on kammusu_type(short_name)'
-    cursor.execute(command)
-
-
 def crawl_friend_kammusu_data_deckbuilder() -> List[any]:
     """艦娘一覧をクロールして作成する(デッキビルダーから)
     """
@@ -315,64 +272,6 @@ def crawl_enemy_kammusu_data() -> List[any]:
             kammusu_data.append(data)
 
     return kammusu_data
-
-
-def crawl_kammusu_data() -> List[any]:
-    """艦娘一覧をWebクロールして作成する
-    """
-    # 艦娘一覧を読み取る
-    friend_kammusu_data = crawl_friend_kammusu_data_deckbuilder()
-
-    # 深海棲艦一覧を読み取る
-    enemy_kammusu_data = crawl_enemy_kammusu_data()
-
-    # 合体させたものを戻り値とする
-    kammusu_data = [(0, 0, 'なし', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0)]
-    kammusu_data.extend(friend_kammusu_data)
-    kammusu_data.extend(enemy_kammusu_data)
-    return kammusu_data
-
-
-def create_kammusu_table(cursor) -> None:
-    """ 艦娘テーブルを作成する
-    """
-    # 艦娘テーブルを作成する
-    if has_table(cursor, 'kammusu'):
-        cursor.execute('DROP TABLE kammusu')
-    command = '''CREATE TABLE [kammusu] (
-                [id] INTEGER NOT NULL UNIQUE,
-                [type] INTEGER NOT NULL REFERENCES [kammusu_type]([id]),
-                [name] TEXT NOT NULL,
-                [aa] INTEGER NOT NULL,
-                [slotsize] INTEGER NOT NULL,
-                [slot1] INTEGER NOT NULL,
-                [slot2] INTEGER NOT NULL,
-                [slot3] INTEGER NOT NULL,
-                [slot4] INTEGER NOT NULL,
-                [slot5] INTEGER NOT NULL,
-                [weapon1] INTEGER NOT NULL REFERENCES [weapon]([id]),
-                [weapon2] INTEGER NOT NULL REFERENCES [weapon]([id]),
-                [weapon3] INTEGER NOT NULL REFERENCES [weapon]([id]),
-                [weapon4] INTEGER NOT NULL REFERENCES [weapon]([id]),
-                [weapon5] INTEGER NOT NULL REFERENCES [weapon]([id]),
-                [kammusu_flg] INTEGER NOT NULL,
-                [attack] INTEGER NOT NULL,
-                [torpedo] INTEGER NOT NULL,
-                [antisub] INTEGER NOT NULL,
-                PRIMARY KEY([id]))'''
-    cursor.execute(command)
-
-    # 艦娘テーブルにデータを追加する
-    command = '''INSERT INTO kammusu (id, type, name, aa, slotsize,
-                    slot1, slot2, slot3, slot4, slot5,
-                    weapon1, weapon2, weapon3, weapon4, weapon5,
-                    kammusu_flg, attack, torpedo, antisub) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
-    data = crawl_kammusu_data()
-    cursor.executemany(command, data)
-
-    # 艦娘テーブルにインデックスを設定する
-    command = 'CREATE INDEX kammusu_name on kammusu(name)'
-    cursor.execute(command)
 
 
 def crawl_map_data() -> List[any]:

@@ -53,7 +53,7 @@ class WeaponService:
             戦闘行動半径
         """
 
-        print(f'read_radius({urllib.parse.quote(url, safe=":/")})')
+        print(f'    read_radius({urllib.parse.quote(url, safe=":/")})')
         page_dom = self.doms.create_dom_from_url(url)
         data_dom = page_dom.select('div#kc-eq-flights')
         if data_dom is None:
@@ -173,16 +173,16 @@ class WeaponService:
                      for_kammusu_flg INTEGER NOT NULL,
                      attack INTEGER NOT NULL,
                      torpedo INTEGER NOT NULL,
-                     antisub INTEGER NOT NULL,
+                     anti_sub INTEGER NOT NULL,
                      bomber INTEGER NOT NULL,
                      PRIMARY KEY(id))'''
         self.dbs.execute(command)
 
         # テーブルにデータを追加する
         command = 'INSERT INTO weapon (id, type, name, aa, accuracy, interception, radius, for_kammusu_flg, attack,' \
-                  'torpedo, antisub, bomber) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'
+                  'torpedo, anti_sub, bomber) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'
         data = [(x.id, x.type, x.name, x.aa, x.accuracy, x.interception, x.radius, x.for_kammusu_flg, x.attack,
-                 x.torpedo, x.antisub, x.bomber) for x in self.weapon_list]
+                 x.torpedo, x.anti_sub, x.bomber) for x in self.weapon_list]
         self.dbs.executemany(command, data)
         self.dbs.commit()
 
