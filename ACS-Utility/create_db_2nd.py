@@ -1,5 +1,6 @@
 from service.http import HttpService
 from service.i_dom import DomService
+from service.kammusu_type import KammusuTypeService
 from service.lxml_dom import LxmlDomService
 from service.sqlite import SQLiteService
 from service.weapon import WeaponService
@@ -26,6 +27,10 @@ def main():
     ws.crawl_for_kammusu()
     ws.crawl_for_enemy()
     ws.dump_to_db()
+
+    # 艦種を読み込み、DBにダンプする
+    kts = KammusuTypeService(dbs)
+    kts.dump_to_db()
 
 
 if __name__ == '__main__':
