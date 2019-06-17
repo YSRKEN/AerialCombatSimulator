@@ -23,6 +23,26 @@ class WeaponTypeService:
         for record in extra_df.to_dict(orient='records'):
             self.wikia_to_type_id[record['wikia_name']] = record['id']
 
+    def find_by_name(self, key: str) -> WeaponType:
+        """装備種名から装備種情報を検索する
+            (ヒットしない場合は「その他」扱いにする)
+
+        Parameters
+        ----------
+        key
+            装備種名
+
+        Returns
+        -------
+            装備種情報
+        """
+
+        result = self.df.query(f"name == '{key}'")
+        if len(result) == 0:
+            return self.find_by_name('その他')
+        temp = result.to_dict(orient='records')[0]
+        return WeaponType(**temp)
+
     def find_by_id(self, key: int) -> WeaponType:
         """IDから装備種情報を検索する
             (ヒットしない場合は「その他」扱いにする)
@@ -39,7 +59,7 @@ class WeaponTypeService:
 
         result = self.df.query(f"id == '{key}'")
         if len(result) == 0:
-            return self.find_by_id(0)
+            return self.find_by_name('その他')
         temp = result.to_dict(orient='records')[0]
         return WeaponType(**temp)
 
@@ -80,11 +100,11 @@ class WeaponTypeService:
         if 'Radar' in key:
             # レーダー系の中で対空値が付いている場合は対空電探とする
             if aa >= 0:
-                return self.find_by_wikia_name('Surface Radar')
+                return self.find_by_name('水上電探')
             else:
-                return self.find_by_wikia_name('Air Radar')
+                return self.find_by_name('対空電探')
 
-        return self.find_by_id(0)
+        return self.find_by_name('その他')
 
     def dump_to_db(self):
         # テーブルを新規作成する
