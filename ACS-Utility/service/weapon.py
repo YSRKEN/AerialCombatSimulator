@@ -122,8 +122,42 @@ class WeaponService:
                                            weapon_antisub, weapon_bomber))
 
     def crawl_for_enemy(self):
+        # DOMを読み込む
         root_dom = self.doms.create_dom_from_url('https://kancolle.fandom.com/wiki/List_of_equipment_used_by_the_enemy')
-        print(root_dom)
+
+        # テーブルを1行づつ読み込む
+        for tr_tag in root_dom.select_many('table.wikitable tr'):
+            # 不要な行を飛ばす
+            td_tag_list = tr_tag.select_many('td')
+            if len(td_tag_list) < 6:
+                continue
+
+            # 装備IDを読み取る
+            weapon_id = int(td_tag_list[0].inner_text())
+
+            # 装備名を読み取る
+            weapon_name = self.convert_name(td_tag_list[2])
+
+            # スペック情報は「Stats」列から読み取れる
+            weapon_spec = self.convert_spec(td_tag_list[4])
+            weapon_aa = int(weapon_spec['AA']) if 'AA' in weapon_spec else 0
+            weapon_accuracy = int(weapon_spec['Hit']) if 'Hit' in weapon_spec else 0
+            weapon_interception = int(weapon_spec['Interception']) if 'Interception' in weapon_spec else 0
+            weapon_attack = int(weapon_spec['Gun']) if 'Gun' in weapon_spec else 0
+            weapon_torpedo = int(weapon_spec['Torpedo']) if 'Torpedo' in weapon_spec else 0
+            weapon_antisub = int(weapon_spec['ASW']) if 'ASW' in weapon_spec else 0
+            weapon_bomber = int(weapon_spec['Dive']) if 'Dive' in weapon_spec else 0
+
+            # 装備種情報はWikia名から変換する
+            weapon_type_text = td_tag_list[3].inner_text().replace('\n', '')
+            weapon_type = self.wts.find_by_wikia_name(weapon_type_text, weapon_name, weapon_aa)
+
+            # 敵装備の戦闘行動半径は考えなくていい
+            weapon_radius = 0
+
+            self.weapon_list.append(Weapon(weapon_id, weapon_type.id, weapon_name, weapon_aa, weapon_accuracy,
+                                           weapon_interception, weapon_radius, False, weapon_attack, weapon_torpedo,
+                                           weapon_antisub, weapon_bomber))
 
     def dump_to_db(self):
         pprint(self.weapon_list)
