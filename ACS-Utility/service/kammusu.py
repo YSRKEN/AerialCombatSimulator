@@ -1,31 +1,84 @@
+import json
+from pprint import pprint
 from typing import List
 
 import requests
 
 from model.kammusu import Kammusu
+from service.http import HttpService
 from service.i_database import DatabaseService
 from service.i_dom import DomService
+from service.kammusu_type import KammusuTypeService
 
 
 class KammusuService:
     """艦娘一覧のためのサービスクラス
     """
 
-    def __init__(self, dbs: DatabaseService, doms: DomService):
+    def __init__(self, dbs: DatabaseService, doms: DomService, https: HttpService, kts: KammusuTypeService):
         self.dbs = dbs
         self.doms = doms
+        self.https = https
+        self.kts = kts
         self.kammusu_list: List[Kammusu] = [Kammusu(0, 0, '', 0, 0, [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], True, 0, 0, 0)]
 
     def crawl_kammusu(self):
         # デッキビルダーから艦娘データを読み込む
-        raw_data = requests.get('http://kancolle-calc.net/data/shipdata.js').json()
-        print(raw_data)
-        pass
+        raw_text = self.https.read_text_from_url('http://kancolle-calc.net/data/shipdata.js', 'UTF-8')
+        raw_data = json.loads(raw_text.replace('var gShips = ', ''))
+
+        # 各種データを読み込む
+        for record in raw_data:
+            # 艦船ID
+            kammusu_id = int(record['id'])
+            if kammusu_id >= 1501:
+                continue
+
+            # 艦種
+            kammusu_type = self.kts.find_by_name(record['type'])
+
+            # 艦名
+            kammusu_name = record['name']
+            if 'なし' in kammusu_name:
+                continue
+
+            # 対空
+            kammusu_aa = record['max_aac']
+
+            # スロットサイズ
+            kammusu_slot_size = record['slot']
+
+            # 搭載数
+            kammusu_slot = record['carry']
+            slot_len = len(kammusu_slot)
+            for _ in range(slot_len, 5):
+                kammusu_slot.append(0)
+
+            # 初期装備
+            kammusu_weapon = record['equip']
+            slot_len = len(kammusu_weapon)
+            for _ in range(slot_len, 5):
+                kammusu_weapon.append(0)
+
+            # 火力
+            kammusu_attack = record['max_fire']
+
+            # 雷装
+            kammusu_torpedo = record['max_torpedo']
+
+            # 対潜
+            kammusu_anti_sub = record['max_ass']
+
+            self.kammusu_list.append(Kammusu(kammusu_id, kammusu_type.id, kammusu_name, kammusu_aa, kammusu_slot_size,
+                                             kammusu_slot, kammusu_weapon, True, kammusu_attack, kammusu_torpedo,
+                                             kammusu_anti_sub))
 
     def crawl_enemy(self):
         pass
 
     def dump_to_db(self):
+        pprint(self.kammusu_list)
+
         # テーブルを新規作成する
         self.dbs.execute('DROP TABLE IF EXISTS kammusu')
         command = '''CREATE TABLE kammusu (

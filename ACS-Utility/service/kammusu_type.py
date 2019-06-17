@@ -3,6 +3,7 @@ import os
 import pandas
 
 from constant import DATA_PATH
+from model.kammusu_type import KammusuType
 from service.i_database import DatabaseService
 
 
@@ -13,6 +14,29 @@ class KammusuTypeService:
     def __init__(self, dbs: DatabaseService):
         self.df = pandas.read_csv(os.path.join(DATA_PATH, 'kammusu_type.csv'))
         self.dbs = dbs
+
+    def find_by_name(self, key: str) -> KammusuType:
+        """艦種名から艦種情報を検索する
+            (ヒットしない場合は「その他」扱いにする)
+
+        Parameters
+        ----------
+        key
+            艦種名
+
+        Returns
+        -------
+            艦種情報
+        """
+
+        # 特殊処理
+        if key == '補給艦':
+            return self.find_by_name('給油艦')
+        result = self.df.query(f"name == '{key}'")
+        if len(result) == 0:
+            raise Exception(f'不明な艦種名({key})です')
+        temp = result.to_dict(orient='records')[0]
+        return KammusuType(**temp)
 
     def dump_to_db(self):
         # テーブルを新規作成する

@@ -145,7 +145,7 @@ class WeaponService:
             weapon_interception = int(weapon_spec['Interception']) if 'Interception' in weapon_spec else 0
             weapon_attack = int(weapon_spec['Gun']) if 'Gun' in weapon_spec else 0
             weapon_torpedo = int(weapon_spec['Torpedo']) if 'Torpedo' in weapon_spec else 0
-            weapon_antisub = int(weapon_spec['ASW']) if 'ASW' in weapon_spec else 0
+            weapon_anti_sub = int(weapon_spec['ASW']) if 'ASW' in weapon_spec else 0
             weapon_bomber = int(weapon_spec['Dive']) if 'Dive' in weapon_spec else 0
 
             # 装備種情報はWikia名から変換する
@@ -157,7 +157,7 @@ class WeaponService:
 
             self.weapon_list.append(Weapon(weapon_id, weapon_type.id, weapon_name, weapon_aa, weapon_accuracy,
                                            weapon_interception, weapon_radius, False, weapon_attack, weapon_torpedo,
-                                           weapon_antisub, weapon_bomber))
+                                           weapon_anti_sub, weapon_bomber))
 
     def dump_to_db(self):
         # テーブルを新規作成する
