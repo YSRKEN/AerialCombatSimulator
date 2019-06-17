@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 import pandas
 
@@ -13,6 +14,22 @@ class WeaponCategoryService:
     def __init__(self, dbs: DatabaseService):
         self.df = pandas.read_csv(os.path.join(DATA_PATH, 'weapon_category.csv'))
         self.dbs = dbs
+
+    def find_by_category(self, key: str) -> List[str]:
+        """装備カテゴリ名に当てはまる装備種名一覧を返す
+
+        Parameters
+        ----------
+        key
+            装備カテゴリ
+
+        Returns
+        -------
+            装備種名一覧
+        """
+
+        result = self.df.query(f"category == '{key}'")
+        return list(result['type'].values)
 
     def dump_to_db(self):
         # テーブルを新規作成する

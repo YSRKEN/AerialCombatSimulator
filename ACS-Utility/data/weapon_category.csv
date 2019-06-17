@@ -11,9 +11,9 @@ id,category,type
 10,LBAS,水上偵察機
 11,LBAS,大型飛行艇
 12,LBAS,陸上攻撃機
-13,LBAS,局地戦闘機
-14,LBAS,陸軍戦闘機
-15,LBAS,陸上偵察機
+13,LBAS,陸上偵察機
+14,LBAS,局地戦闘機
+15,LBAS,陸軍戦闘機
 16,Air,艦上戦闘機
 17,Air,艦上爆撃機
 18,Air,艦上爆撃機(爆戦)

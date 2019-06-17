@@ -1,11 +1,13 @@
 import re
 from pprint import pprint
 from typing import List, Dict
+import urllib.parse
 
 from model.i_dom import Dom
 from model.weapon import Weapon
 from service.i_database import DatabaseService
 from service.i_dom import DomService
+from service.weapon_category import WeaponCategoryService
 from service.weapon_type import WeaponTypeService
 
 
@@ -13,10 +15,11 @@ class WeaponService:
     """装備一覧のためのサービスクラス
     """
 
-    def __init__(self, dbs: DatabaseService, doms: DomService, wts: WeaponTypeService):
+    def __init__(self, dbs: DatabaseService, doms: DomService, wts: WeaponTypeService, wcs: WeaponCategoryService):
         self.dbs = dbs
         self.doms = doms
         self.wts = wts
+        self.wcs = wcs
         self.weapon_list: List[Weapon] = []
 
     @staticmethod
@@ -37,8 +40,28 @@ class WeaponService:
         a_inner_text = dom.select('a').inner_text()
         return re.sub('(^ |\n)', '', all_inner_text.replace(a_inner_text, '', 1))
 
+    def read_radius(self, url: str) -> int:
+        """装備のURLから戦闘行動半径を抽出する
+
+        Parameters
+        ----------
+        url
+            装備のURL
+
+        Returns
+        -------
+            戦闘行動半径
+        """
+
+        print(f'read_radius({urllib.parse.quote(url, safe=":/")})')
+        page_dom = self.doms.create_dom_from_url(url)
+        data_dom = page_dom.select('div#kc-eq-flights')
+        if data_dom is None:
+            return 0
+        return int(data_dom.select('b').inner_text().replace('Combat Radius: ', ''))
+
     @staticmethod
-    def convert_spec(dom: Dom) -> Dict[str, int]:
+    def convert_spec(dom: Dom) -> Dict[str, str]:
         """装備性能のDOMから装備性能を抽出する
 
         Parameters
@@ -55,14 +78,14 @@ class WeaponService:
         raw_values = re.sub("(<a.*?</a>|<span.*?\">|</span>|\n| )", "", dom.inner_html())
         raw_values = raw_values.split('<br>')
         spec_dict = dict(zip(raw_icons, raw_values))
-        print(spec_dict)
-        return {}
+        return spec_dict
 
     def crawl_for_kammusu(self):
         # DOMを読み込む
         root_dom = self.doms.create_dom_from_url('https://kancolle.fandom.com/wiki/Equipment')
 
         # テーブルを1行づつ読み込む
+        lbas_set = set(self.wcs.find_by_category('LBAS'))
         for tr_tag in root_dom.select_many('tr'):
             # 不要な行を飛ばす
             td_tag_list = tr_tag.select_many('td')
@@ -70,14 +93,33 @@ class WeaponService:
                 continue
 
             # 各種情報を読み取る
+            # IDと名前はそのまま読み取れる
             weapon_id = int(td_tag_list[0].inner_text())
             weapon_name = self.convert_name(td_tag_list[2])
-            weapon_spec = self.convert_spec(td_tag_list[4])
-            weapon_aa = 0
 
+            # スペック情報は「Stats」列から読み取れる
+            weapon_spec = self.convert_spec(td_tag_list[4])
+            weapon_aa = int(weapon_spec['AA']) if 'AA' in weapon_spec else 0
+            weapon_accuracy = int(weapon_spec['Hit']) if 'Hit' in weapon_spec else 0
+            weapon_interception = int(weapon_spec['Interception']) if 'Interception' in weapon_spec else 0
+            weapon_attack = int(weapon_spec['Gun']) if 'Gun' in weapon_spec else 0
+            weapon_torpedo = int(weapon_spec['Torpedo']) if 'Torpedo' in weapon_spec else 0
+            weapon_antisub = int(weapon_spec['ASW']) if 'ASW' in weapon_spec else 0
+            weapon_bomber = int(weapon_spec['Dive']) if 'Dive' in weapon_spec else 0
+
+            # 装備種情報はWikia名から変換する
             weapon_type_text = td_tag_list[3].inner_text().replace('\n', '')
             weapon_type = self.wts.find_by_wikia_name(weapon_type_text, weapon_name, weapon_aa)
-            print(f'{weapon_id}\t{weapon_name}\t\t{weapon_type.short_name}')
+
+            # 戦闘行動半径は再度HTTPリクエストを叩く必要があるので注意
+            weapon_radius = 0
+            if weapon_type.name in lbas_set:
+                url = 'https://kancolle.fandom.com' + td_tag_list[2].select('a').attribute('href', '')
+                weapon_radius = self.read_radius(url)
+
+            self.weapon_list.append(Weapon(weapon_id, weapon_type.id, weapon_name, weapon_aa, weapon_accuracy,
+                                           weapon_interception, weapon_radius, True, weapon_attack, weapon_torpedo,
+                                           weapon_antisub, weapon_bomber))
 
     def crawl_for_enemy(self):
         root_dom = self.doms.create_dom_from_url('https://kancolle.fandom.com/wiki/List_of_equipment_used_by_the_enemy')

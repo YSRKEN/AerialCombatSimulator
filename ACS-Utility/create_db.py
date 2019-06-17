@@ -12,34 +12,6 @@ import pandas
 from bs4 import BeautifulSoup
 
 
-def calc_weapon_status(td_tag):
-    """装備ステータスを算出する
-    """
-    # アイコンのファイル名を取り出す
-    raw_stat_icons = list(map(lambda x: re.sub(r".*/([A-Za-z_]+)\.png.*", r"\1", x['href']), td_tag.select('a')))
-
-    # 各数値を取り出す
-    raw_stat_values = re.sub("(<a.*?</a>|<span.*?\">|</span>|\n| )", "", td_tag.decode_contents(formatter="html"))
-    raw_stat_values = re.sub("<br/>", ",", raw_stat_values)
-    raw_stat_values = raw_stat_values.split(',')
-
-    # アイコン名と数値とをzipする
-    status = {}
-    for icon, value in zip(raw_stat_icons, raw_stat_values):
-        status[icon] = value
-
-    # 各数値を読み取る
-    aa = int(status['Icon_AA']) if 'Icon_AA' in status else -1
-    accuracy = int(status['Icon_Hit']) if 'Icon_Hit' in status else 0
-    interception = int(status['Icon_Interception']) if 'Icon_Interception' in status else 0
-    attack = int(status['Icon_Gun']) if 'Icon_Gun' in status else 0
-    torpedo = int(status['Icon_Torpedo']) if 'Icon_Torpedo' in status else 0
-    antisub = int(status['Icon_ASW']) if 'Icon_ASW' in status else 0
-    bomber = int(status['Icon_Dive']) if 'Icon_Dive' in status else 0
-
-    return aa, accuracy, interception, attack, torpedo, antisub, bomber
-
-
 def get_kammusu_type_dict():
     """艦種と艦種IDとの対応表を作成する
     """
