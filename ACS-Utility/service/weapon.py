@@ -1,6 +1,6 @@
 import re
 from pprint import pprint
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import urllib.parse
 
 from model.i_dom import Dom
@@ -21,10 +21,11 @@ class WeaponService:
         self.wts = wts
         self.wcs = wcs
         self.weapon_list: List[Weapon] = [Weapon(0, 0, '', 0, 0, 0, 0, False, 0, 0, 0, 0)]
+        self.url_hash: Dict[str, int] = {}
 
     @staticmethod
-    def convert_name(dom: Dom) -> str:
-        """装備名のDOMから装備名を抽出する
+    def convert_name(dom: Dom) -> Tuple[str, str]:
+        """装備名のDOMから装備名とURLを抽出する
 
         Parameters
         ----------
@@ -33,12 +34,13 @@ class WeaponService:
 
         Returns
         -------
-            装備名
+            装備名, URL
         """
 
         all_inner_text = dom.inner_text()
         a_inner_text = dom.select('a').inner_text()
-        return re.sub('(^ |\n)', '', all_inner_text.replace(a_inner_text, '', 1))
+        a_href = dom.select('a').attribute('href', '').replace('/wiki/', '')
+        return re.sub('(^ |\n)', '', all_inner_text.replace(a_inner_text, '', 1)), a_href
 
     def read_radius(self, url: str) -> int:
         """装備のURLから戦闘行動半径を抽出する
@@ -95,7 +97,8 @@ class WeaponService:
             # 各種情報を読み取る
             # IDと名前はそのまま読み取れる
             weapon_id = int(td_tag_list[0].inner_text())
-            weapon_name = self.convert_name(td_tag_list[2])
+            weapon_name, weapon_url = self.convert_name(td_tag_list[2])
+            self.url_hash[weapon_url] = weapon_id
 
             # スペック情報は「Stats」列から読み取れる
             weapon_spec = self.convert_spec(td_tag_list[4])
@@ -136,7 +139,8 @@ class WeaponService:
             weapon_id = int(td_tag_list[0].inner_text())
 
             # 装備名を読み取る
-            weapon_name = self.convert_name(td_tag_list[2])
+            weapon_name, weapon_url = self.convert_name(td_tag_list[2])
+            self.url_hash[weapon_url] = weapon_id
 
             # スペック情報は「Stats」列から読み取れる
             weapon_spec = self.convert_spec(td_tag_list[4])
@@ -158,6 +162,44 @@ class WeaponService:
             self.weapon_list.append(Weapon(weapon_id, weapon_type.id, weapon_name, weapon_aa, weapon_accuracy,
                                            weapon_interception, weapon_radius, False, weapon_attack, weapon_torpedo,
                                            weapon_anti_sub, weapon_bomber))
+
+    def find_by_id(self, key: int) -> Weapon:
+        """IDから装備種情報を検索する
+            (ヒットしない場合は「その他」扱いにする)
+
+        Parameters
+        ----------
+        key
+            ID
+
+        Returns
+        -------
+            装備種情報
+        """
+
+        result = [x for x in self.weapon_list if x.id == key]
+        if len(result) == 0:
+            return self.find_by_id(0)
+        return result[0]
+
+    def find_by_url(self, key: str) -> Weapon:
+        """URLから装備種情報を検索する
+            (ヒットしない場合は「その他」扱いにする)
+
+        Parameters
+        ----------
+        key
+            ID
+
+        Returns
+        -------
+            装備種情報
+        """
+
+        if key in self.url_hash:
+            return self.find_by_id(self.url_hash[key])
+        else:
+            return self.find_by_id(0)
 
     def dump_to_db(self):
         # テーブルを新規作成する

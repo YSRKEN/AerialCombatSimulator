@@ -45,7 +45,7 @@ def main():
 
     # 艦娘を読み込み、DBにダンプする
     print('艦娘を読み込み、DBにダンプ...')
-    ks = KammusuService(dbs, doms, https, kts)
+    ks = KammusuService(dbs, doms, https, ws, kts)
     print('  艦娘を読み込み...')
     ks.crawl_kammusu()
     print('  深海棲艦を読み込み...')

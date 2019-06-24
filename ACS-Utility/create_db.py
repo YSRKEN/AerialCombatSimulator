@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import json
 import os
 import re
 import urllib.request
@@ -10,52 +9,6 @@ import lxml.cssselect
 import lxml.html
 import pandas
 from bs4 import BeautifulSoup
-
-
-def calc_kammusu_aa(td_tag) -> int:
-    """艦娘の対空値を算出する
-    """
-    temp = td_tag.text
-    if 'nil' in temp:
-        return -1
-    return int(temp)
-
-
-def calc_kammusu_slot(td_tag):
-    """艦娘の搭載数を算出する
-    """
-
-    # 搭載数を読み取る
-    raw_slot = td_tag.text.replace("\n", '').split(',')
-    slot_size = len(raw_slot)
-
-    # 要素が空っぽだった場合の処理
-    if slot_size == 1 and raw_slot[0] == '':
-        return 0, [0, 0, 0, 0, 0]
-
-    # 要素にイレギュラーな値が入っていた場合の処理
-    if slot_size >= 1 and raw_slot[0] == '?':
-        return -1, [0, 0, 0, 0, 0]
-
-    # 搭載数をmapで計算(その過程で、NBSPとかいう害悪でしか無いクソ文字を削除している)
-    slot = list(map(lambda x: int(x.replace("\xa0", '')), raw_slot))
-
-    # 配列slotの要素が5つになるように調整
-    for _ in range(0, 5 - slot_size):
-        slot.append(0)
-
-    return slot_size, slot
-
-
-def calc_kammusu_weapon(td_tag, weapon_url_id_dict) -> List[int]:
-    result = [0, 0, 0, 0, 0]
-    href_list = list(map(lambda x: x['href'], td_tag.select('a')))
-    index = 0
-    for href in href_list:
-        if href in weapon_url_id_dict:
-            result[index] = weapon_url_id_dict[href]
-        index += 1
-    return result
 
 
 def crawl_enemy_kammusu_data() -> List[any]:

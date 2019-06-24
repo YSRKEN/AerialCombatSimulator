@@ -2,23 +2,23 @@ import json
 from pprint import pprint
 from typing import List
 
-import requests
-
 from model.kammusu import Kammusu
 from service.http import HttpService
 from service.i_database import DatabaseService
 from service.i_dom import DomService
 from service.kammusu_type import KammusuTypeService
+from service.weapon import WeaponService
 
 
 class KammusuService:
     """艦娘一覧のためのサービスクラス
     """
 
-    def __init__(self, dbs: DatabaseService, doms: DomService, https: HttpService, kts: KammusuTypeService):
+    def __init__(self, dbs: DatabaseService, doms: DomService, https: HttpService, ws: WeaponService, kts: KammusuTypeService):
         self.dbs = dbs
         self.doms = doms
         self.https = https
+        self.ws = ws
         self.kts = kts
         self.kammusu_list: List[Kammusu] = [Kammusu(0, 0, '', 0, 0, [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], True, 0, 0, 0)]
 
@@ -74,7 +74,66 @@ class KammusuService:
                                              kammusu_anti_sub))
 
     def crawl_enemy(self):
-        pass
+        # DOMを読み込む
+        root_dom = self.doms.create_dom_from_url('https://kancolle.fandom.com/wiki/Enemy_Vessels/Full')
+
+        # テーブルを1行づつ読み込む
+        for tr_tag in root_dom.select_many('table.wikitable tr'):
+            # 不要な行を飛ばす
+            td_tag_list = tr_tag.select_many('td')
+            if len(td_tag_list) < 20:
+                continue
+
+            # 艦船ID
+            enemy_id = int(td_tag_list[1].inner_text())
+
+            # 艦種
+            enemy_type = self.kts.find_by_wikia_name(td_tag_list[0].inner_text().replace(' ', '').replace('\n', ''))
+
+            # 艦名
+            enemy_name = td_tag_list[4].inner_text().replace('\n', '')
+
+            # 対空
+            enemy_aa_str = td_tag_list[9].inner_text()
+            if 'nil' in enemy_aa_str:
+                continue
+            enemy_aa = int(enemy_aa_str)
+
+            # スロット
+            if td_tag_list[18].inner_text() == '\n':
+                enemy_slot = []
+            else:
+                enemy_slot = [int(x.replace('\n', '')) for x in td_tag_list[18].inner_text().split(',')]
+            enemy_slot_size = len(enemy_slot)
+            for _ in range(enemy_slot_size, 5):
+                enemy_slot.append(0)
+
+            # 初期装備
+            enemy_weapon = [self.ws.find_by_url(x.attribute('href', '').replace('/wiki/', '')).id for x in td_tag_list[19].select_many('a')]
+            for _ in range(enemy_slot_size, 5):
+                enemy_weapon.append(0)
+
+            # 火力
+            enemy_attack_str = td_tag_list[7].inner_text()
+            if 'nil' in enemy_attack_str:
+                continue
+            enemy_attack = int(enemy_attack_str)
+
+            # 雷装
+            enemy_torpedo_str = td_tag_list[8].inner_text()
+            if 'nil' in enemy_torpedo_str:
+                continue
+            enemy_torpedo = int(enemy_torpedo_str)
+
+            # 対潜
+            enemy_anti_sub_str = td_tag_list[11].inner_text()
+            if 'nil' in enemy_anti_sub_str:
+                continue
+            enemy_anti_sub = int(enemy_anti_sub_str)
+
+            self.kammusu_list.append(Kammusu(enemy_id, enemy_type.id, enemy_name, enemy_aa, enemy_slot_size,
+                                             enemy_slot, enemy_weapon, False, enemy_attack, enemy_torpedo,
+                                             enemy_anti_sub))
 
     def dump_to_db(self):
         pprint(self.kammusu_list)

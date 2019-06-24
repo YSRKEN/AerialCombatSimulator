@@ -38,6 +38,27 @@ class KammusuTypeService:
         temp = result.to_dict(orient='records')[0]
         return KammusuType(**temp)
 
+    def find_by_wikia_name(self, key: str) -> KammusuType:
+        """Wikiaにおける登録名から艦種情報を検索する
+            (ヒットしない場合は「その他」扱いにする)
+
+        Parameters
+        ----------
+        key
+            艦種名
+
+        Returns
+        -------
+            艦種情報
+        """
+
+        # 特殊処理
+        result = self.df.query(f"wikia_name == '{key}'")
+        if len(result) == 0:
+            raise Exception(f'不明な艦種名({key})です')
+        temp = result.to_dict(orient='records')[0]
+        return KammusuType(**temp)
+
     def dump_to_db(self):
         # テーブルを新規作成する
         self.dbs.execute('DROP TABLE IF EXISTS kammusu_type')
