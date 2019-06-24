@@ -1,4 +1,5 @@
 import json
+import re
 from pprint import pprint
 from typing import List
 
@@ -91,7 +92,7 @@ class KammusuService:
             enemy_type = self.kts.find_by_wikia_name(td_tag_list[0].inner_text().replace(' ', '').replace('\n', ''))
 
             # 艦名
-            enemy_name = td_tag_list[4].inner_text().replace('\n', '')
+            enemy_name = re.sub('(^ |\n)', '', td_tag_list[4].inner_text())
 
             # 対空
             enemy_aa_str = td_tag_list[9].inner_text()
@@ -136,8 +137,6 @@ class KammusuService:
                                              enemy_anti_sub))
 
     def dump_to_db(self):
-        pprint(self.kammusu_list)
-
         # テーブルを新規作成する
         self.dbs.execute('DROP TABLE IF EXISTS kammusu')
         command = '''CREATE TABLE kammusu (

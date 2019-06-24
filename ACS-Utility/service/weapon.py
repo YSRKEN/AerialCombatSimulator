@@ -1,7 +1,6 @@
 import re
-from pprint import pprint
-from typing import List, Dict, Tuple
 import urllib.parse
+from typing import List, Dict, Tuple
 
 from model.i_dom import Dom
 from model.weapon import Weapon
