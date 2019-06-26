@@ -1,5 +1,6 @@
 import time
 
+from service.formation_category import FormationCategoryService
 from service.http import HttpService
 from service.i_dom import DomService
 from service.kammusu import KammusuService
@@ -59,6 +60,11 @@ def main():
     ms = MapService(dbs, doms)
     ms.crawl()
     ms.dump_to_db()
+
+    # 陣形カテゴリを読み込み、DBにダンプする
+    print('陣形カテゴリを読み込み、DBにダンプ...')
+    fcs = FormationCategoryService(dbs)
+    fcs.dump_to_db()
 
     print('完了.')
 

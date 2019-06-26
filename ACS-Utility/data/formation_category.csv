@@ -1,0 +1,11 @@
+id,name,wikia_alt_name,wikia_span_name
+1,単縦陣,LineAhead,Line Ahead
+2,複縦陣,DoubleLine,Double Line
+3,輪形陣,Diamond,Diamond
+4,梯形陣,Echelon,Echelon
+5,単横陣,LineAbreast,Line Abreast
+6,警戒陣,Vanguard,Vanguard
+15,第一警戒航行序列(対潜警戒),Formation 1,CruisingFormation 1
+12,第二警戒航行序列(前方警戒),Formation 2,CruisingFormation 2
+13,第三警戒航行序列(輪形陣),Formation 3,CruisingFormation 3
+11,第四警戒航行序列(戦闘隊形),Formation 4,CruisingFormation 4

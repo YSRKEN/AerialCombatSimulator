@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import os
 import re
 import urllib.request
 from typing import List
 
 import lxml.cssselect
 import lxml.html
-import pandas
 
 
 def crawl_position_data(cursor) -> List[any]:
@@ -175,34 +173,6 @@ def create_position_table(cursor) -> None:
     command = '''INSERT INTO position (map, name, unit_index, final_flg, formation, enemy) VALUES (?,?,?,?,?,?)'''
     map_data = crawl_position_data(cursor)
     cursor.executemany(command, map_data)
-
-
-def create_formation_category_table(cursor) -> None:
-    """ 陣形カテゴリテーブルを作成する
-    """
-    # 陣形カテゴリテーブルを作成する
-    if has_table(cursor, 'formation_category'):
-        cursor.execute('DROP TABLE formation_category')
-    command = '''CREATE TABLE [formation_category] (
-                [id] INTEGER NOT NULL UNIQUE,
-                [category] TEXT NOT NULL,
-                PRIMARY KEY([id]))'''
-    cursor.execute(command)
-
-    # 陣形カテゴリテーブルにデータを追加する
-    command = 'INSERT INTO formation_category (id, category) VALUES (?,?)'
-    formation_category_df = pandas.read_csv(os.path.join(ROOT_DIRECTORY, 'formation_category.csv'))
-    data = list(map(lambda x: (x[0], x[1]), formation_category_df.values))
-    cursor.executemany(command, data)
-    connect.commit()
-
-    # マップテーブルを作成する
-    print('マップテーブルを作成...')
-    create_map_table(cursor)
-
-    # 陣形カテゴリテーブルを作成する
-    print('陣形カテゴリテーブルを作成...')
-    create_formation_category_table(cursor)
 
     # マステーブルを作成する
     print('マステーブルを作成...')
