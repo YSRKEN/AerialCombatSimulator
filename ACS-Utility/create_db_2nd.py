@@ -69,5 +69,5 @@ if __name__ == '__main__':
     elapsed_time = time.time() - start_time
     print(f'{elapsed_time}[s]')
 
-# キャッシュ前→142.5[s]
-# キャッシュ後→34.3[s]
+# キャッシュ前→93.5[s]
+# キャッシュ後→37.5[s]

@@ -65,6 +65,30 @@ class MapService:
             image_url = re.sub('\.png.*', '.png', image_url)
             return image_url
 
+    @staticmethod
+    def get_event_url(dom: Dom) -> str:
+        """DOMをパースして、最新イベントのURLを取得する
+
+        Parameters
+        ----------
+        dom
+            DOM
+
+        Returns
+        -------
+            [(マップ名, URL)]
+        """
+        event_url = ''
+        for record in dom.select_many('tr'):
+            td_list = record.select_many('td')
+            if len(td_list) < 7:
+                continue
+            temp = td_list[0].select_many('b')
+            if len(temp) < 1:
+                continue
+            event_url = temp[0].select('a').attribute('href', '')
+        return f'https://kancolle.fandom.com{event_url}'
+
     def crawl(self):
         # 通常海域
         map_index = 1
@@ -81,6 +105,16 @@ class MapService:
                         for x in text_link_list]
             self.map_list += map_list
             map_index += 1
+
+        # 限定海域
+        dom = self.doms.create_dom_from_url('https://kancolle.fandom.com/wiki/Events/Main')
+        event_url = self.get_event_url(dom)
+        event_dom = self.doms.create_dom_from_url(event_url)
+        text_link_list = self.parse_map_text_link(event_dom)
+        text_link_list = [x for x in text_link_list if x[0][0:2] == 'E-']
+        map_list = [Map(name=x[0], info_url=x[1], image_url=self.get_image_url(self.doms.create_dom_from_url(x[1])))
+                    for x in text_link_list]
+        self.map_list += map_list
 
     def dump_to_db(self):
         # テーブルを新規作成する
