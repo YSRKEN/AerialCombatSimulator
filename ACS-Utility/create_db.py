@@ -11,100 +11,6 @@ import pandas
 from bs4 import BeautifulSoup
 
 
-def crawl_enemy_kammusu_data() -> List[any]:
-    """深海棲艦一覧をクロールして作成する
-    """
-
-    # 装備種一覧を読み込んでおく
-    kammusu_type_dict, kammusu_type_wikia_dict = get_kammusu_type_dict()
-
-    # まず、深海装備のURLとIDとの対応表を入手する
-    weapon_url_id_dict = {}
-    with urllib.request.urlopen('http://kancolle.wikia.com/wiki/List_of_equipment_used_by_the_enemy') as request:
-        # 取得、パース
-        soup: BeautifulSoup = BeautifulSoup(request.read(), 'html.parser')
-        tr_tag_list = soup.select("table.wikitable tr")
-
-        # 1行づつ読み取っていく
-        for trTag in tr_tag_list:
-            # 関係ない行は無視する
-            td_tag_list = trTag.select("td")
-            if len(td_tag_list) < 6:
-                continue
-
-            # 装備IDを読み取る
-            id = int(td_tag_list[0].text)
-
-            # URLを読み取る
-            url = td_tag_list[2].select("a")[0]['href']
-            weapon_url_id_dict[url] = id
-
-    # 次に、深海棲艦のスペックを読み取って記録する
-    kammusu_data = []
-    with urllib.request.urlopen('http://kancolle.wikia.com/wiki/Enemy_Vessels/Full') as request:
-        # 取得、パース
-        soup: BeautifulSoup = BeautifulSoup(request.read(), 'html.parser')
-        tr_tag_list = soup.select("div tr")
-
-        # 1行づつ読み取っていく
-        for trTag in tr_tag_list:
-            # 関係ない行は無視する
-            td_tag_list = trTag.select("td")
-            if len(td_tag_list) < 20:
-                continue
-
-            # 艦船IDを読み取る
-            id = int(td_tag_list[1].text)
-
-            # 艦種を読み取る
-            kammusu_type = kammusu_type_wikia_dict[td_tag_list[0].text.replace("\n", '').replace(' ', '')]
-
-            # 艦名を読み取る
-            name = td_tag_list[4].text.replace("\n", '').replace(' ', '')
-
-            # 対空を読み取る
-            aa = calc_kammusu_aa(td_tag_list[9])
-            if aa < 0:
-                continue
-
-            # 火力を読み取る
-            attack = calc_kammusu_aa(td_tag_list[7])
-            if attack < 0:
-                continue
-
-            # 雷装を読み取る
-            torpedo = calc_kammusu_aa(td_tag_list[8])
-            if torpedo < 0:
-                continue
-
-            # 対潜を読み取る
-            antisub = calc_kammusu_aa(td_tag_list[11])
-
-            # スロットを読み取る
-            slot_size, slot = calc_kammusu_slot(td_tag_list[18])
-            if slot_size < 0:
-                continue
-
-            # 艦種を補正する
-            if kammusu_type == kammusu_type_wikia_dict['DD'] and 'PT' in name:
-                kammusu_type = kammusu_type_wikia_dict['PT']
-            if kammusu_type == kammusu_type_wikia_dict['BBV']:
-                speed = int(td_tag_list[14].text)
-                if speed == 0:
-                    kammusu_type = kammusu_type_wikia_dict['AF']
-
-            # 装備情報を読み取る
-            weapon = calc_kammusu_weapon(td_tag_list[19], weapon_url_id_dict)
-
-            data = (id, kammusu_type, name, aa, slot_size,
-                    slot[0], slot[1], slot[2], slot[3], slot[4],
-                    weapon[0], weapon[1], weapon[2], weapon[3], weapon[4],
-                    0, attack, torpedo, antisub)
-            kammusu_data.append(data)
-
-    return kammusu_data
-
-
 def crawl_map_data() -> List[any]:
     """マップ一覧をWebクロールして作成する
     """
@@ -190,25 +96,6 @@ def crawl_map_data() -> List[any]:
                 map_data2.append((pair[0], pair[1], image_url))
             print(f'{pair[0]} - {image_url}')
     return map_data2
-
-
-def create_map_table(cursor) -> None:
-    """ マップテーブルを作成する
-    """
-    # マップテーブルを作成する
-    if has_table(cursor, 'map'):
-        cursor.execute('DROP TABLE map')
-    command = '''CREATE TABLE [map] (
-                [name] TEXT NOT NULL UNIQUE,
-                [info_url] TEXT NOT NULL UNIQUE,
-                [image_url] TEXT NOT NULL UNIQUE,
-                PRIMARY KEY([name]))'''
-    cursor.execute(command)
-
-    # マップテーブルにデータを追加する
-    command = '''INSERT INTO map (name, info_url, image_url) VALUES (?,?,?)'''
-    map_data = crawl_map_data()
-    cursor.executemany(command, map_data)
 
 
 def crawl_position_data(cursor) -> List[any]:
@@ -396,14 +283,6 @@ def create_formation_category_table(cursor) -> None:
     data = list(map(lambda x: (x[0], x[1]), formation_category_df.values))
     cursor.executemany(command, data)
     connect.commit()
-
-    # 艦種テーブルを作成する
-    print('艦種テーブルを作成...')
-    create_kammusu_type_table(cursor)
-
-    # 艦娘テーブルを作成する
-    print('艦娘テーブルを作成...')
-    create_kammusu_table(cursor)
 
     # マップテーブルを作成する
     print('マップテーブルを作成...')

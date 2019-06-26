@@ -5,6 +5,7 @@ from service.i_dom import DomService
 from service.kammusu import KammusuService
 from service.kammusu_type import KammusuTypeService
 from service.lxml_dom import LxmlDomService
+from service.map import MapService
 from service.sqlite import SQLiteService
 from service.weapon import WeaponService
 from service.weapon_category import WeaponCategoryService
@@ -52,6 +53,12 @@ def main():
     ks.crawl_enemy()
     print('  DBにダンプ...')
     ks.dump_to_db()
+
+    # マップ一覧を読み込み、DBにダンプする
+    print('マップ一覧を読み込み、DBにダンプ...')
+    ms = MapService(dbs, doms)
+    ms.crawl()
+    ms.dump_to_db()
 
     print('完了.')
 

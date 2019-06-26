@@ -13,4 +13,7 @@ class LxmlDomService(DomService):
         self.https = https
 
     def create_dom_from_url(self, url: str, encoding: str = 'UTF-8') -> Union[None, Dom]:
-        return LxmlDom(lxml.html.fromstring(self.https.read_text_from_url(url, encoding)))
+        html_text = self.https.read_text_from_url(url, encoding)
+        if html_text == '':
+            return None
+        return LxmlDom(lxml.html.fromstring(html_text))

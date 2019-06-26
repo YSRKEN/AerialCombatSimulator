@@ -11,7 +11,10 @@ class HttpService:
     @staticmethod
     def read_text_from_url(url: str, encoding: str) -> str:
         # キャッシュにデータが存在するかを確認する
-        last_modified = parse_date(requests.head(url).headers.get('last-modified'))
+        response = requests.head(url)
+        if response.status_code >= 400:
+            return ''
+        last_modified = parse_date(response.headers.get('last-modified'))
         timestamp = int(last_modified.timestamp()) * 10 ** 6 + last_modified.microsecond
         cache_path = os.path.join(CACHE_PATH, hashlib.md5((url + f',{timestamp}').encode()).hexdigest())
         if os.path.exists(cache_path):
