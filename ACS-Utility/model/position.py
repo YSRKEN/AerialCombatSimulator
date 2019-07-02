@@ -7,4 +7,5 @@ class Position:
     map: int
     name: str
     final_flg: bool
+    map_level: int
     formation: int

@@ -80,7 +80,7 @@ class MapService:
         event_url = ''
         for record in dom.select_many('tr'):
             td_list = record.select_many('td')
-            if len(td_list) < 7:
+            if len(td_list) < 6:
                 continue
             temp = td_list[0].select_many('b')
             if len(temp) < 1:
@@ -110,6 +110,7 @@ class MapService:
         # 限定海域
         dom = self.doms.create_dom_from_url('https://kancolle.fandom.com/wiki/Events/Main')
         event_url = self.get_event_url(dom)
+        print(f'　イベントURL：{event_url}')
         event_dom = self.doms.create_dom_from_url(event_url)
         text_link_list = self.parse_map_text_link(event_dom)
         text_link_list = [x for x in text_link_list if x[0][0:2] == 'E-']

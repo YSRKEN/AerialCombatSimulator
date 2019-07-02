@@ -13,11 +13,18 @@ from service.weapon import WeaponService
 from service.weapon_category import WeaponCategoryService
 from service.weapon_type import WeaponTypeService
 
+WEAPON_FLG = False
+KAMMUSU_FLG = False
+
 
 def main():
-    # データベースを初期化
+    # 基本部分を初期化
     print('データベースを初期化...')
     dbs = SQLiteService()
+    print('Webサービスを初期化...')
+    https = HttpService()
+    print('パーサーを初期化...')
+    doms: DomService = LxmlDomService(https)
 
     # 装備種を読み込み、DBにダンプする
     print('装備種を読み込み、DBにダンプ...')
@@ -29,43 +36,47 @@ def main():
     wcs = WeaponCategoryService(dbs)
     wcs.dump_to_db()
 
-    # 装備を読み込み、DBにダンプする
-    print('装備を読み込み、DBにダンプ...')
-    https = HttpService()
-    doms: DomService = LxmlDomService(https)
-    ws = WeaponService(dbs, doms, wts, wcs)
-    print('  艦娘の装備を読み込み...')
-    ws.crawl_for_kammusu()
-    print('  深海棲艦の装備を読み込み...')
-    ws.crawl_for_enemy()
-    print('  DBにダンプ...')
-    ws.dump_to_db()
-
     # 艦種を読み込み、DBにダンプする
     print('艦種を読み込み、DBにダンプ...')
     kts = KammusuTypeService(dbs)
     kts.dump_to_db()
 
+    # 陣形カテゴリを読み込み、DBにダンプする
+    print('陣形カテゴリを読み込み、DBにダンプ...')
+    fcs = FormationCategoryService(dbs)
+    fcs.dump_to_db()
+
+    # 装備を読み込み、DBにダンプする
+    if WEAPON_FLG:
+        print('装備を読み込み、DBにダンプ...')
+        ws = WeaponService(dbs, doms, wts, wcs)
+        print('  艦娘の装備を読み込み...')
+        ws.crawl_for_kammusu()
+        print('  深海棲艦の装備を読み込み...')
+        ws.crawl_for_enemy()
+        print('  DBにダンプ...')
+        ws.dump_to_db()
+    else:
+        ws = WeaponService(dbs, doms, wts, wcs)
+
     # 艦娘を読み込み、DBにダンプする
-    print('艦娘を読み込み、DBにダンプ...')
-    ks = KammusuService(dbs, doms, https, ws, kts)
-    print('  艦娘を読み込み...')
-    ks.crawl_kammusu()
-    print('  深海棲艦を読み込み...')
-    ks.crawl_enemy()
-    print('  DBにダンプ...')
-    ks.dump_to_db()
+    if KAMMUSU_FLG:
+        print('艦娘を読み込み、DBにダンプ...')
+        ks = KammusuService(dbs, doms, https, ws, kts)
+        print('  艦娘を読み込み...')
+        ks.crawl_kammusu()
+        print('  深海棲艦を読み込み...')
+        ks.crawl_enemy()
+        print('  DBにダンプ...')
+        ks.dump_to_db()
+    else:
+        ks = KammusuService(dbs, doms, https, ws, kts)
 
     # マップ一覧を読み込み、DBにダンプする
     print('マップ一覧を読み込み、DBにダンプ...')
     ms = MapService(dbs, doms)
     ms.crawl()
     ms.dump_to_db()
-
-    # 陣形カテゴリを読み込み、DBにダンプする
-    print('陣形カテゴリを読み込み、DBにダンプ...')
-    fcs = FormationCategoryService(dbs)
-    fcs.dump_to_db()
 
     # マスを読み込み、DBにダンプする
     print('マスを読み込み、DBにダンプ...')
