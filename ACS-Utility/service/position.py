@@ -149,6 +149,7 @@ class PositionService:
         return output
 
     def crawl(self):
+        position_index = 1
         for map_data in self.ms.map_list:
             print(f'　{map_data.name}')
             dom = self.doms.create_dom_from_url(map_data.info_url)
@@ -159,7 +160,18 @@ class PositionService:
             # 「マップのマスと敵編成一覧」をパースして順次代入する
             for map_level_index, scrollable_div_tag in enumerate(scrollable_div_list):
                 raw_position_list = self.read_position_data(scrollable_div_tag)
-                pprint(raw_position_list)
+                for raw_position in raw_position_list:
+                    temp = Position(id=position_index, map=map_data.id, name=raw_position[0].name,
+                                    final_flg=raw_position[0].final_flg, map_level=map_level_index,
+                                    formation=raw_position[0].formation)
+                    self.position_list.append(temp)
+                    for fleet_index, fleet in enumerate(raw_position[1]):
+                        for unit_index, unit in enumerate(fleet):
+                            data = PositionFleet(position=position_index, fleet_index=fleet_index,
+                                                 unit_index=unit_index, enemy=unit)
+                            self.position_fleet_list.append(data)
+
+                    position_index += 1
 
     def dump_to_db(self):
         # テーブルを新規作成する
