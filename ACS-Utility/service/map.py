@@ -1,5 +1,4 @@
 import re
-from pprint import pprint
 from typing import List, Tuple
 
 from model.i_dom import Dom
@@ -91,9 +90,10 @@ class MapService:
 
     def crawl(self):
         # 通常海域
+        area_index = 1
         map_index = 1
         while True:
-            dom = self.doms.create_dom_from_url(f'https://kancolle.fandom.com/wiki/World_{map_index}')
+            dom = self.doms.create_dom_from_url(f'https://kancolle.fandom.com/wiki/World_{area_index}')
             if dom is None:
                 break
 
@@ -101,10 +101,11 @@ class MapService:
             text_link_list = self.parse_map_text_link(dom)
 
             # 対応するURLからマップ画像のURLを抽出
-            map_list = [Map(name=x[0], info_url=x[1], image_url=self.get_image_url(self.doms.create_dom_from_url(x[1])))
-                        for x in text_link_list]
+            map_list = [Map(id=map_index+index, name=x[0], info_url=x[1], image_url=self.get_image_url(self.doms.create_dom_from_url(x[1])))
+                        for index, x in enumerate(text_link_list)]
             self.map_list += map_list
-            map_index += 1
+            map_index += len(map_list)
+            area_index += 1
 
         # 限定海域
         dom = self.doms.create_dom_from_url('https://kancolle.fandom.com/wiki/Events/Main')
@@ -112,22 +113,24 @@ class MapService:
         event_dom = self.doms.create_dom_from_url(event_url)
         text_link_list = self.parse_map_text_link(event_dom)
         text_link_list = [x for x in text_link_list if x[0][0:2] == 'E-']
-        map_list = [Map(name=x[0], info_url=x[1], image_url=self.get_image_url(self.doms.create_dom_from_url(x[1])))
-                    for x in text_link_list]
+        map_list = [Map(id=map_index+index, name=x[0], info_url=x[1], image_url=self.get_image_url(self.doms.create_dom_from_url(x[1])))
+                    for index, x in enumerate(text_link_list)]
         self.map_list += map_list
+        map_index += len(map_list)
 
     def dump_to_db(self):
         # テーブルを新規作成する
         self.dbs.execute('DROP TABLE IF EXISTS map')
         command = '''CREATE TABLE map (
+                id INTEGER,
                 name TEXT NOT NULL UNIQUE,
                 info_url TEXT NOT NULL UNIQUE,
                 image_url TEXT NOT NULL UNIQUE,
-                PRIMARY KEY(name))'''
+                PRIMARY KEY(id))'''
         self.dbs.execute(command)
 
         # テーブルにデータを追加する
-        command = '''INSERT INTO map (name, info_url, image_url) VALUES (?,?,?)'''
-        data = [(x.name, x.info_url, x.image_url) for x in self.map_list]
+        command = '''INSERT INTO map (id, name, info_url, image_url) VALUES (?,?,?,?)'''
+        data = [(x.id, x.name, x.info_url, x.image_url) for x in self.map_list]
         self.dbs.executemany(command, data)
         self.dbs.commit()

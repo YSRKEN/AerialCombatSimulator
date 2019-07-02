@@ -1,6 +1,5 @@
 import json
 import re
-from pprint import pprint
 from typing import List
 
 from model.kammusu import Kammusu

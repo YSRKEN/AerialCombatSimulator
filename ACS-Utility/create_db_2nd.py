@@ -7,6 +7,7 @@ from service.kammusu import KammusuService
 from service.kammusu_type import KammusuTypeService
 from service.lxml_dom import LxmlDomService
 from service.map import MapService
+from service.position import PositionService
 from service.sqlite import SQLiteService
 from service.weapon import WeaponService
 from service.weapon_category import WeaponCategoryService
@@ -65,6 +66,12 @@ def main():
     print('陣形カテゴリを読み込み、DBにダンプ...')
     fcs = FormationCategoryService(dbs)
     fcs.dump_to_db()
+
+    # マスを読み込み、DBにダンプする
+    print('マスを読み込み、DBにダンプ...')
+    ps = PositionService(dbs, doms, ms, fcs)
+    ps.crawl()
+    ps.dump_to_db()
 
     print('完了.')
 
