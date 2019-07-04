@@ -178,11 +178,11 @@ class PositionService:
         self.dbs.execute('DROP TABLE IF EXISTS position')
         command = '''CREATE TABLE position (
                 id INTEGER,
-                map TEXT REFERENCES [map]([name]),
-                name TEXT,
+                map INTEGER REFERENCES [map]([id]),
+                name TEXT NOT NULL,
                 final_flg INTEGER NOT NULL,
                 map_level INTEGER NOT NULL,
-                formation INTEGER REFERENCES formation_category(id),
+                formation INTEGER REFERENCES [formation_category]([id]),
                 PRIMARY KEY(id))'''
         self.dbs.execute(command)
         self.dbs.execute('DROP TABLE IF EXISTS position_fleet')
@@ -198,7 +198,6 @@ class PositionService:
         command = '''INSERT INTO position (id,map,name,final_flg,map_level,formation) VALUES (?,?,?,?,?,?)'''
         data = [(x.id, x.map, x.name, x.final_flg, x.map_level, x.formation) for x in self.position_list]
         self.dbs.executemany(command, data)
-        self.dbs.commit()
 
         command = '''INSERT INTO position_fleet (position,fleet_index,unit_index,enemy) VALUES (?,?,?,?)'''
         data = [(x.position, x.fleet_index, x.unit_index, x.enemy) for x in self.position_fleet_list]

@@ -28,7 +28,7 @@ class FormationCategoryService:
         """
 
         result = self.df.query(f"wikia_alt_name == '{key}'")
-        return result['id'].values[0]
+        return int(result['id'].values[0])
 
     def find_by_wikia_span_name(self, key: str) -> int:
         """陣形カテゴリ名に当てはまる陣形カテゴリIDを返す
@@ -44,7 +44,7 @@ class FormationCategoryService:
         """
 
         result = self.df.query(f"wikia_span_name == '{key}'")
-        return result['id'].values[0]
+        return int(result['id'].values[0])
 
     def dump_to_db(self):
         # テーブルを新規作成する
