@@ -33,15 +33,25 @@ public class WeaponNames extends HttpServlet {
 		String for_kammusu_flg = request.getParameter("for_kammusu_flg");
 		System.out.println("/weapon-names?type=" + type + "&for_kammusu_flg=" + for_kammusu_flg);
 		
-		// クエリを実行する
-		String tempQuery1 = (for_kammusu_flg != null ? "WHERE for_kammusu_flg='" + for_kammusu_flg + "' " : "");
-		String tempQuery2 = (for_kammusu_flg != null ? "AND for_kammusu_flg='" + for_kammusu_flg + "' " : "");
-
 		List<Map<String, Object>> result;
-		if (type == null){
-			result = database.select("SELECT id, name FROM weapon " + tempQuery1 + "ORDER BY id");
+		if (type == null && for_kammusu_flg == null) {
+			result = database.select("SELECT id, name FROM weapon ORDER BY id");
+		} else if (type == null) {
+			result = database.select(
+					"SELECT id, name FROM weapon WHERE for_kammusu_flg=? ORDER BY id",
+					for_kammusu_flg
+			);
+		} else if (for_kammusu_flg == null) {
+			result = database.select(
+					"SELECT id, name FROM weapon WHERE type=? ORDER BY id",
+					type
+			);
 		} else {
-			result = database.select("SELECT id, name FROM weapon WHERE type = '" + type + "' " + tempQuery2 + "ORDER BY id");
+			result = database.select(
+					"SELECT id, name FROM weapon WHERE type=? AND for_kammusu_flg=? ORDER BY id",
+					type,
+					for_kammusu_flg
+			);
 		}
 		
 		// 結果をJSONで返却する

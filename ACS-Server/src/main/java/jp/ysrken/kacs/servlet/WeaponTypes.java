@@ -33,16 +33,26 @@ public class WeaponTypes extends HttpServlet {
 		String short_name_flg = request.getParameter("short_name_flg");
 		System.out.println("/weapon-types?category=" + category + "&short_name_flg=" + short_name_flg);
 		
-		// クエリを実行する
-		String tempQuery1 = (short_name_flg != null && short_name_flg.equals("1") ? "short_name as name" : "name");
-		String tempQuery2 = "WHERE weapon_type.name IN (SELECT type FROM weapon_category WHERE category=?)";
-
 		List<Map<String, Object>> result;
+		boolean useShortName = short_name_flg != null && short_name_flg.equals("1");
 		if (category == null || category.equals("Normal")){
-			result = database.select("SELECT id, " + tempQuery1 + " FROM weapon_type WHERE name <> 'なし' ORDER BY id");
+			if (useShortName) {
+				result = database.select("SELECT id, short_name as name FROM weapon_type WHERE name <> 'なし' ORDER BY id");
+			} else {
+				result = database.select("SELECT id, name FROM weapon_type WHERE name <> 'なし' ORDER BY id");
+			}
 		} else {
-			String query = "SELECT id, " + tempQuery1 + " FROM weapon_type " + tempQuery2 + "ORDER BY id";
-			result = database.select(query, category);
+			if (useShortName) {
+				result = database.select(
+						"SELECT id, short_name as name FROM weapon_type WHERE weapon_type.name IN (SELECT type FROM weapon_category WHERE category=?) ORDER BY id",
+						category
+				);
+			} else {
+				result = database.select(
+						"SELECT id, name FROM weapon_type WHERE weapon_type.name IN (SELECT type FROM weapon_category WHERE category=?) ORDER BY id",
+						category
+				);
+			}
 		}
 		
 		// 結果をJSONで返却する

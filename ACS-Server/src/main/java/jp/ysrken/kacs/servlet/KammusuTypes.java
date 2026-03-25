@@ -33,9 +33,13 @@ public class KammusuTypes extends HttpServlet {
 		System.out.println("/kammusu-types?short_name_flg=" + short_name_flg);
 		
 		// クエリを実行する
-		String tempQuery = (short_name_flg != null && short_name_flg.equals("1") ? "short_name as name" : "name");
-
-		List<Map<String, Object>> result = database.select("SELECT id, " + tempQuery + " FROM kammusu_type ORDER BY id");
+		boolean useShortName = short_name_flg != null && short_name_flg.equals("1");
+		List<Map<String, Object>> result;
+		if (useShortName) {
+			result = database.select("SELECT id, short_name as name FROM kammusu_type ORDER BY id");
+		} else {
+			result = database.select("SELECT id, name FROM kammusu_type ORDER BY id");
+		}
 		
 		// 結果をJSONで返却する
 		response.setContentType("text/json");

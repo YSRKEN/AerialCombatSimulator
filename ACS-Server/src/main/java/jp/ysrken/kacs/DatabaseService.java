@@ -53,11 +53,29 @@ public class DatabaseService {
 	 */
 	public ResultSet getResultSet(String query) throws SQLException {
 		// クエリを実行するための準備をする
-		Statement statement = connection.createStatement();
-		statement.setQueryTimeout(30);
+		PreparedStatement preparedStatement = connection.prepareStatement(query);
+		preparedStatement.setQueryTimeout(30);
 		
 		// SELECT文を発行する
-		return statement.executeQuery(query);
+		return preparedStatement.executeQuery();
+	}
+
+	/**
+	 * PreparedStatementに値を設定する
+	 *
+	 * @param preparedStatement PreparedStatement
+	 * @param index インデックス
+	 * @param param 設定する値
+	 * @throws SQLException
+	 */
+	private void setParameter(PreparedStatement preparedStatement, int index, Object param) throws SQLException {
+		if (param == null) {
+			preparedStatement.setObject(index, null);
+		} else if (param.getClass() == String.class) {
+			preparedStatement.setString(index, (String) param);
+		} else {
+			preparedStatement.setObject(index, param);
+		}
 	}
 	
 	/**
@@ -73,11 +91,28 @@ public class DatabaseService {
 		PreparedStatement preparedStatement = connection.prepareStatement(query);
 		preparedStatement.setQueryTimeout(30);
 		
-		if (param1.getClass() == String.class) {
-			preparedStatement.setString(1, (String) param1);
-		}else {
-			preparedStatement.setObject(1, param1);
-		}
+		setParameter(preparedStatement, 1, param1);
+		
+		// SELECT文を発行する
+		return preparedStatement.executeQuery();
+	}
+
+	/**
+	 * クエリの実行結果を返す
+	 *
+	 * @param query SQLクエリ
+	 * @param param1 パラメーター1
+	 * @param param2 パラメーター2
+	 * @return ResultSetを返す
+	 * @throws SQLException
+	 */
+	public <T,U> ResultSet getResultSet(String query, T param1, U param2) throws SQLException {
+		// クエリを実行するための準備をする
+		PreparedStatement preparedStatement = connection.prepareStatement(query);
+		preparedStatement.setQueryTimeout(30);
+
+		setParameter(preparedStatement, 1, param1);
+		setParameter(preparedStatement, 2, param2);
 		
 		// SELECT文を発行する
 		return preparedStatement.executeQuery();
@@ -98,23 +133,9 @@ public class DatabaseService {
 		PreparedStatement preparedStatement = connection.prepareStatement(query);
 		preparedStatement.setQueryTimeout(30);
 		
-		if (param1.getClass() == String.class) {
-			preparedStatement.setString(1, (String) param1);
-		}else {
-			preparedStatement.setObject(1, param1);
-		}
-		
-		if (param2.getClass() == String.class) {
-			preparedStatement.setString(2, (String) param2);
-		}else {
-			preparedStatement.setObject(2, param2);
-		}
-		
-		if (param3.getClass() == String.class) {
-			preparedStatement.setString(3, (String) param3);
-		}else {
-			preparedStatement.setObject(3, param3);
-		}
+		setParameter(preparedStatement, 1, param1);
+		setParameter(preparedStatement, 2, param2);
+		setParameter(preparedStatement, 3, param3);
 		
 		// SELECT文を発行する
 		return preparedStatement.executeQuery();
@@ -174,6 +195,27 @@ public class DatabaseService {
 			// クエリから結果を取得する
 			ResultSet rs = getResultSet(query, param1);
 			
+			// 結果をMapのListに変換する
+			return getResult(rs);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return new ArrayList<>();
+		}
+	}
+
+	/**
+	 * SELECTの結果を返す
+	 *
+	 * @param query SQLクエリ
+	 * @param param1 パラメーター1
+	 * @param param2 パラメーター2
+	 * @return SELECTした結果をMapのListで返す
+	 */
+	public <T,U> List<Map<String, Object>> select(String query, T param1, U param2) {
+		try {
+			// クエリから結果を取得する
+			ResultSet rs = getResultSet(query, param1, param2);
+
 			// 結果をMapのListに変換する
 			return getResult(rs);
 		} catch (SQLException e) {

@@ -35,15 +35,25 @@ public class KammusuNames extends HttpServlet {
 		String kammusu_flg = request.getParameter("kammusu_flg");
 		System.out.println("/kammusu-names?type=" + type + "&kammusu_flg=" + kammusu_flg);
 		
-		// クエリを実行する
-		String tempQuery1 = (kammusu_flg != null ? "WHERE kammusu_flg='" + kammusu_flg + "' " : "");
-		String tempQuery2 = (kammusu_flg != null ? "AND kammusu_flg='" + kammusu_flg + "' " : "");
-
 		List<Map<String, Object>> result;
-		if (type == null){
-			result = database.select("SELECT id, name, slotsize, slot1, slot2, slot3, slot4, slot5 FROM kammusu " + tempQuery1 + "ORDER BY id");
+		if (type == null && kammusu_flg == null) {
+			result = database.select("SELECT id, name, slotsize, slot1, slot2, slot3, slot4, slot5 FROM kammusu ORDER BY id");
+		} else if (type == null) {
+			result = database.select(
+					"SELECT id, name, slotsize, slot1, slot2, slot3, slot4, slot5 FROM kammusu WHERE kammusu_flg=? ORDER BY id",
+					kammusu_flg
+			);
+		} else if (kammusu_flg == null) {
+			result = database.select(
+					"SELECT id, name, slotsize, slot1, slot2, slot3, slot4, slot5 FROM kammusu WHERE type=? ORDER BY id",
+					type
+			);
 		} else {
-			result = database.select("SELECT id, name, slotsize, slot1, slot2, slot3, slot4, slot5 FROM kammusu WHERE type = '" + type + "' " + tempQuery2 + "ORDER BY id");
+			result = database.select(
+					"SELECT id, name, slotsize, slot1, slot2, slot3, slot4, slot5 FROM kammusu WHERE type=? AND kammusu_flg=? ORDER BY id",
+					type,
+					kammusu_flg
+			);
 		}
 		
 		// 返却用に加工を施す
