@@ -13,8 +13,8 @@ from service.weapon import WeaponService
 from service.weapon_category import WeaponCategoryService
 from service.weapon_type import WeaponTypeService
 
-WEAPON_FLG = False
-KAMMUSU_FLG = False
+WEAPON_FLG = True
+KAMMUSU_FLG = True
 
 
 def main():
@@ -93,5 +93,5 @@ if __name__ == '__main__':
     elapsed_time = time.time() - start_time
     print(f'{elapsed_time}[s]')
 
-# キャッシュ前→93.5[s]
-# キャッシュ後→37.5[s]
+# キャッシュ前→306.32716965675354[s]
+# キャッシュ後→52.868618965148926[s]
