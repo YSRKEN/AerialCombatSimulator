@@ -87,3 +87,33 @@
   - After: npm audit vulnerabilities `0`
 - Remaining issues:
   - ビルド時の warning（unused ts entry / CommonJS dependency）は残るが、セキュリティ警告ではない
+
+## 2026-03-26 Batch 4: Bootstrap 5 integration validation branch
+- Targets:
+  - Integrate Dependabot PR #70 equivalent update (`bootstrap 4.6.2 -> 5.0.0`) on validation branch
+  - Absorb Bootstrap 4 -> 5 template compatibility changes in the same batch
+- Changes:
+  - Updated frontend dependency:
+    - `bootstrap: ^5.0.0`
+  - Reviewed jQuery/Popper handling and removed direct dependencies:
+    - removed `jquery` and `popper.js` from `ACS-Frontend/package.json`
+  - Updated Angular CLI script loading to Bootstrap 5 bundle:
+    - `bootstrap.bundle.min.js` only (removed jquery/popover script chain)
+  - Applied template compatibility fixes:
+    - `data-toggle` / `data-target` -> `data-bs-toggle` / `data-bs-target`
+    - `mr-*` / `mr-auto` -> `me-*` / `me-auto`
+- Verification:
+  - Frontend:
+    - `npm install`: success
+    - `npm audit`: `0` vulnerabilities
+    - `npm run build`: success
+    - `npm test -- --watch=false --browsers=ChromeHeadless`: success (`16 passed / 0 failed`)
+  - Server:
+    - `mvn test`: success
+    - `mvn package`: success
+- Alert counts:
+  - Before: Dependabot `0`, Code scanning `0`
+  - After: Dependabot `0`, Code scanning `0`
+- Remaining issues:
+  - Build-time warning（unused ts entry / CommonJS dependency）は継続（機能・セキュリティへの直接影響なし）
+  - Dependabot PR #70 はこの統合PRで吸収予定（重複回避で close）
