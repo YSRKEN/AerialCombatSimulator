@@ -5,6 +5,7 @@ import { RestApiService } from 'src/app/service/rest-api.service';
 
 @Component({
   selector: 'app-lbasunit',
+  standalone: false,
   templateUrl: './lbasunit.component.html',
   styleUrls: ['./lbasunit.component.scss']
 })

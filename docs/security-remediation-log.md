@@ -20,3 +20,29 @@
   - After: Pending frontend remediation batches
 - Remaining issues:
   - All 27 open alerts are npm alerts in `ACS-Frontend`
+
+## 2026-03-26 Batch 1: Frontend dependency major refresh (initial cut)
+- Targets:
+  - Refresh Angular/npm dependency tree to reduce known vulnerable transitive packages
+  - Remove deprecated frontend dependencies that block modern upgrades
+- Changes:
+  - Updated `ACS-Frontend/package.json` and regenerated `package-lock.json`
+  - Removed `@angular/http`
+  - Updated Angular toolchain and core packages to modern versions
+  - Updated `rxjs` / `zone.js` / `typescript` and test tooling
+  - Updated migration-related files:
+    - `ACS-Frontend/src/polyfills.ts`
+    - `ACS-Frontend/src/app/app.module.ts`
+    - `ACS-Frontend/src/test.ts`
+    - `ACS-Frontend/src/tsconfig.spec.json`
+    - `ACS-Frontend/tsconfig.json`
+- Verification:
+  - `npm run build`: success
+  - `npm test -- --watch=false --browsers=ChromeHeadless`: failed (`3 failed / 13 passed`)
+  - `npm audit`: total `10` (`moderate: 7`, `high: 3`)
+- Alert counts:
+  - Before: Dependabot `27`, Code scanning `0`
+  - After: Frontend audit vulnerabilities `10` (master Dependabot count verification pending next sync)
+- Remaining issues:
+  - Test failures remain in component spec setup (unknown element/binding assumptions and one stale assertion)
+  - Remaining npm vulnerabilities will be handled in next batches

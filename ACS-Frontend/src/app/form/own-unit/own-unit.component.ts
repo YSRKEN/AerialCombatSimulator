@@ -4,6 +4,7 @@ import { RestApiService } from '../../service/rest-api.service';
 
 @Component({
   selector: 'app-own-unit',
+  standalone: false,
   templateUrl: './own-unit.component.html',
   styleUrls: ['./own-unit.component.scss']
 })

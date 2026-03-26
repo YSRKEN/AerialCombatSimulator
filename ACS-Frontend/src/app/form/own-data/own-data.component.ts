@@ -5,6 +5,7 @@ import { RestApiService } from 'src/app/service/rest-api.service';
 
 @Component({
   selector: 'app-own-data',
+  standalone: false,
   templateUrl: './own-data.component.html',
   styleUrls: ['./own-data.component.scss']
 })

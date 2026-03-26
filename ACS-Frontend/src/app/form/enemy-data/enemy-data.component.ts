@@ -4,6 +4,7 @@ import { RestApiService } from '../../service/rest-api.service';
 
 @Component({
   selector: 'app-enemy-data',
+  standalone: false,
   templateUrl: './enemy-data.component.html',
   styleUrls: ['./enemy-data.component.scss']
 })

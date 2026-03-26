@@ -34,7 +34,7 @@ import { RestApiService } from './service/rest-api.service';
     WeaponSelectorComponent
   ],
   imports: [
-    BrowserModule.withServerTransition({ appId: 'serverApp' }),
+    BrowserModule,
     AppRoutingModule,
     ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
     RouterModule,

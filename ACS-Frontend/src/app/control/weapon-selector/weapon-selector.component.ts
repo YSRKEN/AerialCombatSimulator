@@ -4,6 +4,7 @@ import { RestApiService } from '../../service/rest-api.service';
 
 @Component({
   selector: 'app-weapon-selector',
+  standalone: false,
   templateUrl: './weapon-selector.component.html',
   styleUrls: ['./weapon-selector.component.scss']
 })

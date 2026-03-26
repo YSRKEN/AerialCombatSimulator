@@ -7,6 +7,7 @@ import { UtilityService } from 'src/app/service/utility.service';
 
 @Component({
   selector: 'app-simulation-result',
+  standalone: false,
   templateUrl: './simulation-result.component.html',
   styleUrls: ['./simulation-result.component.scss']
 })

@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WeaponSelectorComponent } from './weapon-selector.component';
 
@@ -6,7 +6,7 @@ describe('WeaponSelectorComponent', () => {
   let component: WeaponSelectorComponent;
   let fixture: ComponentFixture<WeaponSelectorComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ WeaponSelectorComponent ]
     })
