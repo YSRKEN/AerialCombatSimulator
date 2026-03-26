@@ -65,3 +65,25 @@
   - After: npm audit vulnerabilities `10` (test stabilization batchのため件数は据え置き)
 - Remaining issues:
   - npm vulnerabilities `10` の解消は依存更新の次バッチで継続
+
+## 2026-03-26 Batch 3: npm audit 10 -> 0 (override hardening)
+- Targets:
+  - 残存していた `picomatch` / `undici` 由来の脆弱性をゼロ化
+- Changes:
+  - `ACS-Frontend/package.json` に `overrides` を追加
+    - `picomatch: 4.0.4`
+    - `undici: 7.24.0`
+  - `package-lock.json` を再生成して依存木へ反映
+- Verification:
+  - Frontend
+    - `npm audit`: `0` vulnerabilities
+    - `npm run build`: success
+    - `npm test -- --watch=false --browsers=ChromeHeadless`: success (`16 passed / 0 failed`)
+  - Server
+    - `mvn test`: success
+    - `mvn package`: success
+- Alert counts:
+  - Before: npm audit vulnerabilities `10`
+  - After: npm audit vulnerabilities `0`
+- Remaining issues:
+  - ビルド時の warning（unused ts entry / CommonJS dependency）は残るが、セキュリティ警告ではない
