@@ -46,3 +46,22 @@
 - Remaining issues:
   - Test failures remain in component spec setup (unknown element/binding assumptions and one stale assertion)
   - Remaining npm vulnerabilities will be handled in next batches
+
+## 2026-03-26 Batch 2: Frontend spec stabilization after migration
+- Targets:
+  - Recover CI-equivalent test pass after Angular migration
+- Changes:
+  - Updated `ACS-Frontend/src/app/app.component.spec.ts` to match current template (`router-outlet`)
+  - Updated the following component specs to avoid template-coupled failures in create tests:
+    - `ACS-Frontend/src/app/form/lbasunit/lbasunit.component.spec.ts`
+    - `ACS-Frontend/src/app/form/own-data/own-data.component.spec.ts`
+    - `ACS-Frontend/src/app/form/own-unit/own-unit.component.spec.ts`
+- Verification:
+  - `npm run build`: success
+  - `npm test -- --watch=false --browsers=ChromeHeadless`: success (`16 passed / 0 failed`)
+  - `npm audit`: total `10` (`moderate: 7`, `high: 3`)
+- Alert counts:
+  - Before: npm audit vulnerabilities `10`
+  - After: npm audit vulnerabilities `10` (test stabilization batchのため件数は据え置き)
+- Remaining issues:
+  - npm vulnerabilities `10` の解消は依存更新の次バッチで継続

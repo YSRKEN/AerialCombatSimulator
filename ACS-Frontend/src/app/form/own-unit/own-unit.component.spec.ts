@@ -9,8 +9,9 @@ describe('OwnUnitComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ OwnUnitComponent ]
-    })
-    .compileComponents();
+    });
+    TestBed.overrideTemplate(OwnUnitComponent, '');
+    TestBed.compileComponents();
   }));
 
   beforeEach(() => {

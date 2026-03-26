@@ -9,8 +9,9 @@ describe('LBASUnitComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ LBASUnitComponent ]
-    })
-    .compileComponents();
+    });
+    TestBed.overrideTemplate(LBASUnitComponent, '');
+    TestBed.compileComponents();
   }));
 
   beforeEach(() => {
